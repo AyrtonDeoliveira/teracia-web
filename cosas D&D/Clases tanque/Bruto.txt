@@ -1,0 +1,11 @@
+Bruto
+
+clase daño/tanque
+
+pasiva: solo puede atacar con críticos, si falla 3 veces obtiene un golpe asegurado
+
+cabeza dura: recibe la mita del daño x2 turnos
+
+bronca: causa x3 de daño x2 turnos
+
+canalización: sube su daño y sus golpes causan hemorragia al golpear 3 veces

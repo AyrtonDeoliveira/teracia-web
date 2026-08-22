@@ -1,0 +1,11 @@
+Clérigo
+
+clase mágica/soporte
+
+castigo: castea un rayo que causa daño sagrado y eléctrico
+
+revivir: aplica un efecto de estado que salva de la muerte a quien lo tenga por 2 turnos
+
+curación: cura a un aliado con un D9
+
+canalización: lanza un rayo a cada enemigo y cura el daño hecho a los aliados

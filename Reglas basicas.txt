@@ -1,0 +1,73 @@
+[Puntos de Habilidad
+
+Los puntos de habilidad ayudan a la interacción del personaje con el mundo o sus habilidades, estos puntos se dividen en 6:
+
+Fuerza: cada 5 puntos hasta 10, se consiguen requerir un numero menos o dos al atacar y lo mismo pasa con las habilidades de fuerza, esto no hace que esa compensación vuelva un numero normal en uno critico
+
+Destreza: cada 5 puntos hasta 10, se consiguen requerir un numero menos o dos en los turnos menores y lo mismo pasa con las habilidades de destreza, esto no hace que esa compensación vuelva un numero normal en uno critico
+
+Perspicacia: cada 5 puntos hasta 10, se consiguen requerir un numero menos o dos al hacer acciones de deteccion y lo mismo pasa con las habilidades de perspicacia
+
+Fe: cada 5 puntos hasta 10, se consiguen requerir un numero menos o dos al hacer tiradas de salvacion y lo mismo pasa con las habilidades de fe, esto no hace que esa compensación vuelva un numero normal en uno critico
+
+Inteligencia: cada 5 puntos hasta 10, se consiguen requerir un numero menos o dos al atacar con magia y lo mismo pasa con las habilidades de inteligencia, esto no hace que esa compensación vuelva un numero normal en uno critico
+
+Carisma: cada 5 puntos hasta 10, se consiguen requerir un numero menos o dos al persuadir un enemigo y lo mismo pasa con las habilidades de carisma]
+
+[Reglas de Combate
+
+Turnos: los personajes normalmente tienen un turno menor y un turno de ataque. El turno menor se usa para moverse, tomar objetos, etc, y para estas tiradas se necesita 10 para arriba de D20. El turno de ataque o acciones importantes requieren de 15 para arriba en D20]
+
+[Reglas de dado
+
+Fallo critico: 1-5, esto hace que en caso de movimiento el personaje se caiga y en caso de ataque entre en momento de contraataque
+Fallo: 6-9, no pasa nada al fallar
+Acierto pequeño: 10-14, permite hacer acciones pequeñas, si no es para eso es una falla
+Acierto: 15-17, puede realizar ataques y acciones mayores
+Acierto critico: 18-20, el efecto de su intensión se duplica]
+
+[Regla de roles
+
+Rol de ataque: las clases que pertenecen a este rol tiene un dado de daño D6
+
+Rol de soporte: las clases que pertenecen a este rol suben un punto de habilidad extra
+
+Rol de mago: las clases que pertenecen a este rol empiezan con 3 de maná en lugar de 2
+
+Rol de rango: las clases que pertenecen a este rol tienen rango infinito de ataque
+
+Rol de tanque: al subir de nivel usan un D10 en lugar de D6]
+
+[Reglas de contraataque
+
+Al fallar un ataque de manera critica, ambos tiran un D20, quien tenga un mayor numero gana, si gana el que fallo el ataque se salva del ataque, pero si vuelve a fallar recibe un ataque que no gasta el turno.
+
+Si el ataque es mágico y no a quemarropa solo un mago puede contraatacarlo, si el ataque fallado es físico solo se puede contraatacar de manera física.
+
+En el momento del contraataque no se pueden utilizar habilidades o ítems para responder]
+
+[Reglas de niveles
+
+Al subir de nivel toda la vida del jugador vuelve al máximo y su maná también, se tira un D6 para subir el limite de vida.
+
+Cada 5 niveles el jugador consigue elegir su siguiente habilidad y obtiene +1 al máximo de maná, las habilidades fuera de la primera necesitan 2 de maná]
+
+[Canalizaciones
+
+Las canalizaciones son habilidades que solo se consiguen al ultimo nivel y estas tardan 3 turnos es poder usarse pero no gastan maná. Algunas canalizaciones si pueden variar su tiempo de preparacion]
+
+[Regla de 3
+
+En este mundo la magia le hace x2 de daño a lo sagrado y recibe la mitad de daño de este, lo sagrado le hace x2 a lo no-muerto y recibe la mitad de daño de este y lo no-muerto le hace x2 a lo mágico y recibe la mitad de daño de este]
+
+[Efectos de estado
+
+Congelación: funciona después de 3 etapas, al acumular las 3 congelaciones el enemigo se vuelve un bloque de hielo hasta ser atacado 
+
+Fuego: inflige D4 de daño durante que atraviesa armadura por 3 turnos
+
+Sangrado: aumenta +3 el daño recibido durante 2 turnos, puede subir hasta 3 niveles aplicando el efecto encima de un enemigo ya afectado
+
+Veneno: hace un daño igual al 5% de la vida máxima del enemigo, 2% en caso de jefes
+
+Electricidad: el daño se transmite en un área 3x3 haciendo 4 de daño]

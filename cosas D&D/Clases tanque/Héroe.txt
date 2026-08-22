@@ -1,0 +1,26 @@
+Héroe
+
+clase daño/tanque
+
+Mecánica: no puede comprar armas ni armaduras más allá de las de su propia clase
+
+Diluvio: crea una lluvia de espadas para cada enemigo, creando 3 espadas por enemigo (se pueden esquivar)
+
+Espada del héroe:
+[A nivel uno: por defecto aplica daño sagrado
+A nivel dos: puede multiplicar su daño por la cantidad de enemigos
+A nivel máximo: le cura 6 de vida por golpe dado]
+
+-Guantelete: Cargando su golpe asegura un noqueo (
+1°turno de carga: empuja al enemigo 
+2°turno de carga: noquea a un enemigo por 1 turno 
+3°turno: atrapa a un enemigo como escudo)
+
+-Armadura celestial: Al subir a la armadura a nivel 3: evita que sus ataques sean anulados a no ser por noqueos o destellos
+
+Canalización 1: Después de un turno de espera, el héroe hace una estocada que atraviesa armadura y deja hemorragia
+
+Canalización 2: Después de dos turnos de espera, el héroe lanza dos cortes en X que deja hemorragia nivel 2
+
+Canalización 3: Tarda 3 turnos en cargarlo y atraviesa al enemigo con una estocada mientras que con el guantelete le lanza un rayo divino del triple de su daño
+

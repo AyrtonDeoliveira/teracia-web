@@ -1,0 +1,11 @@
+Verdugo
+
+clase daño
+
+absorción de almas: sube +1 en vida y daño en pelea por enemigo eliminado
+
+destrozo: su siguiente golpe evita inmunidades o buffos enemigos pero no toma amplificaciones de daño
+
+autoestima baja: baja el daño de un enemigo (no sirve en el momento de recibir un golpe)
+
+canalización: con 1d4 determina la cantidad de golpes que da, cada uno de esos golpes da sangrado

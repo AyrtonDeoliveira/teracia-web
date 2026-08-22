@@ -1,0 +1,9 @@
+Guardian
+
+clase tanque
+
+defensa férrea: se suma 3 de armadura
+
+purificación: elimina todas sus debilidades, ignora el daño pasivo y los efectos de estado por 3 turnos
+
+canalización: asegura un golpe que suma lo que le falta de vida, sus puntos de armadura y su daño

@@ -1,0 +1,13 @@
+Asesino
+
+clase daño
+
+pasiva: sus ataques causan sangrado y si un enemigo muere por sangrado consigue +1d en pelea
+
+puñalada: su daga atraviesa armadura x2 turnos
+
+sal a la herida: amplifica su daño por cada nivel de hermorragia que tiene el enemigo
+
+movimiento fluido: puede atacar hasta 3 enemigos que tenga a melee
+
+canalización: el sangrado que aplica es doble

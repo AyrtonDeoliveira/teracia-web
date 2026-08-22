@@ -1,0 +1,26 @@
+Mago Cazador (Rango de ataque 3x3) [tiene 2 enemigos simples de aliados]
+
+	HP: 30
+	Daño: D4-1
+	Maná: 5
+
+Habilidades:
+
+Efectos: aplica un efecto distinto (los efectos son quemadura, veneno, congelación, electricidad, confusión y ceguera) [escala con inteligencia] (habilidad tipo estado)
+	
+Sueño: duerme al enemigo por 3 turnos [escala con inteligencia] (habilidad tipo estado)
+
+Fatiga: suma un modificador de -1 al dado de daño enemigo por 2 turnos [escala con inteligencia] (Habilidad tipo estado)
+
+Estadísticas internas:
+
+Fuerza: 0
+Destreza: 5
+Carisma: 1
+Perspicacia: 3
+Inteligencia: 6
+Fe: 2
+
+Propósito del combate: Que el jugador comprenda como son los efectos de estado y que hace cada uno de ellos, pudiendo también demostrar como funcionan las resistencia, inmunidades o vulnerabilidades
+
+Desbloqueos: Armas celestes y un fragmento cristal oscuro

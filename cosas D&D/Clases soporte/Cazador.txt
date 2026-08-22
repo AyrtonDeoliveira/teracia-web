@@ -1,0 +1,11 @@
+Cazador
+
+clase rango/soporte
+
+pasiva: puede disparar dardos de cada tipo de daño
+
+dinamita: tiene 3 casillas de distancia
+
+conjuro: hace daño no-muerto
+
+canalización: invoca una bestia, esta tiene 2 turnos de movimiento y 1 de ataque, su daño es D8, su tamaño es de 4 casillas y su vida es de 35

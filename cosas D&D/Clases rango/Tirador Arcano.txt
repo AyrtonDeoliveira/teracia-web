@@ -1,0 +1,11 @@
+Tirador Arcano
+
+clase rango
+
+pasiva: tiene 3 flechas mágicas que hacen D8, al acertarlas estas crean maná en el suelo
+
+protocolo: el maná en el suelo explota haciendo D4 y empuja
+
+marca: dispara 2 flechas mágicas y por cada daño que recibe ese enemigo obtiene +1 de maná por 2 turnos
+
+canalización: marca una zona 4x4 y dispara a los enemigos en la zona con flechas mágicas sin gastar las guardadas

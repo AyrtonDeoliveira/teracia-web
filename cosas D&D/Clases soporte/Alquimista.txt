@@ -1,0 +1,11 @@
+Alquimista
+
+clase soporte
+
+pasiva: puede explorar y conseguir objetos para crear pociones únicas
+
+somnífero: duerme a los enemigos hasta que sean atacados o por 2 turnos
+
+agilidad: le permite a un aliado salvarse de ataques enemigos durante 2 turnos
+
+canalización: lanza una poción de veneno a cada enemigo y una poción a elección a los aliados

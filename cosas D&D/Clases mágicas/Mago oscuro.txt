@@ -1,0 +1,11 @@
+Mago oscuro
+
+clase mágica
+
+bola sombra: causa ceguera por un turno
+
+velo nocturno: en dos turnos fuerza un escenario de noche y duplica sus estadísticas (solo al usar la habilidad, no por ser de noche)
+
+corte sombra: roba la sombra del enemigo que usa su características (se gasta daño y maná para dar sus estadísticas)
+
+canalización: gasta su daño y crea una sombra que cura a todos por 2 turnos

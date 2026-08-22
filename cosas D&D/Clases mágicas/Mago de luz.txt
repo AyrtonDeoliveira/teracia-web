@@ -1,0 +1,13 @@
+Mago de luz
+
+clase mágica
+
+pasiva: puede volar
+
+orbe eléctrico: causa daño eléctrico que se dispersa
+
+luz cegadora: ciega a todos los enemigos por 1 turno
+
+canalización 1: se vuelve un serafin, todo su daño sube y es eléctrico y sagrado
+
+canalización 2: crea un sol artificial y potencia habilidades de luz, fuego y sagrado

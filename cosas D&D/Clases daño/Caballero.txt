@@ -1,0 +1,13 @@
+Caballero
+
+clase daño
+
+pasiva: su primer golpe stunea 3 turnos (no habilidades)
+
+suplex: aturde 3 turnos, si falla se aturde 1
+
+pogo: rebota encima del enemigo, si son mas de uno tiene la capacidad de rebotar hasta que falle o hasta haber saltado encima de todos
+
+panzaso: cae encima de los enemigos
+
+canalización: aturde a todos los enemigos a la vez

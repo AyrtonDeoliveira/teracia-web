@@ -1,0 +1,36 @@
+Demonio de Luna (Rango 3x3) [Solo]
+
+	HP: 140
+	Daño: 2D12
+	Maná: 36
+
+Habilidades:
+
+Floración de manos: salen manos a su alrededor y le otorgan 8 de armadura [escala con inteligencia] (habilidad tipo ataque)
+
+Sincronía: si tiene un efecto de estado hace que el enemigo lo tenga [escala con perspicacia] (habilidad tipo estado)
+
+Avanicos: coloca 8 manos en patron de doble abanico que atacan hacia el lado incovado [escala con destreza] (habilidad tipo salvacion-preparacion)
+
+Mal camino: marca una linea recta y hace D20+5 [escala con fe] (habilidad tipo salvación)
+
+Pasivas:
+
+A 75% de vida puede reintentar movimiento si falla
+
+A 50% de vida crea un espejismo de el mismo
+
+a 25% de vida el espejismo desaparece y consigue un turno extra de ataque, uno de esos ataques es asegurado
+
+a 10% de vida su movimiento por casillas aumenta de 4 a 6
+
+Estadísticas internas:
+
+Fuerza: 3
+Destreza: 15
+Carisma: 4
+Perspicacia: 3
+Inteligencia: 26
+Fe: 23
+
+Propósito del combate: Aplicar lo aprendido a través de la aventura y resistir en el combate

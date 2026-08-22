@@ -1,0 +1,9 @@
+Nigromante
+
+Generación de almas: crea un alma que tiene 3 de vida y D4 de daño, cuenta como un jugador mas controlado por el nigromante [escala con fe] (habilidad tipo ataque)
+
+Necronomicón: causa un D6 de daño en todo el escenario [escala con inteligencia] (habilidad tipo ataque)
+
+Resurrección: revive a un aliado con la mitad de la vida, 3/4 si es no-muerto [escala con fe] (habilidad tipo reacción)
+
+proyección: lanza un proyectil, donde cae es una zona por la que se puede lanzar un ataque o habilidad y dura 3 turnos [escala con inteligencia] (habilidad tipo preparación)

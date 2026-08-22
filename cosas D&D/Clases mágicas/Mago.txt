@@ -1,0 +1,11 @@
+Mago
+
+clase mágica
+
+pasiva: genera maná de manera pasiva al no usarla
+
+orbes mágicos: ataca con 6 orbes a elección, se puede usar salvación para esquivarlo
+
+lanza mágica: una lanza recta que puede atravesar hasta 3 enemigos
+
+canalización: aumenta su dado y restaura todo su maná

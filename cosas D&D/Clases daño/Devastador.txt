@@ -1,0 +1,13 @@
+Devastador
+
+clase daño
+
+pasiva: causa mas daño si tiene armas que le pueden hacer daño
+
+frenesí: si el siguiente ataque mata a un enemigo, le hace la mitad de daño a un enemigo aleatorio
+
+sin escape: si el siguiente golpe pega puede volver a pegar
+
+terror: evita que un enemigo haga tiradas de movimiento o contra ataque
+
+canalización: atrapa a un enemigo contra los bordes y le da un turno extra y frenesí a sus aliados

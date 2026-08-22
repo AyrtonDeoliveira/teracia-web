@@ -1,0 +1,13 @@
+Explorador
+
+clase soporte
+
+pasiva: puede usar detección para descubrir fortalezas, debilidades o habilidades del enemigo y por tipo de enemigo se sube un solo punto de habilidad al azar
+
+doble turno: le da un turno extra a un aliado aun por fuera de turno
+
+destello: deja ceguera por un turno
+
+aceite: escupe aceite frente a su antorcha y lanza fuego
+
+canalización: inventa una debilidad al enemigo

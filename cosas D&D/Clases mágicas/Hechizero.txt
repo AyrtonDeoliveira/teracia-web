@@ -1,0 +1,56 @@
+Hechizero
+
+clase mágica
+
+Reglas del personaje en base al maná:
+-pierde maná cuando recibe daño (1 de maná)
+-cuando su maná baja a 0, se recarga pasivamente (se carga de 5 en 5)
+-cuando su maná se está recargando, no
+-se pueden jugar todas las cartas a la vez
+-se puede jugar una cargar una carta y luego cargar maná
+-se puede jugar una carta y llenar el hueco de manera instantánea
+-descartar una carta gasta un turno entero
+-llamar una carta gasta un turno entero
+-las cartas naranjas cuestan 5 de maná
+-las cartas violetas cuestan 10 de maná
+-las cartas rojas cuestan 15 de maná
+-se puede hacer un cambio de mazo y luego jugar una carta en mano]
+
+canalización ataque: es un ataque que golpea 5 veces a un enemigo y atraviesa su armadura, su tamaño es 1x3x3
+
+canalización organización: conjura las cartas que quiere en su mano
+
+Cartas:
+*Maná Recovers*
+1-reduce el coste de maná
+2-recupera maná automáticamente
+3-recupera automáticamente 3 maná
+
+*Juego Frenético*
+1-crea cartas en los espacios vacios
+2-descarta todas las cartas y crea 4 nuevas
+3-cuando se usa una carta llena el espacio vacío
+
+*Bastones*
+1-baston que atrasa un golpe un turno
+2-baston que asegura un golpe en el siguiente turno
+3-baston que interrumpe el golpe enemigo
+4-baston que atrasa el golpe enemigo un turno
+5-baston que suma un golpe al ataque
+6-baston que repele ataques de rango
+
+*Ataques Mágicos*
+1-proyectil único
+2-proyectil de dos golpes
+3-triple proyectil
+4-explosión en área
+5-lanza 8 proyectiles en 2 oleadas
+6-lanza un proyectil de 7 hits que atraviesa y se tiene que tirar dados para ver cuantas veces pega
+7-golpe bajo el suelo y lanza al enemigo al aire
+8-golpe superior que atraviesa armadura
+9-golpe bajo que congela
+10-lanza múltiples proyectiles que suma su cantidad por turno máximo 5
+11-multiplica su daño por cada carta usada antes máximo 4
+12-se teletransporta evitando el golpe enemigo
+13-hace que el próximo hechizo después de usarse no se descarte
+14-se cambia por un hechizo rojo

@@ -1,0 +1,28 @@
+Armaduras Celestes
+
+Coraza celeste: +3 Fuerza, +3 armadura
+
+Guantes celestes: +3 perspicacia, +2 destreza
+
+Botas celestes: +3 destreza, +1 armadura
+
+Amuleto celeste: +3 fe, +2 inteligencia
+
+Anillo celeste: +3 carisma, +2 perspicacia
+
+
+Armas celestes
+
+Mazo Celeste: D8+D4, daño explosivo, por enemigo alcanzado por explosión otorga +1 al enemigo que recibió el ataque*
+
+Lyra Celeste: D4+2, permite salvar tiradas fallidas de un aliado, si lo logra le sube vida a ambos
+
+Lanza celeste: 2D4, daño de fuego, por cada enemigo prendido fuego recibe +1 de armadura
+
+Ballesta Celeste: D6+D4, recupera instantáneamente las flechas falladas, solo pierde las atinadas
+
+Cetro Celeste: D4+1, daño electrico, crea casillas que al ser pisadas hace 3 de daño al enemigo
+
+Glosario:
+
+	(Explosion: el daño de explosión por cercania es el que sale de un D8, no se aplica para el que recibió el ataque)

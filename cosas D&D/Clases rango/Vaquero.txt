@@ -1,0 +1,11 @@
+Vaquero
+
+clase rango
+
+pasiva: sus balas son limitadas pero hace doble dado de daño
+
+espejismo: su tiro es doble pero gasta una sola bala
+
+ruleta rusa: tira un D6, si el numero es superior a 1 hace daño garantizado al enemigo, si es uno se hace daño a el mismo
+
+canalización: con un rifle elimina a un enemigo normal, si no es un enemigo normal le hace 3D10

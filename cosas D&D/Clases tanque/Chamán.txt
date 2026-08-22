@@ -1,0 +1,11 @@
+Chamán
+
+clase tanque/mágica
+
+preparación: crea un totem, los ataques duran un turno mas en salir pero necesitan 2 números menos para pegar, el totem muere a un golpe
+
+burbuja: crea un totem escudo que cubre a 2 compañeros, la vida depende del maná que se gaste, 1 de maná = 4 de vida
+
+ritual inverso: tarda 2 turnos e invierte el efecto de los tótems y los aplica al enemigo
+
+canalización: su cuerpo se llena de tatuajes y durante 3 turnos ciega a los enemigos que le hagan daño

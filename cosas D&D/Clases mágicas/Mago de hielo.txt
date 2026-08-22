@@ -1,0 +1,13 @@
+Mago de hielo
+
+clase mágica
+
+pasiva: el uso de hielo común no gasta maná
+
+escultura de hielo: ralentiza a enemigos en área y/o congela al contacto
+
+fuerte de hielo: es una protección para aliados  que solo permite acceso y salida de ataques de rango
+
+granada de hielo: ralentiza un grupo de enemigos
+
+canalización: congela a todos los enemigos y hace 3 tiradas de daño

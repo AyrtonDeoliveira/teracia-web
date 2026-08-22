@@ -1,0 +1,15 @@
+Vampiro
+
+clase daño/tanque
+
+pasiva: de dia tiene doble de daño pero sufre el doble y viceversa de noche
+
+pasiva 2: puede manipular sangre para crear armas
+
+robo de sangre: se cura la mitad del daño que le hace a un enemigo con sangre
+
+rayo sanguíneo: ataque de rango que causa sangrado y desgasta armadura
+
+transformación: se tranforma en múrcielago y puede volar además de evitar debilidades horarias
+
+canalización: su arma de sangre aumenta su daño por turno sin atacar, el daño aumenta extra si hay enemigos con hemorragia

@@ -1,0 +1,11 @@
+Monje
+
+clase soporte/mágica
+
+pasiva: almacena 12 puntos de curación, cada ataque almacena 2 y se lo puede dar a aliados o a si mismo
+
+plegaria: le da curación pasiva de 2 a un aliado, si este recibe daño se pierde el estado, no protege de daños
+
+espíritu santo: tiene una segunda oportunidad en un ataque, ya sea que fallo el ataque o elimino un enemigo
+
+canalización: se vuelve inmortal y la vida de sus compañeros no puede bajar de 1, pero ya no tiene turno de ataque por 2 turnos

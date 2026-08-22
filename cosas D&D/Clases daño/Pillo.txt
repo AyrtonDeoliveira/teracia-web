@@ -1,0 +1,11 @@
+Pillo
+
+clase daño
+
+pasiva: puede atacar con 14 y 13 pero hace la mitad del daño
+
+parry: refleja ataques (coherentes) y puede hecer contra x2 si es melee
+
+backstab: puede entrar en sigilo en el combate, al atacar en sigilo causa x2 pero deja de estarlo
+
+canalización: puede robar el arma enemiga con su tirada, en caso de fallar puede volver a cargarla

@@ -1,0 +1,42 @@
+Luchador
+
+clase daño
+
+Particular: cuenta con barra de estamina, adicional a sus otros atributos
+Reglas: el luchador está obligado a cambiar de estilo cada 3 turnos
+Pasiva: los golpes gastan 5 de estamina
+
+Estándar[
+En este estado el luchador puede usar armas cuerpo a cuerpo y demás
+Canalización: el luchador multiplica su estamina por 2 y puede luchar con cualquiera de los 3 modos por 2 turnos
+
+Boxeo[
+(todos sus golpes críticos noquean por un turno)
+(Puede golpear 2 veces en un turno, si logra golpear una tercera le gasta 30 de esta mina y si es crítico el noqueo es de 2 turnos)
+
+Espíritu de guerrero: mantiene vivo al boxeador mientras lance golpes, mínimo 2 en el turno(dura 2 turnos y gasta 90 de estamina)
+
+Parry perfecto: cuando recibe un golpe tira el dado con un mínimo de 10 y también hace daño
+
+Canalización (ring para dos): está canalización dura 3 turnos, el daño y la estamina del luchador se triplican, la cantidad maxima de combinación pasa de dos a tres sin usar el uppercut, si el enemigo cae 3 veces antes de que terminen los 3 turnos el luchador lo vence por K.O, el enemigo solo tiene 3 oportunidades de levantarse con el dado ]
+
+Barijatsu[
+(Todos sus golpes críticos le cargan 20 de estamina) 
+
+Huracán: no hace daño pero elimina las armas del enemigo (vuelven a los 2 turnos) si hay clases de rango su daño se multiplica x2 por dos turnos (gasta 60 de estamina)
+
+Danza: esquiva ataques enemigos (gasta 40 de estamina por golpe esquivado)
+
+Ulti reactivable, después de canalizar x cada ataque esquivado obtiene 5 de daño, una ves q le pegan el daño de la ulti se le termina, puede volver a canalizarla ]
+
+Muay Thai[
+(si saca crítico deja hemorragia)
+(Puede cargar los golpes para hacer x2)
+
+Golpe bala: el golpe del luchador atraviesa armadura y con x2 de daño (gasta 80 de estamina)
+
+Instinto asesino: al último enemigo que dejó con sangrado le saca el estado y se cura 5 (gasta 90 estamina)
+
+Calentamiento: el próximo golpe que reciba en los siguientes 2 turnos suma 2 de daño (gasta 20 de estamina por golpe recibido)
+
+Canalización: esta canalización tarda 4 turnos en cargarse pero el luchador multiplica su daño x2, su daño se vuelve explosivo y dura 3 turnos ]

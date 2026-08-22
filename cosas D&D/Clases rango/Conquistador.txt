@@ -1,0 +1,11 @@
+Conquistador
+
+clase rango
+
+pasiva: contra jefes tiene 2 de armadura
+
+ojo de águila: baja 2 al armadura enemiga 
+
+calculo: hace caer a enemigos voladores o rebota entre enemigos
+
+canalización: obtiene 3 balas extra y sus disparos son electricos

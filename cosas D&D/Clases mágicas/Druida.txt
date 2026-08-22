@@ -1,0 +1,11 @@
+Druida
+
+clase mago/soporte
+
+pasiva: puede transformarse en animales
+
+espinas: enreda al enemigo en espinas venenosas por un turno
+
+centinela: crea un guardián de raíces
+
+canalización: crea una planta encima suyo que ataca constantemente

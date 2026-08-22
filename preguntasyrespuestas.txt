@@ -1,0 +1,86 @@
+¿El jugador crea su personaje desde cero —nombre, aspecto, clase— o elige entre tres personajes prediseñados? Para septiembre, recomiendo: nombre + clase + apariencia muy simple.
+
+¿Se podrán tener varios personajes por cuenta desde la beta, o uno solo? Recomiendo permitir varios si la base de datos lo hace sencillo, pero limitar la historia a una aventura por personaje.
+
+¿Cómo será el mapa?
+¿Un mundo explorable con movimiento libre, o una secuencia de nodos/pantallas entre diálogos y combates? Recomiendo nodos/pantallas: mantiene la sensación de aventura y reduce muchísimo el trabajo.
+
+¿Cómo imaginan exactamente el tablero de combate?
+Por ejemplo: cuadrícula 2D con casillas, jugador y enemigos que se mueven; o combate por posiciones más simples (frente, medio, fondo). Esto define la dificultad técnica.
+
+De estas mecánicas, ¿cuáles son obligatorias en el primer combate?
+Movimiento en casillas.
+Ataque normal con D20.
+Daño con D6/D10.
+Vida.
+Maná.
+Armadura.
+Efectos de estado.
+Contraataques.
+Tiradas de salvación.
+Canalizaciones.
+Mi recomendación inicial: movimiento, D20 visible, vida, daño, armadura simple, maná para una clase y uno o dos estados. Contraataques y canalizaciones pueden entrar solo si queda tiempo.
+
+¿Cuáles son las tres clases candidatas? Recomiendo que sean simples y diferentes:
+Guerrero/Bruto o Escudero: combate cercano y defensa.
+Arquero: rango y posicionamiento.
+Mago de hielo o Piromántico: maná y efectos de estado.
+
+¿Quieren que las tres clases sean opciones del jugador, o que el jugador elija una y las otras aparezcan como NPC aliados? Para una beta de 30 minutos, ambas sirven; que sean elegibles demuestra más variedad, pero requiere probar tres estilos.
+
+¿La historia tendrá compañeros NPC permanentes, o el personaje viaja solo? Si hay compañeros, ¿se controlan en combate o actúan automáticamente?
+
+¿Cuál es el estilo de fantasía que quieren para Teracia? Necesito una frase guía, por ejemplo: “fantasía medieval oscura con humor”, “aventura heroica colorida”, o “mundo serio de reinos y magia peligrosa”.
+
+¿Qué resolución y estilo visual prefieren para el pixel art? Por ejemplo, vista cenital tipo RPG clásico, lateral, o combate por tablero visto desde arriba.
+
+¿Ayrton ya tiene preferencias tecnológicas? Si no, mi recomendación provisional es una aplicación web con React + TypeScript, un motor 2D como Phaser para combate/mapa, y Supabase para autenticación y base de datos. Es una combinación adecuada para publicar gratis, guardar progreso y separar bien la parte de juego de la web.
+
+¿La aplicación estará en español solamente?
+
+¿Quieren que haya una cuenta de prueba para que el jurado pueda entrar fácilmente, además de poder registrarse?
+
+¿Qué les piden o qué esperan mostrar en la presentación final? ¿Una demostración en vivo, explicación técnica, proceso de desarrollo, o todo eso?
+
+¿Pueden reservar una reunión fija semanal de equipo? Recomiendo una de 30–45 minutos: revisar avance, bloquear cambios de alcance y decidir la tarea de cada uno.
+
+
+
+
+
+
+
+
+
+
+
+
+1- depende de como lo hable con el grupo, para mi si podria haber cosas customizables como el color de los ojos o de piel. el color de ropas que otorgan las clases y obviamente el nombre propio de los personajes
+
+2- yo estimo que si se podrá, quizas unos 6 o 10 archivos de guardado
+
+3- es un escenario controlado con movimiento medio libre pero con pocos puntos de interaccion y exploracion, todos de la historia principal y secuencial
+
+4-un tablero donde los personajes se mueven por casillas y las habilidades dependiendo de su tipo tiene cierto rango de casillas
+
+5-el movimiento por casillas, las acciones con D20, los daños con D4 y D6, la vida, el maná, los efectos de estado, los contraataques, las tiradas de salvacion y quedan afuera las canalizaciones porque terminan siendo habilidades muy tardadas para lo que buscamos
+
+6-son 5 clases, una de cada tipo, paladin para clases de daño y un juego balanceado entre ataque y defensa, escudero para clases de tanque y un juego estrategico y de resistencia, bardo para clases de soporte y un juego de potenciacion aliada, nigromante para clases magicas y un juego de sumoner y control del espacio y arquero para clases de rango y un juego de control y siempre disponibilidad
+
+7-las clases son opciones del jugador y otros jugadores, no comprendo la complicacion de la pregunta
+
+8-el personaje viaja solo para simplificar el trabajo de programacion
+
+9-fantasia lugubre y seria pero no abrumadora o atosigante
+
+10-combate por tablero visto desde arriba
+
+11-no me corresponde responder
+
+12-si, estará solo en español
+
+13-nose
+
+14-yo tengo la idea de poder mostrar un juego de estrategias cooperativo donde se puedan explorar las habilidades magicas conseguidas por niveles y las mecanicas explicadas gracias a los jefes. Supongo que yo puedo explicar el desarrollo, cosas como el maná y habilidades o como se pensó el desarrollo de jugabilidad
+
+15-solo por mensaje y no puedo asegurar nada de mi parte

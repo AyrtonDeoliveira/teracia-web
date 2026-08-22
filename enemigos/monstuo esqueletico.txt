@@ -1,0 +1,26 @@
+Monstruo Esquelético (Rango Melee) [tiene 3 aliados medianos]
+
+	HP: 60
+	Daño: 2D6-4
+	Maná: 5
+
+Habilidades:
+
+Asalto: salta 4 casillas para hacer D12+6 de daño [escala con destreza] (habilidad tipo salvación)
+
+Veneno: lanza como mortero un explosivo venenoso que hace D4+D6 de daño, rango 3x3 de alcance y 3x3 de efecto [escala con destreza] (habilidad tipo advertencia-salvación)
+
+Giro: a una distancia melee hace 3D4 y causa sangrado [escala con destreza] (habilidad tipo salvación)
+
+Estadísticas internas:
+
+Fuerza: 2
+Destreza: 12
+Carisma: 1
+Perspicacia: 9
+Inteligencia: 6
+Fe: 2
+
+Propósito del combate: Aprender como funciona la mecánica de salvación, reconocer cuando dejar de presionar al enemigo y hacer brillar habilidades defensivas
+
+Desbloqueos: Armaduras celestes y ultimo fragmento cristal oscuro

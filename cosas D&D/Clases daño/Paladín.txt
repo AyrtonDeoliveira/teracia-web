@@ -1,0 +1,13 @@
+Paladín
+
+Pasiva: puede accionar un escudo de forma reactiva gastando 1 de maná [escala con destreza] (habilidad tipo reactivo)
+
+Destello: con la habilidad de escudo, al frenar un ataque aplica ceguera en el enemigo [escala con fe] (habilidad tipo reactiva)°
+
+Descarga: lanza un ataque melee eléctrico [escala con fe] (habilidad tipo ataque)°
+
+Martir: si el enemigo no ataca al paladin los siguientes 2 turnos sufre un D6 de daño fuera de combate [escala con fe] (habilidad tipo estado)
+
+Glosario: las habilidades marcadas con un ° responden dudas acá
+[Electricidad: no altera el daño recibido por el objetivo principal pero causa un daño de 3 en área que ignora armadura
+ Ceguera: el enemigo requiere +2 en su numero de dado para cometer una accion]

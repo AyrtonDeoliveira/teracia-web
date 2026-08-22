@@ -1,0 +1,11 @@
+Capitán Pirata
+
+clase rango
+
+sanación: se cura un D6
+
+cañón: tarda 2 turnos en cargarse pero su daño es un D10 y baja 5 de armadura
+
+bala marcada: causa sangrado
+
+canalización: invoca su navío fantasma y lanza D8 ataques de D4 de daño

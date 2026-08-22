@@ -1,0 +1,11 @@
+Escudero
+
+Mecanica Escudo: posee un escudo de 3 casillas que no recibe efectos de estado o daño critico, la vida del escudo vale 1/2 de la vida del jugador y al romperse se cura pasivamente hasta poder usarse, mientras el escudo esta puesto no se puede atacar
+
+Persecución: avanza 7 casillas hasta al enemigo y le hace 2D4 de daño [escala con destreza] (habilidad tipo movimiento-ataque)
+
+Separación: empuja a todos los enemigos que esten encima del escudo haciendo D4 [escala con fuerza] (habilidad tipo ataque)
+
+Lanzamiento: lanza el escudo y vuelve a la mano y hace D6, tiene un rango 3x3, en caso de falla se pierde hasta recuperarlo [escala con fuerza] (habilidad tipo ataque)
+
+Reaccion: en situación de contraataque, se salva del error y hace daño [escala con destreza] (habilidad tipo reactivo)

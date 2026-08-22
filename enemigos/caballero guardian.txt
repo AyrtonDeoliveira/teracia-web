@@ -1,0 +1,27 @@
+Caballero Guardian (Rango melee) [tiene 1 enemigo simple de aliado]
+
+	HP: 45
+	Daño: 2D4+2
+	Maná: 4
+
+Habilidades:
+
+Cuerpo Robusto: Agrega una armadura de 3 a si mismo por 3 turnos [escala con fuerza] (habilidad tipo ataque)
+
+Purificacion: limpia y deja de recibir efectos de estado [escala con fe] (habilidad tipo reactivo)
+
+Lanzamiento: mueve a un enemigo o un aliado a 4 casillas de distancia [escala con fuerza] (habilidad tipo ataque)
+
+
+Estadísticas internas:
+
+Fuerza: 7
+Destreza: -5
+Carisma: 0
+Perspicacia: 3
+Inteligencia: 1
+Fe: 12
+
+Propósito del combate: Aprender como funciona la armadura, los tiempos de buff enemigo y la prioridad de objetivo
+
+Desbloqueos: objetos celestes y un fragmento cristal oscuro

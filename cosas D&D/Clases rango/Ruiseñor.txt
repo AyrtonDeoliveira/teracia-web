@@ -1,0 +1,11 @@
+Ruiseñor
+
+clase rango
+
+pasiva: puede esconder y volverse invisible (tienen que tirar detección para encontrarlo), mientras esta escondido tiene un arco, sino tiene dagas que hacen la mitad de su daño
+
+bomba de humo: lanza un gas venenoso y baja el numero de dado de los enemigos que estén adentro
+
+toque místico: sus dagas tiene efecto paralizante o de fuego
+
+canalización: lanza una flecha paralizante a cada enemigo

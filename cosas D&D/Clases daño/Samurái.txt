@@ -1,0 +1,17 @@
+Samurái
+
+clase daño
+
+pasiva: tiene un medidor de furia
+Máximo de furia=400
+furia por golpe hecho=20
+furia disminuida por golpe recibido=70
+Nivel de furia 1 (de 100 a 200): el numero de dado se suma 2
+Nivel de furia 1 (de 201 a 300): el numero de dado se suma 3
+Nivel de furia 1 (de 301 a 400): el numero de dado se suma 4
+
+meditación: baja toda su furia y recupera 5 de vida si tiene furia a nivel 1, 10 a nivel 2 y 15 a nivel 3
+
+fantasma kamikaze: invoca 3 fantasmas y cargan 15 de furia si acierta el ataque (el enemigo puede esquivarlos)
+
+canalización: su catana puede actuar por si misma, permitiéndole salvación extra, daño extra y su catana no puede morir

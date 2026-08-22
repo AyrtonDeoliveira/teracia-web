@@ -1,0 +1,61 @@
+MISIONES RANGO F
+
+ºMision: limpiar estatuas de un pueblo
+
+Rango: F
+
+Recompensa: $100
+
+ºMision: transportar carretillas con metales (protegerlo de un grupo pequeño de goblins)
+
+Rango: F
+
+Recompensa: $150
+
+ºMision: cazar 20 escarabajos magicos-no comerlos (al comer 5 escarabajos mágicos genera 1 de maná)
+
+Rango: F
+
+Recompensa: amuleto de curación (puede almacenar 1 de vida, si el daño es justo a la vida te mantiene a 1 de vida)
+
+ºMision: entrega de pociones a enfermería (encuentran a un nigromante débil, en un combate simple se emociona y se vuelve aliado)
+
+Rango: F
+
+Recompensa: $300
+
+ºMision: acabar con una infestación de kobols en una caverna (hay un pasadizo secreto que guarda una resortera [hace 2 de daño en rango] y una espada de madera [suma +1 de daño a clases que no son de ataque, a las clases de ataque les baja 1])
+
+Rango: F
+
+Recompensa: $150 + amuleto de protección (permite ver fantasmas)
+
+ºMision: revisar una pequeña mazmorra recién creada afuera de el reino (la mazmorra tiene monos, arañas y una cria de dragón (no deben matar nada, solo revisar si es peligrosa, pueden encontrar una escama de dragón bebe [es un articulo que le suma +1 de fuerza a los dracos])
+
+Rango: F
+
+Recompensa: $130
+
+ºMision: atrapar a un asesino loxodon (evitar matarlo, de lo contrario se pierde la misión) [el loxodon tiene una habilidad que crea espinas de tierra en un radio 3x3]
+
+Rango: F
+
+Recompensa: $600
+
+ºMision: acompañar mercaderia a otro reino (encuentran un civil siendo atacado por dos pillos)
+
+Rango: F
+
+Recompensa: $120
+
+ºMision: entrenar con Gerson (un anciano tortuga, se puede hacer 2 veces, se desbloquea misión S)
+
+Rango: F
+
+Recompensa: $140 - $250 la segunda vez
+
+ºMision: ayudar en la construcción de una iglesia (tienen 20 tiradas para sacar 3 críticos)
+
+Rango: F
+
+Recompensa: 1 de fuerza o 1 de fe

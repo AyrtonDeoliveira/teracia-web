@@ -1,0 +1,9 @@
+Arquero
+
+Triple flecha: le permite atacar hasta 3 enemigos a la vez [escala con destreza] (habilidad tipo ataque)
+
+Flecha bomba: ataca y causa D8 de daño en área [escala con perspicacia] (habilidad tipo ataque)
+
+Tiro certero: ignora armadura [escala con perspicacia] (habilidad tipo ataque)
+
+Boomerang: tiene un rango de 3x3 y hace 2D4 [escala con destreza] (habilidad tipo ataque)

@@ -1,0 +1,13 @@
+Penitente
+
+clase daño
+
+pasiva: al bajar a mitad de vida hace el doble de daño
+
+mea culpa: hace x2 pero si falla el recibe el daño
+
+estocada: gasta turno de movimiento y ataque a la vez, el golpe le hace cerrar distancia con el enemigo
+
+ensartar: cae encima del enemigo y lo ataca con la espada
+
+canalización: queda a 1 de vida pero ahora puede tirar salvación para esquivar ataques (salvación gasta movimiento)

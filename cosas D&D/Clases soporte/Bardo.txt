@@ -1,0 +1,13 @@
+Bardo
+
+Ruido desordenado: confunde a un enemigo durante 3 turnos [escala con carisma] (habilidad tipo estado)°
+
+Melodía poderosa: otorga +2 al dado de daño de un aliado durante 2 turnos [escala con carisma] (habilidad tipo estado)
+
+Musicoterapia: limpia efectos de estado propios o de aliados [escala con perspicacia] (habilidad tipo estado)
+
+Canción de cuna: duerme a un enemigo durante 2 turnos [escala con perspicacia] (habilidad tipo estado)°
+
+Glosario: las habilidades marcadas con un ° responden dudas acá
+[Confusión: causa que al fallar un ataque reciba su mismo daño o ataque a algún aliado si está en grupo
+ Dormido: mantiene sin accionar al enemigo hasta que pasen los turnos o reciba algún daño]

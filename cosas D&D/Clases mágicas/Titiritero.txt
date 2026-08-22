@@ -1,0 +1,5 @@
+Titiritero
+
+clase mágica
+
+pasiva: crea títeres que funcionan como un stock por clase, su vida cambia por cantidad en mesa

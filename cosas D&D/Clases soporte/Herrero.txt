@@ -1,0 +1,11 @@
+Herrero
+
+clase soporte
+
+pasiva: puede explorar para encontrar metales y puede fabricar armas o armaduras
+
+cadenas: atrae a un enemigo frente suyo y lo aturde un turno
+
+trampa de oso: deja una trampa de oso que gasta un turno en romperse, ya sea activa o activada
+
+canalización: crea 2 espadas infernales y le dan x3 en la pelea

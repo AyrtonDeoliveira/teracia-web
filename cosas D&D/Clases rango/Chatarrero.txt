@@ -1,0 +1,17 @@
+Chatarrero
+
+clase tanque/rango
+
+bomba adhesiva: tarda un turno en explotar y se puede adherir a los enemigos
+
+pegamento: marca posiciones en el tablero las cuales evitan turnos de movimiento
+
+canalización: crea una armadura de chatarra, su turno se reduce a uno de movimiento o ataque pero accede a sus puntos de vida completos
+
+Armadura Mecánica
+
+metralla: ataca en área con un D4
+
+bate mecánico: ataca en área con un D6 y empuja
+
+canalización: tarda un turno y lanza el robot que explota con un D20

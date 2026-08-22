@@ -1,0 +1,13 @@
+Piromántico
+
+clase mágica
+
+bola de fuego: aplica un mayor daño que la que se puede hacer normal
+
+poder interior: aumenta su daño de fuego por 3 turnos pero pierde 6 de vida
+
+pilar de fuego: crea pilares de fuego que hacen quemadura por cercanía y se puede esquivar con salvación
+
+soplete: focaliza fuego a partir de sus dedos
+
+canalización: quema a todos los enemigos y les causa su daño maximo
