@@ -38,6 +38,7 @@
     --st-electricidad:#8c7420;
     --shadow: 0 3px 0 rgba(44,32,19,0.18), 0 10px 18px -12px rgba(44,32,19,0.45);
     --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23887a5c' stroke-width='1' opacity='0.16'%3E%3Cpath d='M32 2 L62 32 L32 62 L2 32 Z'/%3E%3Ccircle cx='32' cy='32' r='4'/%3E%3C/g%3E%3C/svg%3E");
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -89,8 +90,10 @@
   body{
     margin:0;
     background:
-      radial-gradient(ellipse 90% 60% at 50% 0%, rgba(122,29,44,0.07), transparent 60%),
-      radial-gradient(ellipse 140% 100% at 50% 50%, transparent 55%, rgba(20,14,6,0.16) 100%),
+      radial-gradient(ellipse 70% 50% at 18% 8%, var(--celeste-soft), transparent 55%),
+      radial-gradient(ellipse 60% 45% at 85% 6%, var(--vino-soft), transparent 55%),
+      radial-gradient(ellipse 140% 100% at 50% 50%, transparent 50%, rgba(20,14,6,0.22) 100%),
+      var(--motif),
       var(--paper-grain),
       var(--bg);
     background-attachment:fixed;
@@ -102,6 +105,26 @@
   }
 
   img,svg{ max-width:100%; display:block; }
+
+  /* ============ AMBIENT FX ============ */
+  .embers{ position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+  .ember{
+    position:absolute; bottom:-4vh; left:var(--x,50%);
+    width:5px; height:5px; border-radius:50%;
+    background:var(--celeste);
+    box-shadow:0 0 8px 2px var(--celeste);
+    opacity:0;
+    animation:ember-rise var(--dur,14s) linear infinite;
+    animation-delay:var(--delay,0s);
+  }
+  .ember.vino{ background:var(--vino); box-shadow:0 0 8px 2px var(--vino); }
+  @keyframes ember-rise{
+    0%{ transform:translate(0,0); opacity:0; }
+    8%{ opacity:0.75; }
+    85%{ opacity:0.35; }
+    100%{ transform:translate(var(--drift,24px),-108vh); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){ .embers{ display:none; } }
 
   h1,h2,h3{
     font-family:"Almendra SC", "Fraunces", Georgia, serif;
@@ -180,8 +203,15 @@
     font-family:"Fraunces",serif; font-weight:700; font-size:1.05rem;
     letter-spacing:0.04em; text-transform:uppercase;
     color:var(--ink);
+    display:flex; align-items:center; gap:0.55rem;
   }
   .brand span{ color:var(--celeste); }
+  .brand-icon{
+    width:26px; height:26px; object-fit:cover; object-position:top center;
+    image-rendering:pixelated;
+    border:2px solid var(--line); background:var(--bg-raised);
+    box-shadow:var(--shadow);
+  }
   nav.links{ display:flex; gap:1.6rem; }
   nav.links a{
     font-family:"Space Mono",monospace; font-size:0.72rem;
@@ -195,15 +225,15 @@
   /* ============ HERO ============ */
   .hero{
     padding:clamp(3rem,8vw,6rem) 0 clamp(2.5rem,6vw,4rem);
-    border-bottom:3px double var(--line);
     position:relative;
   }
-  .hero::after{
+  .hero::before{
     content:"";
-    position:absolute; left:50%; bottom:-2px; transform:translateX(-50%) rotate(45deg);
-    width:10px; height:10px;
-    background:var(--bg);
-    border-right:3px solid var(--line); border-bottom:3px solid var(--line);
+    position:absolute; left:50%; bottom:-15px; transform:translateX(-50%) rotate(45deg);
+    width:22px; height:22px;
+    background:var(--bg-raised);
+    border:3px solid var(--celeste);
+    z-index:3;
   }
   .hero-grid{
     display:grid; grid-template-columns:1.1fr 0.9fr; gap:clamp(2rem,5vw,4rem);
@@ -284,8 +314,31 @@
   }
 
   /* ============ SECTIONS ============ */
-  section{ padding:clamp(3rem,7vw,5rem) 0; border-bottom:3px double var(--line); }
-  section:last-of-type{ border-bottom:none; }
+  section{ padding:clamp(3rem,7vw,5rem) 0; position:relative; }
+  section:not(:last-of-type)::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:-10px; height:20px;
+    background-color:var(--line);
+    background-image:
+      linear-gradient(135deg, transparent 50%, var(--bg) 50%),
+      linear-gradient(225deg, transparent 50%, var(--bg) 50%);
+    background-position:left bottom, left bottom;
+    background-size:20px 20px;
+    background-repeat:repeat-x;
+  }
+
+  /* faint section watermarks (wide screens only) */
+  #combate::before, #clases::before, #enemigos::before{
+    content:""; position:absolute; width:280px; height:320px;
+    background-repeat:no-repeat; background-position:center; background-size:contain;
+    opacity:0.5; filter:grayscale(1); mix-blend-mode:overlay; pointer-events:none;
+  }
+  #combate::before{ right:6px; top:40px; background-image:url("Sprites/guardian.png"); }
+  #clases::before{ left:0; bottom:20px; background-image:url("Sprites/char-d.png"); }
+  #enemigos::before{ right:0; top:10px; background-image:url("Sprites/skeleton-glow.png"); }
+  @media (max-width:1400px){
+    #combate::before, #clases::before, #enemigos::before{ display:none; }
+  }
 
   #mundo .lead-copy > p:first-child::first-letter{
     font-family:"Redwinger","Fraunces",serif;
@@ -296,14 +349,34 @@
     color:var(--vino);
   }
 
-  .head{ max-width:56ch; margin-bottom:2.4rem; }
-  .head h2{ font-size:clamp(1.7rem,3.6vw,2.5rem); margin-top:0.5rem; }
+  .head{
+    max-width:56ch; margin-bottom:2.4rem;
+    padding-left:1rem;
+    border-image:linear-gradient(var(--celeste), var(--vino)) 1;
+    border-left:4px solid;
+  }
+  .head h2{ font-size:clamp(1.7rem,3.6vw,2.5rem); margin-top:0.5rem; position:relative; }
   .head p{ color:var(--ink-soft); margin-top:0.9rem; }
 
   .lead-copy{ max-width:66ch; color:var(--ink-soft); }
   .lead-copy p{ margin:0 0 1.1rem; }
   .lead-copy p:last-child{ margin-bottom:0; }
   .lead-copy strong{ color:var(--ink); }
+
+  /* character customization gallery */
+  .chargallery{ display:flex; flex-wrap:wrap; gap:1.1rem; margin-top:2.2rem; }
+  .charframe{
+    margin:0; width:98px; padding:7px 7px 10px;
+    background:var(--bg-raised); border:3px solid var(--line);
+    box-shadow:var(--shadow);
+  }
+  .charframe:nth-child(odd){ transform:rotate(-2.2deg); }
+  .charframe:nth-child(even){ transform:rotate(2deg); }
+  .charframe img{ width:100%; height:auto; image-rendering:pixelated; }
+  .chargallery-cap{
+    margin-top:1rem; font-size:0.68rem; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--muted);
+  }
 
   /* rule strip: d20 outcome scale */
   .d20scale{
@@ -410,9 +483,15 @@
 
   /* enemies */
   .enemygrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.4rem; }
-  .enemycard{ border:2px solid var(--line); padding:1.3rem 1.4rem; background:var(--bg-raised); box-shadow:var(--shadow); transition:border-color 200ms ease, transform 200ms ease; }
+  .enemycard{ border:2px solid var(--line); padding:1.3rem 1.4rem; background:var(--bg-raised); box-shadow:var(--shadow); transition:border-color 200ms ease, transform 200ms ease; overflow:hidden; }
   .enemycard:hover{ border-color:var(--vino); transform:translateY(-2px); }
   .enemycard.final:hover{ border-color:var(--vino); }
+  .enemyart{
+    float:right; width:68px; height:68px; object-fit:cover; object-position:top center;
+    margin:0 0 0.6rem 0.8rem;
+    background:var(--surface); border:2px solid var(--line);
+    padding:3px; image-rendering:pixelated;
+  }
   .enemycard .tag{ font-family:"Space Mono",monospace; font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--vino); }
   .enemycard h3{ font-size:1.2rem; margin:0.3rem 0 0.6rem; }
   .enemycard p{ font-size:0.9rem; color:var(--ink-soft); margin:0; }
@@ -451,9 +530,24 @@
 
 <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
 
+<div class="embers" aria-hidden="true">
+  <span class="ember" style="--x:4%; --dur:16s; --delay:-2s; --drift:30px;"></span>
+  <span class="ember vino" style="--x:12%; --dur:12s; --delay:-6s; --drift:-20px;"></span>
+  <span class="ember" style="--x:21%; --dur:19s; --delay:-11s; --drift:15px;"></span>
+  <span class="ember vino" style="--x:33%; --dur:14s; --delay:-3s; --drift:-30px;"></span>
+  <span class="ember" style="--x:45%; --dur:17s; --delay:-9s; --drift:22px;"></span>
+  <span class="ember" style="--x:58%; --dur:13s; --delay:-1s; --drift:-15px;"></span>
+  <span class="ember vino" style="--x:67%; --dur:20s; --delay:-14s; --drift:28px;"></span>
+  <span class="ember" style="--x:76%; --dur:15s; --delay:-5s; --drift:-24px;"></span>
+  <span class="ember" style="--x:85%; --dur:18s; --delay:-8s; --drift:18px;"></span>
+  <span class="ember vino" style="--x:93%; --dur:11s; --delay:-4s; --drift:-18px;"></span>
+  <span class="ember" style="--x:52%; --dur:22s; --delay:-17s; --drift:12px;"></span>
+  <span class="ember" style="--x:28%; --dur:16s; --delay:-13s; --drift:-26px;"></span>
+</div>
+
 <header class="site">
   <div class="navrow">
-    <div class="brand">TERA<span>CIA</span></div>
+    <div class="brand"><img class="brand-icon" src="Sprites/char-d.png" alt="" aria-hidden="true">TERA<span>CIA</span></div>
     <nav class="links" aria-label="Navegación principal">
       <a href="#mundo">El mundo</a>
       <a href="#combate">Combate</a>
@@ -519,6 +613,16 @@
       <p>Al empezar, le das nombre a tu personaje y elegís su clase. La personalización de la demo es simple a propósito — color de piel, color de ojos y el color de la ropa que otorga tu clase — porque lo que define a tu héroe es cómo pelea, no un editor de apariencia interminable.</p>
       <p>En la demo viajás <strong>solo</strong>: no hay compañeros fijos que te acompañen. Cada casilla que te movés y cada ataque que tirás es una decisión enteramente tuya.</p>
     </div>
+    <div class="chargallery" aria-hidden="true">
+      <figure class="charframe"><img src="Sprites/char-a.png" alt=""></figure>
+      <figure class="charframe"><img src="Sprites/char-b.png" alt=""></figure>
+      <figure class="charframe"><img src="Sprites/char-c.png" alt=""></figure>
+      <figure class="charframe"><img src="Sprites/char-d.png" alt=""></figure>
+      <figure class="charframe"><img src="Sprites/char-e.png" alt=""></figure>
+      <figure class="charframe"><img src="Sprites/char-f.png" alt=""></figure>
+      <figure class="charframe"><img src="Sprites/char-g.png" alt=""></figure>
+    </div>
+    <div class="chargallery-cap mono">algunas combinaciones posibles de piel, ojos y pelo</div>
   </div>
 </section>
 
@@ -719,6 +823,7 @@
     </div>
     <div class="enemygrid">
       <div class="enemycard">
+        <img class="enemyart" src="Sprites/guardian.png" alt="" aria-hidden="true">
         <div class="tag">Encuentro I · Bosque</div>
         <h3>Caballero Guardián</h3>
         <p>Se refugia detrás de su propia armadura mientras un aliado lo cubre.</p>
@@ -731,6 +836,7 @@
         <div class="lesson"><b>Enseña</b>Efectos de estado, resistencias y vulnerabilidades.</div>
       </div>
       <div class="enemycard">
+        <img class="enemyart" src="Sprites/skeleton-glow.png" alt="" aria-hidden="true">
         <div class="tag">Encuentro III · Llanura</div>
         <h3>Monstruo Esquelético</h3>
         <p>Salta, golpea en área y sangra a quien se acerca demasiado. El más resistente de los tres.</p>
