@@ -532,6 +532,8 @@
     border-bottom:3px solid var(--celeste); border-right:3px solid var(--celeste);
   }
   .classcard .role{ font-family:"Space Mono",monospace; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--celeste); }
+  .classcard.extra{ background:var(--bg); }
+  .classcard.extra .role::after{ content:" · universo completo"; color:var(--muted); opacity:0.8; }
   .classcard h3{ font-size:1.35rem; margin:0.35rem 0 0.15rem; }
   .classcard .bonus{ font-size:0.85rem; color:var(--muted); margin-bottom:0.9rem; }
   .classcard .bonus b{ color:var(--ink-soft); }
@@ -793,7 +795,7 @@
     <div class="head">
       <div class="eyebrow">Cinco caminos</div>
       <h2 id="clases-h">Cada rol pelea distinto</h2>
-      <p>La demo ofrece cinco clases, una por cada rol del sistema. El rol no es solo estética: cambia una regla concreta del combate.</p>
+      <p>La demo ofrece cinco clases, una por cada rol del sistema. El rol no es solo estética: cambia una regla concreta del combate. Tocá un rol para ver todas las clases de ese rol en el universo de Teracia.</p>
     </div>
 
     <div class="roleintro">
@@ -854,6 +856,341 @@
           <li>Una flecha que golpea hasta tres enemigos a la vez</li>
           <li>Flecha bomba con daño en área</li>
           <li>Un tiro certero que ignora la armadura</li>
+        </ul>
+      </div>
+
+      <!-- clases extra del universo completo (fuera de la demo) -->
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Asesino</h3>
+        <div class="bonus">Ataques de sangrado que se acumulan hasta hacerlo mortal.</div>
+        <ul>
+          <li>Su daga atraviesa armadura durante 2 turnos</li>
+          <li>Amplifica su daño según el sangrado acumulado del enemigo</li>
+          <li>Puede golpear hasta tres enemigos cuerpo a cuerpo a la vez</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque tanque">
+        <div class="role mono">Rol de ataque / tanque</div>
+        <h3>Bruto</h3>
+        <div class="bonus">Solo ataca a lo grande: todo o nada, crítico o falla.</div>
+        <ul>
+          <li>Si falla tres veces seguidas, el siguiente golpe es un acierto asegurado</li>
+          <li>Puede endurecerse y recibir la mitad del daño por 2 turnos</li>
+          <li>O enfurecerse y triplicar su daño por 2 turnos</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Caballero</h3>
+        <div class="bonus">Un peso pesado que abre cada pelea aturdiendo al rival.</div>
+        <ul>
+          <li>Su primer golpe aturde 3 turnos</li>
+          <li>Puede rebotar de enemigo en enemigo aplastándolos desde el aire</li>
+          <li>Su canalización aturde a todos los enemigos a la vez</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Devastador</h3>
+        <div class="bonus">Encadena muertes y castiga a quien intenta huir.</div>
+        <ul>
+          <li>Si su golpe mata, reparte la mitad de ese daño a otro enemigo al azar</li>
+          <li>Un golpe certero le puede dar un segundo ataque inmediato</li>
+          <li>Puede inmovilizar a un enemigo para que no se mueva ni contraataque</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque tanque">
+        <div class="role mono">Rol de ataque / tanque</div>
+        <h3>Héroe</h3>
+        <div class="bonus">Solo pelea con su propio equipo, y con una espada que crece con él.</div>
+        <ul>
+          <li>Invoca una lluvia de espadas sobre cada enemigo</li>
+          <li>Su espada evoluciona: daño sagrado, más objetivos y hasta curación por golpe</li>
+          <li>Su guantelete empuja, noquea y termina atrapando a un enemigo como escudo</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Luchador</h3>
+        <div class="bonus">Tres estilos de pelea en un mismo cuerpo, y estamina para pagarlos.</div>
+        <ul>
+          <li>Cambia de estilo — Boxeo, Barijutsu, Muay Thai — cada 3 turnos</li>
+          <li>Cada estilo tiene su propio combo, esquive o sangrado</li>
+          <li>Su canalización duplica su daño y lo vuelve explosivo por 3 turnos</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Penitente</h3>
+        <div class="bonus">Cuanto más cerca de la muerte, más fuerte golpea.</div>
+        <ul>
+          <li>Al bajar a la mitad de su vida, duplica su daño</li>
+          <li>Puede apostar todo a un golpe doble — si falla, el daño lo recibe él</li>
+          <li>En su canalización queda a 1 de vida pero gana salvaciones para esquivar</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Pillo</h3>
+        <div class="bonus">Prefiere acertar seguido antes que pegar fuerte una sola vez.</div>
+        <ul>
+          <li>Ataca con números más bajos, aunque a medio daño</li>
+          <li>Puede reflejar ataques cuerpo a cuerpo con el doble de daño</li>
+          <li>En sigilo, su primer golpe duplica el daño y lo saca del sigilo</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Samurái</h3>
+        <div class="bonus">Un medidor de furia que lo vuelve más letal cuanto más pelea.</div>
+        <ul>
+          <li>Cada golpe dado carga furia; cada golpe recibido la enfría</li>
+          <li>A más furia, menos necesita sacar en el D20 para acertar</li>
+          <li>Puede invocar fantasmas kamikaze que cargan furia al acertar</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque tanque">
+        <div class="role mono">Rol de ataque / tanque</div>
+        <h3>Vampiro</h3>
+        <div class="bonus">Su fuerza depende de si el sol está arriba o abajo.</div>
+        <ul>
+          <li>De día duplica su daño; de noche, duplica el que recibe (y viceversa)</li>
+          <li>Se cura la mitad del daño que hace con sus armas de sangre</li>
+          <li>Puede transformarse en murciélago para volar y esquivar sus debilidades horarias</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="ataque">
+        <div class="role mono">Rol de ataque</div>
+        <h3>Verdugo</h3>
+        <div class="bonus">Cada enemigo caído lo hace un poco más fuerte.</div>
+        <ul>
+          <li>Gana vida y daño permanente por cada enemigo que elimina</li>
+          <li>Tiene un golpe que ignora inmunidades y buffos enemigos</li>
+          <li>Puede debilitar el daño de un rival antes de que ataque</li>
+        </ul>
+      </div>
+
+      <div class="classcard extra" data-role="mago tanque">
+        <div class="role mono">Rol de mago / tanque</div>
+        <h3>Chamán</h3>
+        <div class="bonus">Pelea a través de tótems, no con sus propias manos.</div>
+        <ul>
+          <li>Sus tótems necesitan menos puntería para acertar, aunque tardan un turno más</li>
+          <li>Puede crear un tótem escudo que protege a dos aliados</li>
+          <li>Puede invertir sus tótems y devolver sus efectos contra el enemigo</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago soporte">
+        <div class="role mono">Rol de mago / soporte</div>
+        <h3>Clérigo</h3>
+        <div class="bonus">Cura y castiga con la misma luz.</div>
+        <ul>
+          <li>Un rayo que causa daño sagrado y eléctrico a la vez</li>
+          <li>Puede salvar a un aliado de la muerte durante 2 turnos</li>
+          <li>Su canalización cura a todo el equipo mientras golpea a todos los enemigos</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago soporte">
+        <div class="role mono">Rol de mago / soporte</div>
+        <h3>Druida</h3>
+        <div class="bonus">La naturaleza pelea con él, no solo para él.</div>
+        <ul>
+          <li>Puede transformarse en distintos animales</li>
+          <li>Enreda enemigos en espinas venenosas</li>
+          <li>Invoca un guardián de raíces y una planta que ataca sola</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Hechizero</h3>
+        <div class="bonus">Un mazo de hechizos que arma sobre la marcha, no un set fijo.</div>
+        <ul>
+          <li>Juega cartas de maná, bastones y ataques mágicos según lo que necesite</li>
+          <li>Cada carta cuesta más maná cuanto más fuerte es su efecto</li>
+          <li>Su canalización golpea cinco veces atravesando toda la armadura</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Mago de hielo</h3>
+        <div class="bonus">El frío común no le cuesta nada de maná.</div>
+        <ul>
+          <li>Puede ralentizar o congelar enemigos en área</li>
+          <li>Levanta un fuerte de hielo que solo deja pasar ataques a distancia</li>
+          <li>Su canalización congela a todos los enemigos y ataca tres veces</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Mago de luz</h3>
+        <div class="bonus">Vuela y castiga con luz, rayo y fuego sagrado.</div>
+        <ul>
+          <li>Un orbe eléctrico que se dispersa entre enemigos</li>
+          <li>Puede cegar a todo el campo de batalla por un turno</li>
+          <li>Se transforma en serafín y hasta invoca un sol artificial</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Mago oscuro</h3>
+        <div class="bonus">Roba fuerza de las sombras enemigas para usarla como propia.</div>
+        <ul>
+          <li>Ciega con una bola de sombra</li>
+          <li>Puede forzar la noche y duplicar sus propias estadísticas</li>
+          <li>Roba la sombra de un enemigo para copiar sus estadísticas</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Mago</h3>
+        <div class="bonus">El equilibrio clásico entre maná y daño mágico.</div>
+        <ul>
+          <li>Genera maná pasivamente con solo no usarlo</li>
+          <li>Ataca con seis orbes mágicos a elección</li>
+          <li>Su lanza mágica puede atravesar hasta tres enemigos en línea</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago soporte">
+        <div class="role mono">Rol de mago / soporte</div>
+        <h3>Monje</h3>
+        <div class="bonus">Guarda curación en el cuerpo para repartirla cuando hace falta.</div>
+        <ul>
+          <li>Cada golpe dado carga puntos de curación propios o para aliados</li>
+          <li>Tiene una segunda oportunidad si falla un ataque o elimina a un enemigo</li>
+          <li>Su canalización lo vuelve inmortal y evita que sus aliados mueran por 2 turnos</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Piromántico</h3>
+        <div class="bonus">Quema todo, incluso a costa de su propia vida.</div>
+        <ul>
+          <li>Su bola de fuego pega más fuerte que un ataque normal</li>
+          <li>Puede potenciar su fuego a cambio de un poco de su propia vida</li>
+          <li>Levanta pilares de fuego que queman a quien se acerque</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="mago">
+        <div class="role mono">Rol de mago</div>
+        <h3>Titiritero</h3>
+        <div class="bonus">Pelea a través de sus títeres, no de sí mismo.</div>
+        <ul>
+          <li>Crea títeres que funcionan como un stock de aliados temporales</li>
+          <li>Su vida en combate depende de cuántos títeres tiene en mesa</li>
+        </ul>
+      </div>
+
+      <div class="classcard extra" data-role="rango">
+        <div class="role mono">Rol de rango</div>
+        <h3>Capitán Pirata</h3>
+        <div class="bonus">Trae su propio barco fantasma a la batalla.</div>
+        <ul>
+          <li>Puede curarse a sí mismo en pleno combate</li>
+          <li>Su cañón tarda en cargar pero perfora armadura</li>
+          <li>Su canalización invoca su navío fantasma para una lluvia de disparos</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="rango soporte">
+        <div class="role mono">Rol de rango / soporte</div>
+        <h3>Cazador</h3>
+        <div class="bonus">Un arsenal de dardos para cada tipo de daño.</div>
+        <ul>
+          <li>Dispara dardos elementales según lo que necesite la pelea</li>
+          <li>Puede colocar dinamita a distancia</li>
+          <li>Su canalización invoca una bestia grande que pelea a su lado</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="rango tanque">
+        <div class="role mono">Rol de rango / tanque</div>
+        <h3>Chatarrero</h3>
+        <div class="bonus">Construye su propia armadura mecánica en pleno combate.</div>
+        <ul>
+          <li>Sus bombas adhesivas se pegan al enemigo antes de explotar</li>
+          <li>Puede sembrar el tablero de trampas que frenan el movimiento</li>
+          <li>Su canalización lo mete en una armadura de chatarra con toda su vida disponible</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="rango">
+        <div class="role mono">Rol de rango</div>
+        <h3>Conquistador</h3>
+        <div class="bonus">Especialista en desarmar jefes antes de que ataquen.</div>
+        <ul>
+          <li>Gana armadura extra frente a enemigos jefe</li>
+          <li>Puede bajarle la armadura al rival de un disparo</li>
+          <li>Su canalización carga balas eléctricas extra</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="rango">
+        <div class="role mono">Rol de rango</div>
+        <h3>Ruiseñor</h3>
+        <div class="bonus">Ataca desde las sombras, literalmente.</div>
+        <ul>
+          <li>Puede volverse invisible y pelear con arco en vez de dagas</li>
+          <li>Sus bombas de humo venenoso dificultan los ataques enemigos</li>
+          <li>Sus dagas pueden paralizar o quemar al contacto</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="rango">
+        <div class="role mono">Rol de rango</div>
+        <h3>Tirador Arcano</h3>
+        <div class="bonus">Convierte cada flecha certera en maná para la siguiente jugada.</div>
+        <ul>
+          <li>Sus flechas mágicas dejan maná acumulado en el suelo</li>
+          <li>Puede hacer explotar ese maná para golpear y empujar</li>
+          <li>Su canalización cubre una zona entera con flechas mágicas gratis</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="rango">
+        <div class="role mono">Rol de rango</div>
+        <h3>Vaquero</h3>
+        <div class="bonus">Pocas balas, pero cada una cuenta doble.</div>
+        <ul>
+          <li>Munición limitada a cambio de doble dado de daño</li>
+          <li>Puede disparar dos veces gastando una sola bala</li>
+          <li>Su canalización con rifle elimina de un tiro a un enemigo común</li>
+        </ul>
+      </div>
+
+      <div class="classcard extra" data-role="soporte">
+        <div class="role mono">Rol de soporte</div>
+        <h3>Alquimista</h3>
+        <div class="bonus">Convierte lo que encuentra en pociones que deciden la pelea.</div>
+        <ul>
+          <li>Explora el terreno para conseguir ingredientes únicos</li>
+          <li>Puede dormir enemigos con un somnífero</li>
+          <li>Su canalización reparte veneno a los enemigos y pociones a elección para el equipo</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="soporte">
+        <div class="role mono">Rol de soporte</div>
+        <h3>Explorador</h3>
+        <div class="bonus">Sabe leer al enemigo antes de que este ataque.</div>
+        <ul>
+          <li>Puede descubrir fortalezas y debilidades del rival</li>
+          <li>Le regala un turno extra a un aliado, incluso fuera de su turno</li>
+          <li>Combina ceguera con fuego lanzado desde su antorcha</li>
+        </ul>
+      </div>
+      <div class="classcard extra" data-role="soporte">
+        <div class="role mono">Rol de soporte</div>
+        <h3>Herrero</h3>
+        <div class="bonus">Forja sus propias armas y armaduras en plena aventura.</div>
+        <ul>
+          <li>Puede fabricar equipo nuevo explorando en busca de metales</li>
+          <li>Encadena enemigos hacia él y los aturde</li>
+          <li>Deja trampas de oso que cuesta un turno entero romper</li>
+        </ul>
+      </div>
+
+      <div class="classcard extra" data-role="tanque">
+        <div class="role mono">Rol de tanque</div>
+        <h3>Guardian</h3>
+        <div class="bonus">El escudo puro: resistir es su única ofensiva.</div>
+        <ul>
+          <li>Suma armadura extra con solo plantarse</li>
+          <li>Puede purgar sus propias debilidades y volverse inmune a estados por 3 turnos</li>
+          <li>Su canalización asegura un golpe que suma toda la vida y armadura que le falta</li>
         </ul>
       </div>
     </div>
@@ -1023,7 +1360,8 @@
       b.setAttribute('aria-pressed', b.getAttribute('data-role') === role ? 'true' : 'false');
     });
     classcards.forEach(function(card){
-      var match = !role || card.getAttribute('data-role') === role;
+      var roles = (card.getAttribute('data-role') || '').split(' ');
+      var match = role ? roles.indexOf(role) !== -1 : !card.classList.contains('extra');
       card.classList.toggle('role-hidden', !match);
       if (match){
         card.classList.remove('highlight');
