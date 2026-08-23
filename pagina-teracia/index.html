@@ -382,7 +382,8 @@
     #combate::before, #clases::before, #enemigos::before{ display:none; }
   }
 
-  #mundo .lead-copy > p:first-child::first-letter{
+  /* capitular tipo manuscrito: para parrafos cuya primera letra deletrea TERACIA */
+  .dropcap::first-letter{
     font-family:"Redwinger","Fraunces",serif;
     font-size:3.4em;
     line-height:0.78;
@@ -643,7 +644,7 @@
       <div class="eyebrow">RPG táctico por turnos · en desarrollo</div>
       <h1>Teracia</h1>
       <p class="tagline">Un pueblo deshecho no le quedó tiempo para entrenarte. Solo le quedó invocarte.</p>
-      <p class="lede">Teracia es un RPG táctico por turnos y casilleros: creás tu personaje, elegís su clase y lo mandás a detener a algo que no debería existir. Esta página presenta la demo web gratuita — una aventura corta — y el camino que va a llevar al juego completo a Steam.</p>
+      <p class="lede dropcap">Teracia es un RPG táctico por turnos y casilleros: creás tu personaje, elegís su clase y lo mandás a detener a algo que no debería existir. Esta página presenta la demo web gratuita — una aventura corta — y el camino que va a llevar al juego completo a Steam.</p>
       <div class="badgerow">
         <span class="badge on"><span class="dot"></span>Demo web gratuita</span>
         <span class="badge">Un personaje, una aventura</span>
@@ -673,8 +674,8 @@
       <h2 id="mundo-h">Una fantasía lúgubre, sin ser abrumadora</h2>
     </div>
     <div class="lead-copy">
-      <p>Teracia no es un mundo cómodo. Los reinos están golpeados, la magia tiene un precio elemental y hay tiendas que solo reaccionan a monedas que ya no deberían brillar. Pero es una fantasía <strong>seria, no asfixiante</strong>: hay lugar para el humor pequeño, el alivio de subir de nivel y la satisfacción de un plan de combate que sale bien.</p>
-      <p>Este proyecto tiene dos etapas. La primera es esta demo web: un personaje, una aventura corta, jugable gratis desde el navegador. La segunda es el juego completo en Steam, con <strong>varias aventuras independientes</strong>, ambientadas en épocas distintas, cada una con sus propios enemigos y mecánicas nuevas construidas sobre las mismas reglas base.</p>
+      <p class="dropcap">Teracia no es un mundo cómodo. Los reinos están golpeados, la magia tiene un precio elemental y hay tiendas que solo reaccionan a monedas que ya no deberían brillar. Pero es una fantasía <strong>seria, no asfixiante</strong>: hay lugar para el humor pequeño, el alivio de subir de nivel y la satisfacción de un plan de combate que sale bien.</p>
+      <p class="dropcap">Este proyecto tiene dos etapas. La primera es esta demo web: un personaje, una aventura corta, jugable gratis desde el navegador. La segunda es el juego completo en Steam, con <strong>varias aventuras independientes</strong>, ambientadas en épocas distintas, cada una con sus propios enemigos y mecánicas nuevas construidas sobre las mismas reglas base.</p>
     </div>
   </div>
 </section>
@@ -686,8 +687,8 @@
       <h2 id="personaje-h">Elegís quién sos, no de dónde salís</h2>
     </div>
     <div class="lead-copy">
-      <p>Al empezar, le das nombre a tu personaje y elegís su clase. La personalización de la demo es simple a propósito — color de piel, color de ojos y el color de la ropa que otorga tu clase — porque lo que define a tu héroe es cómo pelea, no un editor de apariencia interminable.</p>
-      <p>En la demo viajás <strong>solo</strong>: no hay compañeros fijos que te acompañen. Cada casilla que te movés y cada ataque que tirás es una decisión enteramente tuya.</p>
+      <p class="dropcap">Al empezar, le das nombre a tu personaje y elegís su clase. La personalización de la demo es simple a propósito — color de piel, color de ojos y el color de la ropa que otorga tu clase — porque lo que define a tu héroe es cómo pelea, no un editor de apariencia interminable.</p>
+      <p class="dropcap">En la demo viajás <strong>solo</strong>: no hay compañeros fijos que te acompañen. Cada casilla que te movés y cada ataque que tirás es una decisión enteramente tuya.</p>
     </div>
     <div class="chargallery" aria-hidden="true">
       <figure class="charframe"><img src="Sprites/char-a.png" alt=""></figure>
@@ -711,7 +712,7 @@
     </div>
 
     <h3 style="font-size:1.15rem; margin-bottom:0.4rem;">El dado que decide todo</h3>
-    <p style="color:var(--ink-soft); max-width:60ch; margin:0;">Casi todo en Teracia se resuelve con un D20. El resultado no es solo "pasa o no pasa": define <em>cuánto</em> pasa.</p>
+    <p class="dropcap" style="color:var(--ink-soft); max-width:60ch; margin:0;">Casi todo en Teracia se resuelve con un D20. El resultado no es solo "pasa o no pasa": define <em>cuánto</em> pasa.</p>
     <div class="d20scale">
       <div class="crit-fail"><div class="range mono">1–5</div><div class="name">Fallo crítico</div></div>
       <div class="fail"><div class="range mono">6–9</div><div class="name">Fallo</div></div>
@@ -732,7 +733,7 @@
     </div>
 
     <h3 style="font-size:1.15rem; margin:2.6rem 0 0.4rem;">Seis maneras de ser bueno en algo</h3>
-    <p style="color:var(--ink-soft); max-width:60ch; margin:0;">Cada 5 puntos en un atributo (hasta 10) te dejan pedir un número menos exigente en las tiradas relacionadas.</p>
+    <p class="dropcap" style="color:var(--ink-soft); max-width:60ch; margin:0;">Cada 5 puntos en un atributo (hasta 10) te dejan pedir un número menos exigente en las tiradas relacionadas.</p>
     <div class="attrgrid">
       <div class="attr"><div class="name">Fuerza</div><div class="fx">Ataques y habilidades físicas</div></div>
       <div class="attr"><div class="name">Destreza</div><div class="fx">Turnos menores y movimiento</div></div>
@@ -1207,7 +1208,7 @@
       <div class="lead-copy">
         <p>Un pueblo al borde de perderlo todo te invoca sin ceremonia ni preparación. La única instrucción es simple: <strong>frenar a quien está buscando algo que no debería encontrar.</strong></p>
         <p>Lo alcanzás por primera vez en un bosque, revolviendo un cofre ajeno. Cuando nota que no está solo, no se queda a pelear él mismo — deja algo más grande en su lugar y se retira. Así se repite, encuentro tras encuentro: un rastro de cofres, un villano cada vez más confiado, y algo que él deja atrás para que vos te encargues.</p>
-        <p>Cada vez que ganás, el pueblo puede pagarte con algo que ninguna otra tienda acepta.</p>
+        <p class="dropcap">Cada vez que ganás, el pueblo puede pagarte con algo que ninguna otra tienda acepta.</p>
       </div>
       <div>
         <div class="relicrow">
@@ -1231,7 +1232,7 @@
     <div class="head">
       <div class="eyebrow">Lo que te espera</div>
       <h2 id="enemigos-h">Cuatro encuentros, cuatro lecciones</h2>
-      <p>Cada combate de la demo está pensado para enseñar una pieza del sistema antes del enfrentamiento final.</p>
+      <p class="dropcap">Cada combate de la demo está pensado para enseñar una pieza del sistema antes del enfrentamiento final.</p>
     </div>
     <div class="enemygrid">
       <div class="enemycard">
@@ -1269,7 +1270,7 @@
     <div class="head">
       <div class="eyebrow">Detrás de escena</div>
       <h2 id="taller-h">Sprites hechos a mano, uno por uno</h2>
-      <p>El arte de Teracia es pixel art original: cada personaje, enemigo, aliado y objeto se dibuja para el tablero de combate visto desde arriba.</p>
+      <p class="dropcap">El arte de Teracia es pixel art original: cada personaje, enemigo, aliado y objeto se dibuja para el tablero de combate visto desde arriba.</p>
     </div>
     <div class="workshoprow">
       <div class="workitem"><div class="mono active">En producción</div><div class="st">Personajes jugables</div></div>
