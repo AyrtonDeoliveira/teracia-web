@@ -482,8 +482,14 @@
 
   /* class cards */
   .roleintro{ display:grid; grid-template-columns:repeat(5,1fr); gap:2px; background:var(--line); border:2px solid var(--line); margin:1.8rem 0 2.6rem; box-shadow:var(--shadow); }
-  .roleintro div{ background:var(--bg-raised); padding:0.8rem 0.9rem; font-size:0.82rem; color:var(--muted); }
-  .roleintro div b{ display:block; color:var(--ink); font-family:"Fraunces",serif; font-weight:600; font-size:0.92rem; margin-bottom:0.25rem; }
+  .role-jump{
+    background:var(--bg-raised); padding:0.8rem 0.9rem; font-size:0.82rem; color:var(--muted);
+    font-family:inherit; text-align:left; border:none; cursor:pointer;
+    transition:background 150ms ease, color 150ms ease;
+  }
+  .role-jump b{ display:block; color:var(--ink); font-family:"Fraunces",serif; font-weight:600; font-size:0.92rem; margin-bottom:0.25rem; }
+  .role-jump:hover, .role-jump:focus-visible{ background:var(--celeste-soft); color:var(--ink-soft); }
+  .role-jump:hover b, .role-jump:focus-visible b{ color:var(--celeste); }
   @media (max-width:820px){ .roleintro{ grid-template-columns:repeat(2,1fr);} }
   @media (max-width:460px){ .roleintro{ grid-template-columns:1fr;} }
 
@@ -497,6 +503,13 @@
     transition:border-color 200ms ease, transform 200ms ease;
   }
   .classcard:hover{ border-color:var(--celeste); transform:translateY(-2px); }
+  .classcard.highlight{ animation:classcard-highlight 1.6s ease; }
+  @keyframes classcard-highlight{
+    0%{ border-color:var(--celeste); box-shadow:var(--shadow), 0 0 0 4px var(--celeste-soft); }
+    70%{ border-color:var(--celeste); box-shadow:var(--shadow), 0 0 0 4px var(--celeste-soft); }
+    100%{ border-color:var(--line); box-shadow:var(--shadow), 0 0 0 0 transparent; }
+  }
+  @media (prefers-reduced-motion: reduce){ .classcard.highlight{ animation:none; border-color:var(--celeste); } }
   .classcard::before{
     content:""; position:absolute; top:-2px; left:-2px; width:16px; height:16px;
     border-top:3px solid var(--celeste); border-left:3px solid var(--celeste);
@@ -771,15 +784,15 @@
     </div>
 
     <div class="roleintro">
-      <div><b>Ataque</b>Dado de daño D6</div>
-      <div><b>Tanque</b>D10 al subir de nivel</div>
-      <div><b>Soporte</b>+1 punto de habilidad extra</div>
-      <div><b>Mago</b>Empieza con 3 de maná</div>
-      <div><b>Rango</b>Alcance de ataque infinito</div>
+      <button type="button" class="role-jump" data-target="clase-ataque"><b>Ataque</b>Dado de daño D6</button>
+      <button type="button" class="role-jump" data-target="clase-tanque"><b>Tanque</b>D10 al subir de nivel</button>
+      <button type="button" class="role-jump" data-target="clase-soporte"><b>Soporte</b>+1 punto de habilidad extra</button>
+      <button type="button" class="role-jump" data-target="clase-mago"><b>Mago</b>Empieza con 3 de maná</button>
+      <button type="button" class="role-jump" data-target="clase-rango"><b>Rango</b>Alcance de ataque infinito</button>
     </div>
 
     <div class="classgrid">
-      <div class="classcard">
+      <div class="classcard" id="clase-ataque">
         <div class="role mono">Rol de ataque</div>
         <h3>Paladín</h3>
         <div class="bonus">Combate equilibrado entre golpear y defenderse. <b>Escala con Fe.</b></div>
@@ -789,7 +802,7 @@
           <li>Castiga a los enemigos que lo evitan en combate</li>
         </ul>
       </div>
-      <div class="classcard">
+      <div class="classcard" id="clase-tanque">
         <div class="role mono">Rol de tanque</div>
         <h3>Escudero</h3>
         <div class="bonus">Juego estratégico y de resistencia. <b>Escala con Fuerza y Destreza.</b></div>
@@ -799,7 +812,7 @@
           <li>Puede lanzar el escudo en área y recuperarlo al instante</li>
         </ul>
       </div>
-      <div class="classcard">
+      <div class="classcard" id="clase-soporte">
         <div class="role mono">Rol de soporte</div>
         <h3>Bardo</h3>
         <div class="bonus">Potenciación aliada por sobre el daño propio. <b>Escala con Carisma.</b></div>
@@ -809,7 +822,7 @@
           <li>Limpia efectos de estado propios o de aliados</li>
         </ul>
       </div>
-      <div class="classcard">
+      <div class="classcard" id="clase-mago">
         <div class="role mono">Rol de mago</div>
         <h3>Nigromante</h3>
         <div class="bonus">Invocación y control del espacio. <b>Escala con Fe e Inteligencia.</b></div>
@@ -819,7 +832,7 @@
           <li>Un hechizo que golpea toda la escena de combate</li>
         </ul>
       </div>
-      <div class="classcard">
+      <div class="classcard" id="clase-rango">
         <div class="role mono">Rol de rango</div>
         <h3>Arquero</h3>
         <div class="bonus">Control y disponibilidad constante. <b>Escala con Destreza y Perspicacia.</b></div>
@@ -983,6 +996,18 @@
       try{ localStorage.setItem('teracia-theme', next); }catch(e){}
     });
   }
+
+  var roleJumps = document.querySelectorAll('.role-jump');
+  roleJumps.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = document.getElementById(btn.getAttribute('data-target'));
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.classList.remove('highlight');
+      void target.offsetWidth;
+      target.classList.add('highlight');
+    });
+  });
 
   var toTop = document.getElementById('toTop');
   if (toTop){
