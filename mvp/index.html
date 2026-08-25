@@ -311,12 +311,22 @@
   /* ---------- game state ---------- */
   var player = {
     name:'Paladín', side:'player', c:1, r:3, maxHp:38, hp:38,
-    fuerza:5, destreza:5, dmgDie:6, alive:true
+    fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/player-placeholder.svg'
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:6, r:2, maxHp:45, hp:45,
-    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true
+    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/enemy-placeholder.svg'
   };
+
+  /* ---------- sprites ---------- */
+  function loadSprite(unit){
+    var img = new Image();
+    img.onload = function(){ unit.spriteImg = img; };
+    img.onerror = function(){ unit.spriteImg = null; };
+    img.src = unit.spriteSrc;
+  }
+  loadSprite(player);
+  loadSprite(enemy);
 
   var MOVE_RANGE = 4;
   var state = {
@@ -705,33 +715,43 @@
     var main = isPlayer ? T.celeste : T.vino;
     var soft = isPlayer ? T.celesteSoft : T.vinoSoft;
     var rad = TILE*0.3;
+    var visualBottom = cy + rad*0.75;
 
     // ground shadow
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.beginPath();
-    ctx.ellipse(cx, cy+rad*0.7, rad*0.8, rad*0.32, 0, 0, Math.PI*2);
+    ctx.ellipse(cx, visualBottom, rad*0.8, rad*0.32, 0, 0, Math.PI*2);
     ctx.fill();
 
-    ctx.fillStyle = soft;
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = main;
-    ctx.beginPath();
-    if (isPlayer){
-      // seen from above: a facing marker (triangle)
-      ctx.moveTo(cx, cy-rad);
-      ctx.lineTo(cx+rad*0.87, cy+rad*0.6);
-      ctx.lineTo(cx-rad*0.87, cy+rad*0.6);
-      ctx.closePath();
+    var visualTop;
+    if (unit.spriteImg){
+      var spriteH = TILE*1.3;
+      var spriteW = spriteH * (100/140);
+      visualTop = visualBottom - spriteH;
+      ctx.drawImage(unit.spriteImg, cx-spriteW/2, visualTop, spriteW, spriteH);
     } else {
-      ctx.arc(cx, cy, rad, 0, Math.PI*2);
+      visualTop = cy - rad;
+      ctx.fillStyle = soft;
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = main;
+      ctx.beginPath();
+      if (isPlayer){
+        // seen from above: a facing marker (triangle)
+        ctx.moveTo(cx, cy-rad);
+        ctx.lineTo(cx+rad*0.87, cy+rad*0.6);
+        ctx.lineTo(cx-rad*0.87, cy+rad*0.6);
+        ctx.closePath();
+      } else {
+        ctx.arc(cx, cy, rad, 0, Math.PI*2);
+      }
+      ctx.fill();
+      ctx.stroke();
     }
-    ctx.fill();
-    ctx.stroke();
 
     // hp bar
     var hpW = TILE*0.72;
     var hpPct = Math.max(0, unit.hp/unit.maxHp);
-    var hpY = cy - rad - 14;
+    var hpY = visualTop - 10;
     ctx.fillStyle = T.line;
     ctx.fillRect(cx-hpW/2, hpY, hpW, 5);
     ctx.fillStyle = main;
@@ -742,7 +762,7 @@
     ctx.font = '700 10px "Space Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(unit.name, cx, cy+rad+14);
+    ctx.fillText(unit.name, cx, visualBottom+14);
   }
 
   function loop(now){
