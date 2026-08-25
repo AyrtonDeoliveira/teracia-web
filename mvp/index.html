@@ -10,55 +10,58 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#e6e3dc;
-    --bg-raised:#dcd9d0;
-    --surface:#d3d0c5;
-    --ink:#1c1b22;
-    --ink-soft:#4a4854;
-    --muted:#5a5866;
-    --line:#b7b4a8;
-    --celeste:#146575;
-    --celeste-soft:rgba(20,101,117,0.12);
-    --vino:#7d2138;
-    --vino-soft:rgba(125,33,56,0.10);
+    --bg:#e9dfc2;
+    --bg-raised:#ded0a6;
+    --surface:#d3c28e;
+    --ink:#2c2013;
+    --ink-soft:#544527;
+    --muted:#6b5a36;
+    --line:#a3854f;
+    --celeste:#0f6a5c;
+    --celeste-soft:rgba(15,106,92,0.14);
+    --vino:#7a1d2c;
+    --vino-soft:rgba(122,29,44,0.12);
     --st-electricidad:#8c7420;
-    --sky-top:#aeb9bd;
-    --sky-bottom:#e6e3dc;
-    --ground-a:#cfccc0;
-    --ground-b:#c3bfb1;
+    --ground-a:#ded0a6;
+    --ground-b:#d3c28e;
     --tree:#8a9186;
+    --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23887a5c' stroke-width='1' opacity='0.16'%3E%3Cpath d='M32 2 L62 32 L32 62 L2 32 Z'/%3E%3Ccircle cx='32' cy='32' r='4'/%3E%3C/g%3E%3C/svg%3E");
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#12131b;
-      --bg-raised:#181a26;
-      --surface:#1e2030;
-      --ink:#ece9f2;
-      --ink-soft:#c7c4d6;
-      --muted:#8f8ca3;
-      --line:#31324a;
-      --celeste:#7fe0ea;
-      --celeste-soft:rgba(127,224,234,0.10);
-      --vino:#dd5f76;
-      --vino-soft:rgba(221,95,118,0.13);
+      --bg:#181009;
+      --bg-raised:#21160b;
+      --surface:#2a1d0f;
+      --ink:#ecdfc0;
+      --ink-soft:#cbb98f;
+      --muted:#93815c;
+      --line:#5c4726;
+      --celeste:#4fd9c4;
+      --celeste-soft:rgba(79,217,196,0.12);
+      --vino:#dd6b7f;
+      --vino-soft:rgba(221,107,127,0.14);
       --st-electricidad:#d6bf55;
-      --sky-top:#0a0b12;
-      --sky-bottom:#1c2230;
-      --ground-a:#20222f;
-      --ground-b:#262838;
+      --ground-a:#21160b;
+      --ground-b:#2a1d0f;
       --tree:#2a3628;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#12131b; --bg-raised:#181a26; --surface:#1e2030; --ink:#ece9f2; --ink-soft:#c7c4d6;
-    --muted:#8f8ca3; --line:#31324a; --celeste:#7fe0ea; --celeste-soft:rgba(127,224,234,0.10);
-    --vino:#dd5f76; --vino-soft:rgba(221,95,118,0.13); --st-electricidad:#d6bf55;
-    --sky-top:#0a0b12; --sky-bottom:#1c2230; --ground-a:#20222f; --ground-b:#262838; --tree:#2a3628;
+    --bg:#181009; --bg-raised:#21160b; --surface:#2a1d0f; --ink:#ecdfc0; --ink-soft:#cbb98f;
+    --muted:#93815c; --line:#5c4726; --celeste:#4fd9c4; --celeste-soft:rgba(79,217,196,0.12);
+    --vino:#dd6b7f; --vino-soft:rgba(221,107,127,0.14); --st-electricidad:#d6bf55;
+    --ground-a:#21160b; --ground-b:#2a1d0f; --tree:#2a3628;
   }
 
   *,*::before,*::after{ box-sizing:border-box; }
   body{
-    margin:0; background:var(--bg); color:var(--ink);
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(ellipse 70% 50% at 18% 8%, var(--celeste-soft), transparent 55%),
+      radial-gradient(ellipse 60% 45% at 85% 6%, var(--vino-soft), transparent 55%),
+      var(--motif), var(--paper-grain), var(--bg);
+    background-attachment:fixed;
     font-family:"Source Serif 4", Georgia, serif; line-height:1.5;
   }
   h1,h2,h3{ font-family:"Fraunces",Georgia,serif; font-weight:600; margin:0; }
@@ -171,9 +174,22 @@
   .toast.fail{ color:var(--muted); }
   .toast.small{ border-color:var(--st-electricidad); color:var(--st-electricidad); }
   .toast.hit, .toast.crit{ border-color:var(--celeste); color:var(--celeste); }
+
+  html.embed, html.embed body{ height:100%; }
+  html.embed body{ margin:0; }
+  html.embed header.site,
+  html.embed .titlebar,
+  html.embed .turn-banner,
+  html.embed .actionbar,
+  html.embed .rules-note,
+  html.embed .side-col{ display:none; }
+  html.embed main{ display:block; max-width:none; padding:0; height:100%; }
+  html.embed .board-col{ height:100%; gap:0; }
+  html.embed .board-frame{ border:none; aspect-ratio:auto; height:100%; }
 </style>
 </head>
 <body>
+<script>if (location.search.indexOf('embed=1')>-1) document.documentElement.classList.add('embed');</script>
 
 <header class="site">
   <div class="brand">TERA<span>CIA</span></div>
@@ -249,7 +265,7 @@
       bg:g('--bg'), bgRaised:g('--bg-raised'), surface:g('--surface'), ink:g('--ink'),
       inkSoft:g('--ink-soft'), muted:g('--muted'), line:g('--line'),
       celeste:g('--celeste'), celesteSoft:g('--celeste-soft'), vino:g('--vino'), vinoSoft:g('--vino-soft'),
-      skyTop:g('--sky-top'), skyBottom:g('--sky-bottom'), groundA:g('--ground-a'), groundB:g('--ground-b'), tree:g('--tree')
+      groundA:g('--ground-a'), groundB:g('--ground-b'), tree:g('--tree')
     };
   }
   var T = readTokens();
@@ -632,24 +648,8 @@
   }
 
   function drawBackground(w,h){
-    var grad = ctx.createLinearGradient(0,0,0,h);
-    grad.addColorStop(0, T.skyTop);
-    grad.addColorStop(1, T.skyBottom);
-    ctx.fillStyle = grad;
+    ctx.fillStyle = T.bgRaised;
     ctx.fillRect(0,0,w,h);
-
-    // simple tree silhouettes framing the clearing
-    ctx.fillStyle = T.tree;
-    var treeXs = [w*0.06, w*0.14, w*0.9, w*0.96, w*0.82];
-    for (var i=0;i<treeXs.length;i++){
-      var tx = treeXs[i], ty = h*0.32 + (i%2)*14, tr = 46+ (i%3)*10;
-      ctx.beginPath();
-      ctx.moveTo(tx, ty-tr);
-      ctx.lineTo(tx+tr*0.8, ty+tr*0.5);
-      ctx.lineTo(tx-tr*0.8, ty+tr*0.5);
-      ctx.closePath();
-      ctx.fill();
-    }
   }
 
   function tick(now){

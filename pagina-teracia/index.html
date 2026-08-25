@@ -313,43 +313,30 @@
   .badge.on{ border-color:var(--celeste); color:var(--celeste); }
   .badge .dot{ width:0.45em; height:0.45em; border-radius:50%; background:currentColor; }
 
-  /* battle grid diagram */
-  .board{
-    aspect-ratio:1/1;
-    display:grid;
-    grid-template-columns:repeat(7,1fr);
-    grid-template-rows:repeat(7,1fr);
-    gap:3px;
-    background:var(--line);
+  .cta-play{
+    display:inline-flex; align-items:center; gap:0.6em;
+    font-family:"Space Mono",monospace; font-size:0.82rem; font-weight:700;
+    letter-spacing:0.08em; text-transform:uppercase; text-decoration:none;
+    background:var(--celeste); color:var(--bg-raised);
+    border:2px solid var(--celeste);
+    padding:0.75rem 1.3rem;
+    box-shadow:var(--shadow);
+    transition:transform 150ms ease, box-shadow 150ms ease;
+  }
+  .cta-play:hover{ transform:translateY(-2px); }
+  .cta-play svg{ width:16px; height:16px; }
+  @media (prefers-reduced-motion: reduce){ .cta-play{ transition:none; } }
+
+  /* live board preview, embeds the MVP */
+  .board-embed{
+    aspect-ratio:5/3;
+    background:var(--bg-raised);
     border:6px solid var(--bg-raised);
     outline:2px solid var(--line);
-    padding:3px;
     box-shadow:var(--shadow);
+    overflow:hidden;
   }
-  .board .cell{ background:var(--bg-raised); position:relative; }
-  .board .cell.actor{ background:var(--celeste-soft); }
-  .board .cell.actor::after{
-    content:""; position:absolute; inset:22%;
-    background:var(--celeste); clip-path:polygon(50% 0%,100% 100%,0% 100%);
-  }
-  .board .cell.foe{ background:var(--vino-soft); }
-  .board .cell.foe::after{
-    content:""; position:absolute; inset:26%;
-    background:var(--vino); border-radius:50%;
-  }
-  .board .cell.path{ background:var(--celeste-soft); }
-  .board .cell.path::after{
-    content:""; position:absolute; inset:44%;
-    background:var(--celeste); opacity:0.55; border-radius:50%;
-  }
-  .board .cell.hit{ background:var(--vino-soft); }
-  .board .cell.hit::after{
-    content:"×"; position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
-    color:var(--vino); font-family:"Space Mono",monospace; font-weight:700; font-size:1rem;
-    animation:hit-pulse 1.8s ease-in-out infinite;
-  }
-  @keyframes hit-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  .board-embed iframe{ width:100%; height:100%; border:0; display:block; }
   .board-cap{
     margin-top:0.7rem; font-family:"Space Mono",monospace; font-size:0.68rem;
     letter-spacing:0.06em; color:var(--muted); text-transform:uppercase; text-align:center;
@@ -650,19 +637,16 @@
         <span class="badge">Un personaje, una aventura</span>
         <span class="badge">Sprites en producción</span>
       </div>
+      <a class="cta-play" href="../mvp/index.html">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7Z"></path></svg>
+        Jugar MVP
+      </a>
     </div>
     <div>
-      <div class="board" aria-hidden="true">
-        <!-- 7x7 mock battle grid -->
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <div class="cell"></div><div class="cell"></div><div class="cell path"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <div class="cell"></div><div class="cell actor"></div><div class="cell path"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <div class="cell"></div><div class="cell"></div><div class="cell path"></div><div class="cell hit"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell foe"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <div class="board-embed">
+        <iframe src="../mvp/index.html?embed=1" title="Vista previa en vivo del tablero de combate" loading="lazy"></iframe>
       </div>
-      <div class="board-cap">tablero visto desde arriba · movimiento por casillas</div>
+      <div class="board-cap">tablero real del MVP · movimiento por casillas</div>
     </div>
   </div>
 </section>
