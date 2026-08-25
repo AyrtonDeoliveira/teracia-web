@@ -200,7 +200,7 @@
   <div class="titlebar">
     <div class="eyebrow">MVP jugable</div>
     <h1>Encuentro I — El bosque</h1>
-    <p>Primer recorte jugable del combate: tablero visto desde arriba por casilleros y las reglas de D20 documentadas, ya funcionando. Sin sprites definitivos todavía — las fichas son marcadores de referencia.</p>
+    <p>Primer recorte jugable del combate: tablero visto desde arriba por casilleros y las reglas de D20 documentadas, ya funcionando.</p>
   </div>
 
   <div class="board-col">
@@ -315,7 +315,7 @@
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
-    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png'
+    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png', flipSprite:true
   };
 
   /* ---------- sprites ---------- */
@@ -731,7 +731,16 @@
       var maxW = TILE*1.15;
       if (spriteW > maxW){ spriteW = maxW; spriteH = spriteW / aspect; }
       visualTop = visualBottom - spriteH;
-      ctx.drawImage(img, cx-spriteW/2, visualTop, spriteW, spriteH);
+      if (unit.flipSprite){
+        ctx.save();
+        ctx.translate(cx, 0);
+        ctx.scale(-1, 1);
+        ctx.translate(-cx, 0);
+        ctx.drawImage(img, cx-spriteW/2, visualTop, spriteW, spriteH);
+        ctx.restore();
+      } else {
+        ctx.drawImage(img, cx-spriteW/2, visualTop, spriteW, spriteH);
+      }
     } else {
       visualTop = cy - rad;
       ctx.fillStyle = soft;
