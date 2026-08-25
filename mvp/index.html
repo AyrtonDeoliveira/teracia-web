@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Teracia — MVP de combate</title>
+<meta name="description" content="Prototipo jugable del combate táctico de Teracia: tablero 2.5D por casilleros y reglas de D20 reales.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#e6e3dc;
+    --bg-raised:#dcd9d0;
+    --surface:#d3d0c5;
+    --ink:#1c1b22;
+    --ink-soft:#4a4854;
+    --muted:#5a5866;
+    --line:#b7b4a8;
+    --celeste:#146575;
+    --celeste-soft:rgba(20,101,117,0.12);
+    --vino:#7d2138;
+    --vino-soft:rgba(125,33,56,0.10);
+    --st-electricidad:#8c7420;
+    --sky-top:#aeb9bd;
+    --sky-bottom:#e6e3dc;
+    --ground-a:#cfccc0;
+    --ground-b:#c3bfb1;
+    --tree:#8a9186;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12131b;
+      --bg-raised:#181a26;
+      --surface:#1e2030;
+      --ink:#ece9f2;
+      --ink-soft:#c7c4d6;
+      --muted:#8f8ca3;
+      --line:#31324a;
+      --celeste:#7fe0ea;
+      --celeste-soft:rgba(127,224,234,0.10);
+      --vino:#dd5f76;
+      --vino-soft:rgba(221,95,118,0.13);
+      --st-electricidad:#d6bf55;
+      --sky-top:#0a0b12;
+      --sky-bottom:#1c2230;
+      --ground-a:#20222f;
+      --ground-b:#262838;
+      --tree:#2a3628;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12131b; --bg-raised:#181a26; --surface:#1e2030; --ink:#ece9f2; --ink-soft:#c7c4d6;
+    --muted:#8f8ca3; --line:#31324a; --celeste:#7fe0ea; --celeste-soft:rgba(127,224,234,0.10);
+    --vino:#dd5f76; --vino-soft:rgba(221,95,118,0.13); --st-electricidad:#d6bf55;
+    --sky-top:#0a0b12; --sky-bottom:#1c2230; --ground-a:#20222f; --ground-b:#262838; --tree:#2a3628;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Source Serif 4", Georgia, serif; line-height:1.5;
+  }
+  h1,h2,h3{ font-family:"Fraunces",Georgia,serif; font-weight:600; margin:0; }
+  .mono{ font-family:"Space Mono","Courier New",monospace; font-variant-numeric:tabular-nums; }
+  a{ color:var(--celeste); }
+  :focus-visible{ outline:2px solid var(--celeste); outline-offset:3px; }
+  button{ font-family:inherit; }
+
+  header.site{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.85rem 1.5rem; border-bottom:1px solid var(--line);
+  }
+  .brand{ font-family:"Fraunces",serif; font-weight:700; font-size:1.05rem; letter-spacing:0.04em; text-transform:uppercase; }
+  .brand span{ color:var(--celeste); }
+  header.site .back{
+    font-family:"Space Mono",monospace; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
+    text-decoration:none; color:var(--muted);
+  }
+  header.site .back:hover{ color:var(--celeste); }
+
+  main{
+    max-width:1180px; margin:0 auto; padding:1.5rem clamp(1rem,3vw,2rem) 3rem;
+    display:grid; grid-template-columns:1fr 300px; gap:1.5rem;
+  }
+  @media (max-width:920px){ main{ grid-template-columns:1fr; } }
+
+  .titlebar{ grid-column:1/-1; margin-bottom:0.2rem; }
+  .eyebrow{
+    font-family:"Space Mono",monospace; font-weight:700; font-size:0.7rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--celeste);
+  }
+  .titlebar h1{ font-size:clamp(1.5rem,3vw,2rem); margin-top:0.3rem; }
+  .titlebar p{ color:var(--ink-soft); max-width:60ch; margin-top:0.5rem; font-size:0.95rem; }
+
+  .board-col{ display:flex; flex-direction:column; gap:0.9rem; }
+  .board-frame{
+    position:relative; border:1px solid var(--line); background:var(--bg-raised);
+    aspect-ratio:5/3; width:100%; overflow:hidden;
+  }
+  canvas{ display:block; width:100%; height:100%; }
+
+  .turn-banner{
+    display:flex; align-items:center; justify-content:space-between;
+    border:1px solid var(--line); padding:0.6rem 0.9rem; font-size:0.85rem;
+  }
+  .turn-banner .who{ font-family:"Space Mono",monospace; letter-spacing:0.06em; text-transform:uppercase; }
+  .turn-banner .who.player{ color:var(--celeste); }
+  .turn-banner .who.enemy{ color:var(--vino); }
+  .turn-banner .hint{ color:var(--muted); font-size:0.82rem; }
+
+  .actionbar{ display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .actionbar button{
+    flex:1 1 auto; border:1px solid var(--line); background:var(--bg-raised); color:var(--ink);
+    padding:0.7rem 0.9rem; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
+    cursor:pointer; transition:border-color 150ms ease, color 150ms ease;
+  }
+  .actionbar button:hover:not(:disabled){ border-color:var(--celeste); color:var(--celeste); }
+  .actionbar button.active{ border-color:var(--celeste); color:var(--celeste); background:var(--celeste-soft); }
+  .actionbar button:disabled{ opacity:0.4; cursor:not-allowed; }
+  .actionbar button.end{ flex:1 1 100%; border-color:var(--vino); }
+  .actionbar button.end:hover:not(:disabled){ border-color:var(--vino); color:var(--vino); }
+
+  .side-col{ display:flex; flex-direction:column; gap:1rem; }
+  .statcard{ border:1px solid var(--line); padding:0.9rem 1rem; }
+  .statcard .name{ font-family:"Fraunces",serif; font-weight:600; font-size:1rem; display:flex; justify-content:space-between; align-items:baseline; }
+  .statcard .name b{ font-size:0.68rem; font-family:"Space Mono",monospace; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
+  .hpbar{ height:8px; background:var(--surface); border:1px solid var(--line); margin-top:0.5rem; position:relative; }
+  .hpbar .fill{ height:100%; background:var(--celeste); transition:width 300ms ease; }
+  .statcard.enemy .hpbar .fill{ background:var(--vino); }
+  .hpnum{ margin-top:0.3rem; font-size:0.72rem; color:var(--muted); }
+
+  .log{ border:1px solid var(--line); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
+  .log .eyebrow{ margin-bottom:0.5rem; }
+  .log ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column-reverse; gap:0.45rem; }
+  .log li{ color:var(--ink-soft); border-bottom:1px solid var(--line); padding-bottom:0.45rem; }
+  .log li:last-child{ border-bottom:none; padding-bottom:0; }
+  .log li .tag{ font-family:"Space Mono",monospace; font-size:0.65rem; letter-spacing:0.05em; text-transform:uppercase; margin-right:0.4em; }
+  .log li.crit-fail .tag{ color:var(--vino); }
+  .log li.fail .tag{ color:var(--muted); }
+  .log li.small .tag{ color:var(--st-electricidad); }
+  .log li.hit .tag, .log li.crit .tag{ color:var(--celeste); }
+
+  .rules-note{ border:1px dashed var(--line); padding:0.8rem 0.9rem; font-size:0.78rem; color:var(--muted); }
+  .rules-note b{ color:var(--ink-soft); }
+
+  .overlay{
+    position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px);
+    flex-direction:column; gap:1rem; text-align:center; padding:1.5rem;
+  }
+  .overlay.show{ display:flex; }
+  .overlay h2{ font-size:1.8rem; }
+  .overlay.victory h2{ color:var(--celeste); }
+  .overlay.defeat h2{ color:var(--vino); }
+  .overlay p{ color:var(--ink-soft); max-width:40ch; font-size:0.92rem; }
+  .overlay button{
+    font-family:"Space Mono",monospace; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--celeste); color:var(--celeste); background:transparent; padding:0.7rem 1.3rem; cursor:pointer;
+  }
+  .overlay button:hover{ background:var(--celeste-soft); }
+
+  .toast{
+    position:absolute; top:0.8rem; left:50%; transform:translateX(-50%);
+    background:var(--bg-raised); border:1px solid var(--line); padding:0.55rem 1rem;
+    font-family:"Space Mono",monospace; font-size:0.78rem; letter-spacing:0.04em;
+    opacity:0; transition:opacity 200ms ease; pointer-events:none; white-space:nowrap;
+  }
+  .toast.show{ opacity:1; }
+  .toast.crit-fail{ border-color:var(--vino); color:var(--vino); }
+  .toast.fail{ color:var(--muted); }
+  .toast.small{ border-color:var(--st-electricidad); color:var(--st-electricidad); }
+  .toast.hit, .toast.crit{ border-color:var(--celeste); color:var(--celeste); }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="brand">TERA<span>CIA</span></div>
+  <a class="back" href="../pagina-teracia/index.html">&larr; Volver a la página del juego</a>
+</header>
+
+<main>
+  <div class="titlebar">
+    <div class="eyebrow">MVP jugable</div>
+    <h1>Encuentro I — El bosque</h1>
+    <p>Primer recorte jugable del combate: tablero 2.5D por casilleros y las reglas de D20 documentadas, ya funcionando. Sin sprites definitivos todavía — las fichas son marcadores de referencia.</p>
+  </div>
+
+  <div class="board-col">
+    <div class="board-frame" id="boardFrame">
+      <canvas id="board" aria-label="Tablero de combate"></canvas>
+      <div class="toast mono" id="toast"></div>
+      <div class="overlay victory" id="victoryOverlay">
+        <h2>Victoria</h2>
+        <p>El Caballero Guardián cae. Aprendiste cómo funciona su armadura — y ganaste monedas celestes por el camino.</p>
+        <button id="btnRestartVictory">Reiniciar combate</button>
+      </div>
+      <div class="overlay defeat" id="defeatOverlay">
+        <h2>Derrota</h2>
+        <p>El bosque se queda en silencio. Volvé a intentarlo.</p>
+        <button id="btnRestartDefeat">Reintentar</button>
+      </div>
+    </div>
+
+    <div class="turn-banner">
+      <span class="who mono" id="turnWho">Turno del Paladín</span>
+      <span class="hint" id="turnHint">Elegí Mover o Atacar</span>
+    </div>
+
+    <div class="actionbar">
+      <button id="btnMove" type="button">Mover</button>
+      <button id="btnAttack" type="button">Atacar</button>
+      <button id="btnEnd" type="button" class="end">Terminar turno</button>
+    </div>
+
+    <div class="rules-note">
+      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.
+    </div>
+  </div>
+
+  <div class="side-col">
+    <div class="statcard" id="playerCard">
+      <div class="name">Paladín <b>Rol de ataque</b></div>
+      <div class="hpbar"><div class="fill" id="playerHpFill"></div></div>
+      <div class="hpnum mono" id="playerHpNum">38 / 38</div>
+    </div>
+    <div class="statcard enemy" id="enemyCard">
+      <div class="name">Caballero Guardián <b>Bosque</b></div>
+      <div class="hpbar"><div class="fill" id="enemyHpFill"></div></div>
+      <div class="hpnum mono" id="enemyHpNum">45 / 45</div>
+    </div>
+    <div class="log">
+      <div class="eyebrow">Registro de combate</div>
+      <ul id="logList"></ul>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- theme tokens ---------- */
+  function readTokens(){
+    var cs = getComputedStyle(document.documentElement);
+    var g = function(name){ return cs.getPropertyValue(name).trim(); };
+    return {
+      bg:g('--bg'), bgRaised:g('--bg-raised'), surface:g('--surface'), ink:g('--ink'),
+      inkSoft:g('--ink-soft'), muted:g('--muted'), line:g('--line'),
+      celeste:g('--celeste'), celesteSoft:g('--celeste-soft'), vino:g('--vino'), vinoSoft:g('--vino-soft'),
+      skyTop:g('--sky-top'), skyBottom:g('--sky-bottom'), groundA:g('--ground-a'), groundB:g('--ground-b'), tree:g('--tree')
+    };
+  }
+  var T = readTokens();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ T = readTokens(); });
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- grid / iso projection ---------- */
+  var COLS = 8, ROWS = 6;
+  var TILE_W = 118, TILE_H = 46;
+  var obstacles = [ {c:4,r:1}, {c:3,r:4}, {c:5,r:4} ];
+
+  function isObstacle(c,r){ return obstacles.some(function(o){ return o.c===c && o.r===r; }); }
+  function inBounds(c,r){ return c>=0 && c<COLS && r>=0 && r<ROWS; }
+
+  var originX = 0, originY = 70;
+  function computeOrigin(canvasW){
+    var minX = Infinity, maxX = -Infinity;
+    for (var c=0;c<COLS;c++){
+      for (var r=0;r<ROWS;r++){
+        var x = (c-r)*(TILE_W/2);
+        if (x<minX) minX = x;
+        if (x>maxX) maxX = x;
+      }
+    }
+    originX = canvasW/2 - (minX+maxX)/2;
+  }
+  function tileScreen(c,r){
+    return { x: originX + (c-r)*(TILE_W/2), y: originY + (c+r)*(TILE_H/2) };
+  }
+  function screenToTile(x,y){
+    var a = (x-originX)/(TILE_W/2);
+    var b = (y-originY)/(TILE_H/2);
+    var c = Math.round((a+b)/2);
+    var r = Math.round((b-a)/2);
+    return {c:c, r:r};
+  }
+
+  /* ---------- dice ---------- */
+  function rollD20(){ return 1+Math.floor(Math.random()*20); }
+  function rollDie(n){ return 1+Math.floor(Math.random()*n); }
+  function rollDice(count,sides){ var s=0; for(var i=0;i<count;i++) s+=rollDie(sides); return s; }
+  function outcomeTier(n){
+    if (n<=5) return 'crit-fail';
+    if (n<=9) return 'fail';
+    if (n<=14) return 'small';
+    if (n<=17) return 'hit';
+    return 'crit';
+  }
+  function tierLabel(t){
+    return {'crit-fail':'Fallo crítico','fail':'Fallo','small':'Acierto pequeño','hit':'Acierto','crit':'Acierto crítico'}[t];
+  }
+
+  /* ---------- game state ---------- */
+  var player = {
+    name:'Paladín', side:'player', c:1, r:3, maxHp:38, hp:38,
+    fuerza:5, destreza:5, dmgDie:6, alive:true
+  };
+  var enemy = {
+    name:'Caballero Guardián', side:'enemy', c:6, r:2, maxHp:45, hp:45,
+    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true
+  };
+
+  var MOVE_RANGE = 4;
+  var state = {
+    phase:'player-idle',   // player-idle | player-move | player-attack | anim | enemy-turn | over
+    round:1,
+    reachable:[],
+    attackable:[],
+    moveUsed:false,
+    attackUsed:false,
+    anim:null // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
+  };
+
+  /* ---------- BFS movement range ---------- */
+  function computeReachable(unit){
+    var start = {c:unit.c,r:unit.r};
+    var visited = {}; visited[start.c+','+start.r] = 0;
+    var queue = [start];
+    var result = [];
+    while(queue.length){
+      var cur = queue.shift();
+      var d = visited[cur.c+','+cur.r];
+      if (d>0) result.push({c:cur.c,r:cur.r,dist:d});
+      if (d>=MOVE_RANGE) continue;
+      var deltas = [[1,0],[-1,0],[0,1],[0,-1]];
+      for (var i=0;i<deltas.length;i++){
+        var nc = cur.c+deltas[i][0], nr = cur.r+deltas[i][1];
+        if (!inBounds(nc,nr) || isObstacle(nc,nr)) continue;
+        if (occupied(nc,nr)) continue;
+        var key = nc+','+nr;
+        if (visited[key]!==undefined) continue;
+        visited[key] = d+1;
+        queue.push({c:nc,r:nr});
+      }
+    }
+    return result;
+  }
+  function occupied(c,r){
+    return (player.alive && player.c===c && player.r===r) || (enemy.alive && enemy.c===c && enemy.r===r);
+  }
+  function adjacentTiles(unit){
+    var res = [];
+    var deltas = [[1,0],[-1,0],[0,1],[0,-1]];
+    for (var i=0;i<deltas.length;i++){
+      var nc = unit.c+deltas[i][0], nr = unit.r+deltas[i][1];
+      if (inBounds(nc,nr)) res.push({c:nc,r:nr});
+    }
+    return res;
+  }
+  function isAdjacent(a,b){
+    return Math.abs(a.c-b.c)+Math.abs(a.r-b.r) === 1;
+  }
+
+  /* ---------- log & toast ---------- */
+  var logList = document.getElementById('logList');
+  function addLog(tier, text){
+    var li = document.createElement('li');
+    li.className = tier || '';
+    var tag = document.createElement('span');
+    tag.className = 'tag mono';
+    tag.textContent = tier ? tierLabel(tier) : '';
+    li.appendChild(tag);
+    li.appendChild(document.createTextNode(text));
+    logList.appendChild(li);
+    logList.parentElement.scrollTop = logList.parentElement.scrollHeight;
+  }
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function showToast(tier, text){
+    toastEl.className = 'toast mono show ' + tier;
+    toastEl.textContent = text;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 1400);
+  }
+
+  /* ---------- roll resolution ---------- */
+  function attackThreshold(unit){ return 15 - Math.min(2, Math.max(0, Math.floor(unit.fuerza/5))); }
+  function moveThreshold(unit){ return 10 - Math.min(2, Math.max(0, Math.floor(unit.destreza/5))); }
+
+  function resolveAttack(attacker, defender, onDone){
+    var roll = rollD20();
+    var tier = outcomeTier(roll);
+    var threshold = attackThreshold(attacker);
+    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
+    var label = attacker.name+' tira D20 → '+roll+' (necesita '+threshold+'+)';
+    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
+
+    if (tier==='crit-fail'){
+      addLog(tier, label+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolveCounterattack(attacker, defender, onDone); }, 650);
+      return;
+    }
+    if (!success){
+      addLog(tier, label+'. No conecta.');
+      setTimeout(onDone, 500);
+      return;
+    }
+    var dmg = rollDamage(attacker);
+    if (tier==='crit'){ dmg *= 2; addLog(tier, label+'. ¡Crítico! Daño x2 → '+dmg+'.'); }
+    else { addLog(tier, label+'. Impacta por '+dmg+'.'); }
+    applyDamage(defender, dmg);
+    setTimeout(onDone, 500);
+  }
+
+  function resolveCounterattack(attacker, defender, onDone){
+    var a = rollD20(), b = rollD20();
+    addLog(null, 'Contraataque: '+attacker.name+' saca '+a+', '+defender.name+' saca '+b+'.');
+    if (b>a){
+      var dmg = rollDamage(defender);
+      addLog('crit', defender.name+' aprovecha y golpea gratis por '+dmg+'.');
+      applyDamage(attacker, dmg);
+    } else {
+      addLog('hit', attacker.name+' se salva por poco.');
+    }
+    setTimeout(onDone, 550);
+  }
+
+  function rollDamage(unit){
+    if (unit.dmgDie) return rollDie(unit.dmgDie);
+    if (unit.dmgFormula) return rollDice(unit.dmgFormula.count, unit.dmgFormula.sides) + unit.dmgFormula.flat;
+    return 1;
+  }
+  function applyDamage(unit, dmg){
+    unit.hp = Math.max(0, unit.hp - dmg);
+    updateHpUI();
+    if (unit.hp<=0){ unit.alive = false; }
+  }
+
+  function resolveMove(unit, dest, onDone){
+    var roll = rollD20();
+    var tier = outcomeTier(roll);
+    var threshold = moveThreshold(unit);
+    var success = roll>=threshold;
+    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
+    if (tier==='crit-fail'){
+      addLog(tier, unit.name+' tropieza al moverse (D20 → '+roll+'). Se cae.');
+      setTimeout(onDone, 500);
+      return;
+    }
+    if (!success){
+      addLog(tier, unit.name+' no logra moverse a tiempo (D20 → '+roll+', necesita '+threshold+'+).');
+      setTimeout(onDone, 500);
+      return;
+    }
+    addLog(tier, unit.name+' se mueve (D20 → '+roll+').');
+    animateMove(unit, dest, onDone);
+  }
+
+  function animateMove(unit, dest, onDone){
+    var from = tileScreen(unit.c, unit.r);
+    var to = tileScreen(dest.c, dest.r);
+    if (reduceMotion){
+      unit.c = dest.c; unit.r = dest.r;
+      onDone();
+      return;
+    }
+    state.anim = { unit:unit, from:from, to:to, t0:performance.now(), dur:260, after:function(){
+      unit.c = dest.c; unit.r = dest.r;
+      state.anim = null;
+      onDone();
+    }};
+  }
+
+  /* ---------- UI wiring ---------- */
+  var btnMove = document.getElementById('btnMove');
+  var btnAttack = document.getElementById('btnAttack');
+  var btnEnd = document.getElementById('btnEnd');
+  var turnWho = document.getElementById('turnWho');
+  var turnHint = document.getElementById('turnHint');
+
+  function updateHpUI(){
+    document.getElementById('playerHpFill').style.width = (100*player.hp/player.maxHp)+'%';
+    document.getElementById('playerHpNum').textContent = player.hp+' / '+player.maxHp;
+    document.getElementById('enemyHpFill').style.width = (100*enemy.hp/enemy.maxHp)+'%';
+    document.getElementById('enemyHpNum').textContent = enemy.hp+' / '+enemy.maxHp;
+  }
+
+  function refreshButtons(){
+    var idle = state.phase==='player-idle' || state.phase==='player-move' || state.phase==='player-attack';
+    btnMove.disabled = !idle || state.moveUsed;
+    btnAttack.disabled = !idle || state.attackUsed;
+    btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move' && state.phase!=='player-attack';
+    btnMove.classList.toggle('active', state.phase==='player-move');
+    btnAttack.classList.toggle('active', state.phase==='player-attack');
+  }
+
+  function setHint(){
+    if (state.phase==='player-move') turnHint.textContent = state.reachable.length ? 'Elegí una casilla resaltada para moverte' : 'No hay casillas libres a las que moverte';
+    else if (state.phase==='player-attack') turnHint.textContent = state.attackable.length ? 'Elegí un enemigo adyacente para atacar' : 'El enemigo no está a rango — acercate primero';
+    else if (state.phase==='enemy-turn') turnHint.textContent = 'El Caballero Guardián actúa...';
+    else if (state.phase==='over') turnHint.textContent = 'Combate terminado';
+    else turnHint.textContent = 'Elegí Mover o Atacar, o terminá el turno';
+  }
+
+  btnMove.addEventListener('click', function(){
+    if (state.phase==='player-move'){ state.phase='player-idle'; }
+    else { state.phase='player-move'; state.reachable = computeReachable(player); }
+    refreshButtons(); setHint();
+  });
+  btnAttack.addEventListener('click', function(){
+    if (state.phase==='player-attack'){ state.phase='player-idle'; }
+    else {
+      state.phase='player-attack';
+      state.attackable = enemy.alive && isAdjacent(player, enemy) ? [{c:enemy.c,r:enemy.r}] : [];
+      if (!state.attackable.length) addLog(null, 'El enemigo no está al alcance todavía.');
+    }
+    refreshButtons(); setHint();
+  });
+  btnEnd.addEventListener('click', function(){ endPlayerTurn(); });
+
+  function endPlayerTurn(){
+    state.phase = 'enemy-turn';
+    state.reachable = []; state.attackable = [];
+    refreshButtons(); setHint(); turnWho.textContent='Turno del Caballero Guardián'; turnWho.className='who mono enemy';
+    setTimeout(runEnemyTurn, 500);
+  }
+
+  function checkGameOver(){
+    if (!enemy.alive){
+      state.phase = 'over';
+      document.getElementById('victoryOverlay').classList.add('show');
+      return true;
+    }
+    if (!player.alive){
+      state.phase = 'over';
+      document.getElementById('defeatOverlay').classList.add('show');
+      return true;
+    }
+    return false;
+  }
+
+  function runEnemyTurn(){
+    if (checkGameOver()) return;
+    if (isAdjacent(enemy, player)){
+      resolveAttack(enemy, player, function(){
+        if (checkGameOver()) return;
+        startPlayerTurn();
+      });
+      return;
+    }
+    var options = computeReachable(enemy).filter(function(t){ return !occupied(t.c,t.r); });
+    if (!options.length){ startPlayerTurn(); return; }
+    options.sort(function(a,b){
+      var da = Math.abs(a.c-player.c)+Math.abs(a.r-player.r);
+      var db = Math.abs(b.c-player.c)+Math.abs(b.r-player.r);
+      return da-db;
+    });
+    var target = options[0];
+    resolveMove(enemy, target, function(){
+      if (isAdjacent(enemy, player)){
+        resolveAttack(enemy, player, function(){
+          if (checkGameOver()) return;
+          startPlayerTurn();
+        });
+      } else {
+        startPlayerTurn();
+      }
+    });
+  }
+
+  function startPlayerTurn(){
+    state.round += 1;
+    state.moveUsed = false; state.attackUsed = false;
+    state.phase = 'player-idle';
+    turnWho.textContent = 'Turno del Paladín'; turnWho.className = 'who mono player';
+    refreshButtons(); setHint();
+  }
+
+  /* ---------- canvas input ---------- */
+  var canvas = document.getElementById('board');
+  var ctx = canvas.getContext('2d');
+  var frame = document.getElementById('boardFrame');
+
+  function resizeCanvas(){
+    var rect = frame.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width*dpr;
+    canvas.height = rect.height*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    computeOrigin(rect.width);
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  canvas.addEventListener('click', function(e){
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX-rect.left, y = e.clientY-rect.top;
+    var tile = screenToTile(x,y);
+
+    if (state.phase==='player-move'){
+      var found = state.reachable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
+      if (found){
+        state.moveUsed = true; state.phase = 'anim';
+        resolveMove(player, {c:found.c,r:found.r}, function(){
+          state.phase='player-idle'; refreshButtons(); setHint();
+        });
+        state.reachable = [];
+      }
+    } else if (state.phase==='player-attack'){
+      var t2 = state.attackable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
+      if (t2){
+        state.attackUsed = true; state.phase='anim'; state.attackable=[];
+        resolveAttack(player, enemy, function(){
+          if (checkGameOver()) return;
+          state.phase='player-idle'; refreshButtons(); setHint();
+        });
+      }
+    }
+  });
+
+  /* ---------- rendering ---------- */
+  function drawDiamond(cx, cy, w, h, fill, stroke, lineW){
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx+w/2, cy+h/2);
+    ctx.lineTo(cx, cy+h);
+    ctx.lineTo(cx-w/2, cy+h/2);
+    ctx.closePath();
+    if (fill){ ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke){ ctx.lineWidth = lineW||1; ctx.strokeStyle = stroke; ctx.stroke(); }
+  }
+
+  function drawBackground(w,h){
+    var grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0, T.skyTop);
+    grad.addColorStop(1, T.skyBottom);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,w,h);
+
+    // simple tree silhouettes framing the clearing
+    ctx.fillStyle = T.tree;
+    var treeXs = [w*0.06, w*0.14, w*0.9, w*0.96, w*0.82];
+    for (var i=0;i<treeXs.length;i++){
+      var tx = treeXs[i], ty = h*0.32 + (i%2)*14, tr = 46+ (i%3)*10;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty-tr);
+      ctx.lineTo(tx+tr*0.8, ty+tr*0.5);
+      ctx.lineTo(tx-tr*0.8, ty+tr*0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function tick(now){
+    var rect = frame.getBoundingClientRect();
+    var w = rect.width, h = rect.height;
+    ctx.clearRect(0,0,w,h);
+    drawBackground(w,h);
+
+    // update animation
+    var animT = null;
+    if (state.anim){
+      var t = (now - state.anim.t0)/state.anim.dur;
+      if (t>=1){ var after = state.anim.after; if(after) after(); }
+      else animT = Math.min(1, t);
+    }
+
+    // build draw list: tiles then units, sorted by depth
+    var items = [];
+    for (var c=0;c<COLS;c++){
+      for (var r=0;r<ROWS;r++){
+        items.push({type:'tile', c:c, r:r, depth:(c+r)});
+      }
+    }
+    if (player.alive) items.push({type:'unit', unit:player, depth:(player.c+player.r)+0.5});
+    if (enemy.alive) items.push({type:'unit', unit:enemy, depth:(enemy.c+enemy.r)+0.5});
+    items.sort(function(a,b){ return a.depth-b.depth; });
+
+    for (var i=0;i<items.length;i++){
+      var it = items[i];
+      if (it.type==='tile') drawTile(it.c, it.r);
+      else drawUnit(it.unit, animT);
+    }
+  }
+
+  function tileFill(c,r){
+    if (isObstacle(c,r)) return T.groundB;
+    var isReach = state.reachable.some(function(t){ return t.c===c && t.r===r; });
+    var isAtk = state.attackable.some(function(t){ return t.c===c && t.r===r; });
+    if (isAtk) return T.vinoSoft;
+    if (isReach) return T.celesteSoft;
+    return ((c+r)%2===0) ? T.groundA : T.groundB;
+  }
+
+  function drawTile(c,r){
+    var p = tileScreen(c,r);
+    var fill = tileFill(c,r);
+    var isReach = state.reachable.some(function(t){ return t.c===c && t.r===r; });
+    var isAtk = state.attackable.some(function(t){ return t.c===c && t.r===r; });
+    var stroke = (isReach||isAtk) ? (isAtk?T.vino:T.celeste) : T.line;
+    drawDiamond(p.x, p.y, TILE_W, TILE_H, fill, stroke, (isReach||isAtk)?1.6:1);
+
+    if (isObstacle(c,r)){
+      ctx.fillStyle = T.tree;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y-18);
+      ctx.lineTo(p.x+16, p.y+TILE_H/2);
+      ctx.lineTo(p.x-16, p.y+TILE_H/2);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+
+  function drawUnit(unit, animT){
+    var pos;
+    if (state.anim && state.anim.unit===unit && animT!==null){
+      var e = easeOutCubic(animT);
+      pos = { x: state.anim.from.x + (state.anim.to.x-state.anim.from.x)*e,
+              y: state.anim.from.y + (state.anim.to.y-state.anim.from.y)*e };
+    } else {
+      pos = tileScreen(unit.c, unit.r);
+    }
+    var baseX = pos.x, baseY = pos.y + TILE_H/2;
+    var isPlayer = unit.side==='player';
+    var main = isPlayer ? T.celeste : T.vino;
+    var soft = isPlayer ? T.celesteSoft : T.vinoSoft;
+
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.beginPath();
+    ctx.ellipse(baseX, baseY+4, 26, 9, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // body
+    var bodyH = 54, bodyW = 30;
+    ctx.fillStyle = soft;
+    roundRect(baseX-bodyW/2, baseY-bodyH, bodyW, bodyH, 8);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = main;
+    roundRect(baseX-bodyW/2, baseY-bodyH, bodyW, bodyH, 8);
+    ctx.stroke();
+
+    // head / glyph
+    ctx.fillStyle = main;
+    ctx.beginPath();
+    ctx.arc(baseX, baseY-bodyH-6, 12, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = T.bg;
+    ctx.font = '700 12px "Space Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(isPlayer ? 'P' : 'E', baseX, baseY-bodyH-5);
+
+    // hp bar
+    var hpW = 44;
+    var hpPct = Math.max(0, unit.hp/unit.maxHp);
+    ctx.fillStyle = T.line;
+    ctx.fillRect(baseX-hpW/2, baseY-bodyH-26, hpW, 5);
+    ctx.fillStyle = main;
+    ctx.fillRect(baseX-hpW/2, baseY-bodyH-26, hpW*hpPct, 5);
+
+    // name label
+    ctx.fillStyle = T.inkSoft;
+    ctx.font = '700 10px "Space Mono", monospace';
+    ctx.fillText(unit.name, baseX, baseY+14);
+  }
+
+  function roundRect(x,y,w,h,rad){
+    ctx.beginPath();
+    ctx.moveTo(x+rad,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rad);
+    ctx.arcTo(x+w,y+h,x,y+h,rad);
+    ctx.arcTo(x,y+h,x,y,rad);
+    ctx.arcTo(x,y,x+w,y,rad);
+    ctx.closePath();
+  }
+
+  function loop(now){
+    tick(now);
+    requestAnimationFrame(loop);
+  }
+
+  /* ---------- restart ---------- */
+  function restart(){
+    player.hp = player.maxHp; player.alive = true; player.c=1; player.r=3;
+    enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=6; enemy.r=2;
+    state.phase='player-idle'; state.round=1; state.moveUsed=false; state.attackUsed=false;
+    state.reachable=[]; state.attackable=[]; state.anim=null;
+    logList.innerHTML='';
+    document.getElementById('victoryOverlay').classList.remove('show');
+    document.getElementById('defeatOverlay').classList.remove('show');
+    turnWho.textContent='Turno del Paladín'; turnWho.className='who mono player';
+    updateHpUI(); refreshButtons(); setHint();
+    addLog(null, 'Empieza el combate en el bosque.');
+  }
+  document.getElementById('btnRestartVictory').addEventListener('click', restart);
+  document.getElementById('btnRestartDefeat').addEventListener('click', restart);
+
+  /* ---------- init ---------- */
+  resizeCanvas();
+  updateHpUI();
+  refreshButtons();
+  setHint();
+  addLog(null, 'Empieza el combate en el bosque.');
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
