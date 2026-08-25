@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Teracia — MVP de combate</title>
-<meta name="description" content="Prototipo jugable del combate táctico de Teracia: tablero 2.5D por casilleros y reglas de D20 reales.">
+<meta name="description" content="Prototipo jugable del combate táctico de Teracia: tablero visto desde arriba por casilleros y reglas de D20 reales.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,7 +99,7 @@
   .board-col{ display:flex; flex-direction:column; gap:0.9rem; }
   .board-frame{
     position:relative; border:1px solid var(--line); background:var(--bg-raised);
-    aspect-ratio:5/3; width:100%; overflow:hidden;
+    aspect-ratio:4/3; width:100%; overflow:hidden;
   }
   canvas{ display:block; width:100%; height:100%; }
 
@@ -200,7 +200,7 @@
   <div class="titlebar">
     <div class="eyebrow">MVP jugable</div>
     <h1>Encuentro I — El bosque</h1>
-    <p>Primer recorte jugable del combate: tablero 2.5D por casilleros y las reglas de D20 documentadas, ya funcionando. Sin sprites definitivos todavía — las fichas son marcadores de referencia.</p>
+    <p>Primer recorte jugable del combate: tablero visto desde arriba por casilleros y las reglas de D20 documentadas, ya funcionando. Sin sprites definitivos todavía — las fichas son marcadores de referencia.</p>
   </div>
 
   <div class="board-col">
@@ -272,35 +272,25 @@
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ T = readTokens(); });
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- grid / iso projection ---------- */
+  /* ---------- grid / top-down projection ---------- */
   var COLS = 8, ROWS = 6;
-  var TILE_W = 118, TILE_H = 46;
+  var TILE = 64;
   var obstacles = [ {c:4,r:1}, {c:3,r:4}, {c:5,r:4} ];
 
   function isObstacle(c,r){ return obstacles.some(function(o){ return o.c===c && o.r===r; }); }
   function inBounds(c,r){ return c>=0 && c<COLS && r>=0 && r<ROWS; }
 
-  var originX = 0, originY = 70;
-  function computeOrigin(canvasW){
-    var minX = Infinity, maxX = -Infinity;
-    for (var c=0;c<COLS;c++){
-      for (var r=0;r<ROWS;r++){
-        var x = (c-r)*(TILE_W/2);
-        if (x<minX) minX = x;
-        if (x>maxX) maxX = x;
-      }
-    }
-    originX = canvasW/2 - (minX+maxX)/2;
+  var originX = 0, originY = 0;
+  function computeOrigin(canvasW, canvasH){
+    TILE = Math.floor(Math.min(canvasW/COLS, canvasH/ROWS));
+    originX = (canvasW - TILE*COLS)/2;
+    originY = (canvasH - TILE*ROWS)/2;
   }
   function tileScreen(c,r){
-    return { x: originX + (c-r)*(TILE_W/2), y: originY + (c+r)*(TILE_H/2) };
+    return { x: originX + c*TILE + TILE/2, y: originY + r*TILE + TILE/2 };
   }
   function screenToTile(x,y){
-    var a = (x-originX)/(TILE_W/2);
-    var b = (y-originY)/(TILE_H/2);
-    var c = Math.round((a+b)/2);
-    var r = Math.round((b-a)/2);
-    return {c:c, r:r};
+    return { c: Math.floor((x-originX)/TILE), r: Math.floor((y-originY)/TILE) };
   }
 
   /* ---------- dice ---------- */
@@ -605,7 +595,7 @@
     canvas.width = rect.width*dpr;
     canvas.height = rect.height*dpr;
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    computeOrigin(rect.width);
+    computeOrigin(rect.width, rect.height);
   }
   window.addEventListener('resize', resizeCanvas);
 
@@ -636,17 +626,6 @@
   });
 
   /* ---------- rendering ---------- */
-  function drawDiamond(cx, cy, w, h, fill, stroke, lineW){
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx+w/2, cy+h/2);
-    ctx.lineTo(cx, cy+h);
-    ctx.lineTo(cx-w/2, cy+h/2);
-    ctx.closePath();
-    if (fill){ ctx.fillStyle = fill; ctx.fill(); }
-    if (stroke){ ctx.lineWidth = lineW||1; ctx.strokeStyle = stroke; ctx.stroke(); }
-  }
-
   function drawBackground(w,h){
     ctx.fillStyle = T.bgRaised;
     ctx.fillRect(0,0,w,h);
@@ -666,22 +645,13 @@
       else animT = Math.min(1, t);
     }
 
-    // build draw list: tiles then units, sorted by depth
-    var items = [];
     for (var c=0;c<COLS;c++){
       for (var r=0;r<ROWS;r++){
-        items.push({type:'tile', c:c, r:r, depth:(c+r)});
+        drawTile(c,r);
       }
     }
-    if (player.alive) items.push({type:'unit', unit:player, depth:(player.c+player.r)+0.5});
-    if (enemy.alive) items.push({type:'unit', unit:enemy, depth:(enemy.c+enemy.r)+0.5});
-    items.sort(function(a,b){ return a.depth-b.depth; });
-
-    for (var i=0;i<items.length;i++){
-      var it = items[i];
-      if (it.type==='tile') drawTile(it.c, it.r);
-      else drawUnit(it.unit, animT);
-    }
+    if (player.alive) drawUnit(player, animT);
+    if (enemy.alive) drawUnit(enemy, animT);
   }
 
   function tileFill(c,r){
@@ -695,20 +665,27 @@
 
   function drawTile(c,r){
     var p = tileScreen(c,r);
+    var x0 = p.x-TILE/2, y0 = p.y-TILE/2;
     var fill = tileFill(c,r);
     var isReach = state.reachable.some(function(t){ return t.c===c && t.r===r; });
     var isAtk = state.attackable.some(function(t){ return t.c===c && t.r===r; });
     var stroke = (isReach||isAtk) ? (isAtk?T.vino:T.celeste) : T.line;
-    drawDiamond(p.x, p.y, TILE_W, TILE_H, fill, stroke, (isReach||isAtk)?1.6:1);
+
+    ctx.fillStyle = fill;
+    ctx.fillRect(x0, y0, TILE, TILE);
+    ctx.lineWidth = (isReach||isAtk) ? 1.6 : 1;
+    ctx.strokeStyle = stroke;
+    ctx.strokeRect(x0+0.5, y0+0.5, TILE-1, TILE-1);
 
     if (isObstacle(c,r)){
       ctx.fillStyle = T.tree;
       ctx.beginPath();
-      ctx.moveTo(p.x, p.y-18);
-      ctx.lineTo(p.x+16, p.y+TILE_H/2);
-      ctx.lineTo(p.x-16, p.y+TILE_H/2);
-      ctx.closePath();
+      ctx.arc(p.x, p.y, TILE*0.24, 0, Math.PI*2);
       ctx.fill();
+      ctx.fillStyle = T.line;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, TILE*0.24, 0, Math.PI*2);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = T.line; ctx.stroke();
     }
   }
 
@@ -723,60 +700,49 @@
     } else {
       pos = tileScreen(unit.c, unit.r);
     }
-    var baseX = pos.x, baseY = pos.y + TILE_H/2;
+    var cx = pos.x, cy = pos.y;
     var isPlayer = unit.side==='player';
     var main = isPlayer ? T.celeste : T.vino;
     var soft = isPlayer ? T.celesteSoft : T.vinoSoft;
+    var rad = TILE*0.3;
 
-    // shadow
+    // ground shadow
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.beginPath();
-    ctx.ellipse(baseX, baseY+4, 26, 9, 0, 0, Math.PI*2);
+    ctx.ellipse(cx, cy+rad*0.7, rad*0.8, rad*0.32, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // body
-    var bodyH = 54, bodyW = 30;
     ctx.fillStyle = soft;
-    roundRect(baseX-bodyW/2, baseY-bodyH, bodyW, bodyH, 8);
-    ctx.fill();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.strokeStyle = main;
-    roundRect(baseX-bodyW/2, baseY-bodyH, bodyW, bodyH, 8);
+    ctx.beginPath();
+    if (isPlayer){
+      // seen from above: a facing marker (triangle)
+      ctx.moveTo(cx, cy-rad);
+      ctx.lineTo(cx+rad*0.87, cy+rad*0.6);
+      ctx.lineTo(cx-rad*0.87, cy+rad*0.6);
+      ctx.closePath();
+    } else {
+      ctx.arc(cx, cy, rad, 0, Math.PI*2);
+    }
+    ctx.fill();
     ctx.stroke();
 
-    // head / glyph
-    ctx.fillStyle = main;
-    ctx.beginPath();
-    ctx.arc(baseX, baseY-bodyH-6, 12, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = T.bg;
-    ctx.font = '700 12px "Space Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(isPlayer ? 'P' : 'E', baseX, baseY-bodyH-5);
-
     // hp bar
-    var hpW = 44;
+    var hpW = TILE*0.72;
     var hpPct = Math.max(0, unit.hp/unit.maxHp);
+    var hpY = cy - rad - 14;
     ctx.fillStyle = T.line;
-    ctx.fillRect(baseX-hpW/2, baseY-bodyH-26, hpW, 5);
+    ctx.fillRect(cx-hpW/2, hpY, hpW, 5);
     ctx.fillStyle = main;
-    ctx.fillRect(baseX-hpW/2, baseY-bodyH-26, hpW*hpPct, 5);
+    ctx.fillRect(cx-hpW/2, hpY, hpW*hpPct, 5);
 
     // name label
     ctx.fillStyle = T.inkSoft;
     ctx.font = '700 10px "Space Mono", monospace';
-    ctx.fillText(unit.name, baseX, baseY+14);
-  }
-
-  function roundRect(x,y,w,h,rad){
-    ctx.beginPath();
-    ctx.moveTo(x+rad,y);
-    ctx.arcTo(x+w,y,x+w,y+h,rad);
-    ctx.arcTo(x+w,y+h,x,y+h,rad);
-    ctx.arcTo(x,y+h,x,y,rad);
-    ctx.arcTo(x,y,x+w,y,rad);
-    ctx.closePath();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(unit.name, cx, cy+rad+14);
   }
 
   function loop(now){
