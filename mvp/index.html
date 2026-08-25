@@ -311,11 +311,11 @@
   /* ---------- game state ---------- */
   var player = {
     name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
-    fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/player-placeholder.svg'
+    fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png'
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
-    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/enemy-placeholder.svg'
+    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png'
   };
 
   /* ---------- sprites ---------- */
@@ -725,10 +725,13 @@
 
     var visualTop;
     if (unit.spriteImg){
-      var spriteH = TILE*1.3;
-      var spriteW = spriteH * (100/140);
+      var img = unit.spriteImg;
+      var aspect = img.naturalWidth / img.naturalHeight;
+      var spriteH = TILE*1.3, spriteW = spriteH * aspect;
+      var maxW = TILE*1.15;
+      if (spriteW > maxW){ spriteW = maxW; spriteH = spriteW / aspect; }
       visualTop = visualBottom - spriteH;
-      ctx.drawImage(unit.spriteImg, cx-spriteW/2, visualTop, spriteW, spriteH);
+      ctx.drawImage(img, cx-spriteW/2, visualTop, spriteW, spriteH);
     } else {
       visualTop = cy - rad;
       ctx.fillStyle = soft;
