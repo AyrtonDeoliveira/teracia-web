@@ -99,7 +99,7 @@
   .board-col{ display:flex; flex-direction:column; gap:0.9rem; }
   .board-frame{
     position:relative; border:1px solid var(--line); background:var(--bg-raised);
-    aspect-ratio:4/3; width:100%; overflow:hidden;
+    aspect-ratio:1/1; width:100%; overflow:hidden;
   }
   canvas{ display:block; width:100%; height:100%; }
 
@@ -273,9 +273,9 @@
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- grid / top-down projection ---------- */
-  var COLS = 8, ROWS = 6;
+  var COLS = 11, ROWS = 11;
   var TILE = 64;
-  var obstacles = [ {c:4,r:1}, {c:3,r:4}, {c:5,r:4} ];
+  var obstacles = [ {c:5,r:2}, {c:8,r:2}, {c:3,r:6}, {c:7,r:6}, {c:5,r:8} ];
 
   function isObstacle(c,r){ return obstacles.some(function(o){ return o.c===c && o.r===r; }); }
   function inBounds(c,r){ return c>=0 && c<COLS && r>=0 && r<ROWS; }
@@ -310,11 +310,11 @@
 
   /* ---------- game state ---------- */
   var player = {
-    name:'Paladín', side:'player', c:1, r:3, maxHp:38, hp:38,
+    name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
     fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/player-placeholder.svg'
   };
   var enemy = {
-    name:'Caballero Guardián', side:'enemy', c:6, r:2, maxHp:45, hp:45,
+    name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
     fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/enemy-placeholder.svg'
   };
 
@@ -772,8 +772,8 @@
 
   /* ---------- restart ---------- */
   function restart(){
-    player.hp = player.maxHp; player.alive = true; player.c=1; player.r=3;
-    enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=6; enemy.r=2;
+    player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5;
+    enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
     state.phase='player-idle'; state.round=1; state.moveUsed=false; state.attackUsed=false;
     state.reachable=[]; state.attackable=[]; state.anim=null;
     logList.innerHTML='';
