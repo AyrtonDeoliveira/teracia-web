@@ -244,7 +244,7 @@
 
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.<br><br>
-      <b>Descarga:</b> ataque eléctrico más fuerte (D8 en vez de D6), escala con Fe en vez de Fuerza. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita).
+      <b>Descarga:</b> ataque eléctrico más fuerte (D8 en vez de D6), escala con Fe en vez de Fuerza, y si conecta también electrifica el área 3x3 alrededor del objetivo (3 de daño, ignora armadura, no te afecta a vos). <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita).
     </div>
   </div>
 
@@ -279,7 +279,7 @@
       bg:g('--bg'), bgRaised:g('--bg-raised'), surface:g('--surface'), ink:g('--ink'),
       inkSoft:g('--ink-soft'), muted:g('--muted'), line:g('--line'),
       celeste:g('--celeste'), celesteSoft:g('--celeste-soft'), vino:g('--vino'), vinoSoft:g('--vino-soft'),
-      groundA:g('--ground-a'), groundB:g('--ground-b'), tree:g('--tree')
+      groundA:g('--ground-a'), groundB:g('--ground-b'), tree:g('--tree'), electricidad:g('--st-electricidad')
     };
   }
   var T = readTokens();
@@ -356,7 +356,8 @@
     attackMode:'basico', // 'basico' | 'descarga' — cual ataque se esta apuntando
     shieldArmed:false,
     enemyBlindRolls:0, // tiradas del enemigo que todavia sufren el +2 de la ceguera
-    anim:null // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
+    anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
+    aoeFlash:null // {tiles:[{c,r}], t0, dur} — destello del area de Descarga
   };
 
   /* ---------- BFS movement range ---------- */
@@ -456,7 +457,27 @@
     if (tier==='crit'){ dmg *= 2; addLog(tier, label+'. ¡Crítico! Daño x2 → '+dmg+'.'); }
     else { addLog(tier, label+'. Impacta por '+dmg+'.'); }
     applyDamage(defender, dmg);
+    if (opts.afterHit) opts.afterHit(attacker, defender);
     setTimeout(onDone, 500);
+  }
+
+  function triggerElectricAoE(attacker, defender){
+    var tiles = [];
+    for (var dc=-1; dc<=1; dc++){
+      for (var dr=-1; dr<=1; dr++){
+        var c = defender.c+dc, r = defender.r+dr;
+        if (inBounds(c,r)) tiles.push({c:c,r:r});
+      }
+    }
+    state.aoeFlash = { tiles:tiles, t0:performance.now(), dur:550 };
+    var hit = [];
+    [player, enemy].forEach(function(u){
+      if (!u.alive || u===attacker || u===defender) return;
+      var inArea = tiles.some(function(t){ return t.c===u.c && t.r===u.r; });
+      if (inArea){ applyDamage(u, 3); hit.push(u.name); }
+    });
+    if (hit.length) addLog('small', 'Electricidad: además golpea en área a '+hit.join(', ')+' por 3 (ignora armadura).');
+    else addLog('small', 'Electricidad: chispea en un área 3x3 alrededor de '+defender.name+', pero no hay nadie más cerca para alcanzar.');
   }
 
   function resolveCounterattack(attacker, defender, onDone){
@@ -671,6 +692,7 @@
 
   function resizeCanvas(){
     var rect = frame.getBoundingClientRect();
+    if (rect.width<1 || rect.height<1) return;
     var dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width*dpr;
     canvas.height = rect.height*dpr;
@@ -678,6 +700,9 @@
     computeOrigin(rect.width, rect.height);
   }
   window.addEventListener('resize', resizeCanvas);
+  if (window.ResizeObserver){
+    new ResizeObserver(resizeCanvas).observe(frame);
+  }
 
   canvas.addEventListener('click', function(e){
     var rect = canvas.getBoundingClientRect();
@@ -698,7 +723,7 @@
       if (t2){
         state.attackUsed = true; state.phase='anim'; state.attackable=[];
         var opts = state.attackMode==='descarga'
-          ? { abilityName:'Descarga', thresholdStat:'fe', dmgDie:8 }
+          ? { abilityName:'Descarga', thresholdStat:'fe', dmgDie:8, afterHit:triggerElectricAoE }
           : {};
         if (state.attackMode==='descarga'){ player.mana -= 2; updateManaUI(); }
         resolveAttack(player, enemy, opts, function(){
@@ -736,6 +761,22 @@
     }
     if (player.alive) drawUnit(player, animT);
     if (enemy.alive) drawUnit(enemy, animT);
+
+    if (state.aoeFlash){
+      var elapsed = now - state.aoeFlash.t0;
+      if (elapsed > state.aoeFlash.dur){ state.aoeFlash = null; }
+      else {
+        var alpha = 0.4 * (1 - elapsed/state.aoeFlash.dur);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = T.electricidad;
+        state.aoeFlash.tiles.forEach(function(tl){
+          var p = tileScreen(tl.c, tl.r);
+          ctx.fillRect(p.x-TILE/2, p.y-TILE/2, TILE, TILE);
+        });
+        ctx.restore();
+      }
+    }
   }
 
   function tileFill(c,r){
@@ -862,7 +903,7 @@
     player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5; player.mana = player.maxMana;
     enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
     state.phase='player-idle'; state.round=1; state.moveUsed=false; state.attackUsed=false;
-    state.attackMode='basico'; state.shieldArmed=false; state.enemyBlindRolls=0;
+    state.attackMode='basico'; state.shieldArmed=false; state.enemyBlindRolls=0; state.aoeFlash=null;
     state.reachable=[]; state.attackable=[]; state.anim=null;
     logList.innerHTML='';
     document.getElementById('victoryOverlay').classList.remove('show');
