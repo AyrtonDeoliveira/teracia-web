@@ -142,6 +142,11 @@
     background:transparent;
   }
   .manarow .pip.filled{ background:var(--celeste); }
+  .statustag{
+    display:inline-block; margin-top:0.6rem; padding:0.2rem 0.55rem;
+    font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--st-electricidad); color:var(--st-electricidad);
+  }
 
   .log{ border:1px solid var(--line); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
   .log .eyebrow{ margin-bottom:0.5rem; }
@@ -236,15 +241,18 @@
 
     <div class="actionbar">
       <button id="btnMove" type="button">Mover</button>
-      <button id="btnAttack" type="button">Atacar</button>
+      <button id="btnAttack" type="button">Atacar <span class="cost mono">3x3 cuerpo a cuerpo</span></button>
       <button id="btnDescarga" type="button">Descarga <span class="cost mono">2 maná</span></button>
       <button id="btnShield" type="button">Escudo <span class="cost mono">1 maná si bloquea</span></button>
+      <button id="btnSecondMove" type="button">Mover otra vez <span class="cost mono">sacrifica el ataque</span></button>
+      <button id="btnRest" type="button">Descansar <span class="cost mono">+1 maná</span></button>
       <button id="btnEnd" type="button" class="end">Terminar turno</button>
     </div>
 
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.<br><br>
-      <b>Descarga:</b> ataque eléctrico más fuerte (D8 en vez de D6), escala con Fe en vez de Fuerza, y si conecta también electrifica el área 3x3 alrededor del objetivo (3 de daño, ignora armadura, no te afecta a vos). <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita).
+      <b>Movimiento libre:</b> el rango que ves al mover queda fijo en el lugar donde empezaste el turno — podés moverte por esas casillas todas las veces que quieras, para acercarte o alejarte antes de decidir tu ataque. Recién en tu próximo turno el rango se recalcula desde donde terminaste.<br><br>
+      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> no ataca — potencia tus golpes cuerpo a cuerpo por 2 turnos, para que salgan eléctricos y con daño extra que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Mover otra vez:</b> sacrificás tu turno de ataque para recalcular el rango de movimiento desde tu posición actual. <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
   </div>
 
@@ -254,6 +262,7 @@
       <div class="hpbar"><div class="fill" id="playerHpFill"></div></div>
       <div class="hpnum mono" id="playerHpNum">38 / 38</div>
       <div class="manarow" id="playerManaRow"></div>
+      <div class="statustag mono" id="playerStatusTag" hidden>Electrificado</div>
     </div>
     <div class="statcard enemy" id="enemyCard">
       <div class="name">Caballero Guardián <b>Bosque</b></div>
@@ -327,7 +336,8 @@
     name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
     fuerza:5, destreza:5, fe:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
     spriteScaleH:0.95, spriteScaleW:1.45,
-    maxMana:2, mana:2
+    maxMana:2, mana:2,
+    electrifiedTurns:0 // Descarga: golpes cuerpo a cuerpo electrificados por N turnos
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
@@ -347,17 +357,15 @@
 
   var MOVE_RANGE = 4;
   var state = {
-    phase:'player-idle',   // player-idle | player-move | player-attack | anim | enemy-turn | over
+    phase:'player-idle',   // player-idle | player-move | anim | enemy-turn | over
     round:1,
-    reachable:[],
-    attackable:[],
-    moveUsed:false,
-    attackUsed:false,
-    attackMode:'basico', // 'basico' | 'descarga' — cual ataque se esta apuntando
+    reachable:[], // rango de movimiento congelado (se recalcula solo al empezar turno, o al usar "Mover otra vez")
+    menorAvailable:true, // turno menor (mover) sin usar todavia
+    mayorAvailable:true, // turno mayor (atacar/descarga/escudo activo cuenta aparte/mover-otra-vez/descansar) sin usar
     shieldArmed:false,
     enemyBlindRolls:0, // tiradas del enemigo que todavia sufren el +2 de la ceguera
     anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
-    aoeFlash:null // {tiles:[{c,r}], t0, dur} — destello del area de Descarga
+    aoeFlash:null // {tiles:[{c,r}], t0, dur} — destello del area electrica
   };
 
   /* ---------- BFS movement range ---------- */
@@ -398,6 +406,14 @@
   }
   function isAdjacent(a,b){
     return Math.abs(a.c-b.c)+Math.abs(a.r-b.r) === 1;
+  }
+  function chebyshev(a,b){
+    return Math.max(Math.abs(a.c-b.c), Math.abs(a.r-b.r));
+  }
+  function getEnemiesInMeleeRange(attacker){
+    var list = [];
+    if (enemy.alive && enemy!==attacker && chebyshev(attacker,enemy)<=1) list.push(enemy);
+    return list;
   }
 
   /* ---------- log & toast ---------- */
@@ -461,23 +477,68 @@
     setTimeout(onDone, 500);
   }
 
-  function triggerElectricAoE(attacker, defender){
+  function flashArea(centerUnit){
     var tiles = [];
     for (var dc=-1; dc<=1; dc++){
       for (var dr=-1; dr<=1; dr++){
-        var c = defender.c+dc, r = defender.r+dr;
+        var c = centerUnit.c+dc, r = centerUnit.r+dr;
         if (inBounds(c,r)) tiles.push({c:c,r:r});
       }
     }
     state.aoeFlash = { tiles:tiles, t0:performance.now(), dur:550 };
-    var hit = [];
-    [player, enemy].forEach(function(u){
-      if (!u.alive || u===attacker || u===defender) return;
-      var inArea = tiles.some(function(t){ return t.c===u.c && t.r===u.r; });
-      if (inArea){ applyDamage(u, 3); hit.push(u.name); }
-    });
-    if (hit.length) addLog('small', 'Electricidad: además golpea en área a '+hit.join(', ')+' por 3 (ignora armadura).');
-    else addLog('small', 'Electricidad: chispea en un área 3x3 alrededor de '+defender.name+', pero no hay nadie más cerca para alcanzar.');
+  }
+
+  // Atacar del Paladin: golpe cuerpo a cuerpo en area 3x3 alrededor suyo (con diagonales).
+  // Si Descarga esta activa (player.electrifiedTurns>0), el golpe sale electrificado:
+  // daño extra que ignora armadura.
+  function resolveMeleeAoE(attacker, defenders, onDone){
+    var roll = rollD20();
+    var tier = outcomeTier(roll);
+    var threshold = attackThreshold(attacker, 'fuerza') + blindPenalty(attacker);
+    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
+    var label = attacker.name+' ataca en área (3x3) — D20 → '+roll+' (necesita '+threshold+'+)';
+    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
+
+    if (tier==='crit-fail'){
+      addLog(tier, label+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolveCounterattack(attacker, defenders[0], onDone); }, 650);
+      return;
+    }
+    if (!success){
+      addLog(tier, label+'. No conecta.');
+      setTimeout(onDone, 500);
+      return;
+    }
+    var electrified = attacker.electrifiedTurns>0;
+    var dmg = rollDamage(attacker) + (electrified ? 3 : 0);
+    if (tier==='crit'){ dmg *= 2; }
+    var names = defenders.map(function(d){ return d.name; }).join(', ');
+    var flavor = electrified ? ' ¡Electrificado! (ignora armadura)' : '';
+    if (tier==='crit') addLog(tier, label+'. ¡Crítico! Golpea a '+names+' por '+dmg+' cada uno.'+flavor);
+    else addLog(tier, label+'. Impacta a '+names+' por '+dmg+' cada uno.'+flavor);
+    defenders.forEach(function(d){ applyDamage(d, dmg); });
+    if (electrified) flashArea(attacker);
+    setTimeout(onDone, 500);
+  }
+
+  // Descarga: no ataca — potencia el proximo golpe cuerpo a cuerpo del Paladin por 2 turnos.
+  function castDescarga(onDone){
+    var roll = rollD20();
+    var tier = outcomeTier(roll);
+    var threshold = attackThreshold(player, 'fe');
+    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
+    var label = 'Descarga — Paladín tira D20 → '+roll+' (necesita '+threshold+'+)';
+    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
+    if (tier==='crit-fail'){
+      addLog(tier, label+'. Fallo crítico — la carga se disipa sin efecto.');
+    } else if (!success){
+      addLog(tier, label+'. No lográs cargarla.');
+    } else {
+      player.electrifiedTurns = 2;
+      updateStatusUI();
+      addLog(tier, label+'. Tus próximos golpes cuerpo a cuerpo, por 2 turnos, salen eléctricos.');
+    }
+    setTimeout(onDone, 500);
   }
 
   function resolveCounterattack(attacker, defender, onDone){
@@ -544,6 +605,8 @@
   var btnAttack = document.getElementById('btnAttack');
   var btnDescarga = document.getElementById('btnDescarga');
   var btnShield = document.getElementById('btnShield');
+  var btnSecondMove = document.getElementById('btnSecondMove');
+  var btnRest = document.getElementById('btnRest');
   var btnEnd = document.getElementById('btnEnd');
   var turnWho = document.getElementById('turnWho');
   var turnHint = document.getElementById('turnHint');
@@ -565,57 +628,93 @@
     }
   }
 
+  function updateStatusUI(){
+    var tag = document.getElementById('playerStatusTag');
+    if (player.electrifiedTurns>0){
+      tag.hidden = false;
+      tag.textContent = 'Electrificado ('+player.electrifiedTurns+')';
+    } else {
+      tag.hidden = true;
+    }
+  }
+
   function refreshButtons(){
-    var idle = state.phase==='player-idle' || state.phase==='player-move' || state.phase==='player-attack';
-    btnMove.disabled = !idle || state.moveUsed;
-    btnAttack.disabled = !idle || state.attackUsed;
-    btnDescarga.disabled = !idle || state.attackUsed || player.mana<2;
+    var idle = state.phase==='player-idle' || state.phase==='player-move';
+    btnMove.disabled = !idle || !state.menorAvailable;
+    btnAttack.disabled = !idle || !state.mayorAvailable;
+    btnDescarga.disabled = !idle || !state.mayorAvailable || player.mana<2;
     btnShield.disabled = !idle || (player.mana<1 && !state.shieldArmed);
-    btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move' && state.phase!=='player-attack';
+    btnSecondMove.disabled = !idle || !state.mayorAvailable;
+    btnRest.disabled = !idle || !(state.menorAvailable && state.mayorAvailable);
+    btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
     btnMove.classList.toggle('active', state.phase==='player-move');
-    btnAttack.classList.toggle('active', state.phase==='player-attack' && state.attackMode==='basico');
-    btnDescarga.classList.toggle('active', state.phase==='player-attack' && state.attackMode==='descarga');
     btnShield.classList.toggle('active', state.shieldArmed);
   }
 
   function setHint(){
-    if (state.phase==='player-move') turnHint.textContent = state.reachable.length ? 'Elegí una casilla resaltada para moverte' : 'No hay casillas libres a las que moverte';
-    else if (state.phase==='player-attack'){
-      var abilityLabel = state.attackMode==='descarga' ? ' con Descarga' : '';
-      turnHint.textContent = state.attackable.length ? ('Elegí un enemigo adyacente para atacar'+abilityLabel) : 'El enemigo no está a rango — acercate primero';
-    }
+    if (state.phase==='player-move') turnHint.textContent = state.reachable.length ? 'Elegí una casilla — podés repetir todas las veces que quieras este turno' : 'No hay casillas libres a las que moverte';
     else if (state.phase==='enemy-turn') turnHint.textContent = 'El Caballero Guardián actúa...';
     else if (state.phase==='over') turnHint.textContent = 'Combate terminado';
-    else turnHint.textContent = 'Elegí Mover, Atacar/Descarga o armar el Escudo, o terminá el turno';
+    else turnHint.textContent = 'Elegí una acción, o terminá el turno';
   }
 
   btnMove.addEventListener('click', function(){
-    if (state.phase==='player-move'){ state.phase='player-idle'; }
-    else { state.phase='player-move'; state.reachable = computeReachable(player); }
+    if (!state.menorAvailable) return;
+    state.phase = state.phase==='player-move' ? 'player-idle' : 'player-move';
     refreshButtons(); setHint();
   });
-  function enterAttackMode(mode){
-    if (state.phase==='player-attack' && state.attackMode===mode){ state.phase='player-idle'; }
-    else {
-      state.phase='player-attack';
-      state.attackMode = mode;
-      state.attackable = enemy.alive && isAdjacent(player, enemy) ? [{c:enemy.c,r:enemy.r}] : [];
-      if (!state.attackable.length) addLog(null, 'El enemigo no está al alcance todavía.');
-    }
-    refreshButtons(); setHint();
-  }
-  btnAttack.addEventListener('click', function(){ enterAttackMode('basico'); });
-  btnDescarga.addEventListener('click', function(){ enterAttackMode('descarga'); });
+
+  btnAttack.addEventListener('click', function(){
+    if (!state.mayorAvailable) return;
+    var targets = getEnemiesInMeleeRange(player);
+    if (!targets.length){ addLog(null, 'Nadie está en tu área 3x3 todavía — movete más cerca.'); return; }
+    state.mayorAvailable = false; state.phase = 'anim';
+    refreshButtons();
+    resolveMeleeAoE(player, targets, function(){
+      if (checkGameOver()) return;
+      state.phase='player-idle'; refreshButtons(); setHint();
+    });
+  });
+
+  btnDescarga.addEventListener('click', function(){
+    if (!state.mayorAvailable || player.mana<2) return;
+    player.mana -= 2; updateManaUI();
+    state.mayorAvailable = false; state.phase = 'anim';
+    refreshButtons();
+    castDescarga(function(){
+      state.phase='player-idle'; refreshButtons(); setHint();
+    });
+  });
+
   btnShield.addEventListener('click', function(){
     state.shieldArmed = !state.shieldArmed;
     addLog(null, state.shieldArmed ? 'Armás el Escudo reactivo — listo para frenar el próximo golpe.' : 'Bajás el Escudo.');
     refreshButtons();
   });
+
+  btnSecondMove.addEventListener('click', function(){
+    if (!state.mayorAvailable) return;
+    state.mayorAvailable = false;
+    state.reachable = computeReachable(player);
+    addLog(null, 'Sacrificás tu ataque para moverte otra vez — nuevo rango calculado desde donde estás.');
+    refreshButtons(); setHint();
+  });
+
+  btnRest.addEventListener('click', function(){
+    if (!(state.menorAvailable && state.mayorAvailable)) return;
+    state.menorAvailable = false; state.mayorAvailable = false;
+    player.mana = Math.min(player.maxMana, player.mana+1);
+    updateManaUI();
+    addLog(null, 'Descansás este turno: no te movés ni atacás, pero recuperás 1 de maná.');
+    refreshButtons(); setHint();
+  });
+
   btnEnd.addEventListener('click', function(){ endPlayerTurn(); });
 
   function endPlayerTurn(){
+    if (player.electrifiedTurns>0){ player.electrifiedTurns--; updateStatusUI(); }
     state.phase = 'enemy-turn';
-    state.reachable = []; state.attackable = [];
+    state.reachable = [];
     refreshButtons(); setHint(); turnWho.textContent='Turno del Caballero Guardián'; turnWho.className='who mono enemy';
     setTimeout(runEnemyTurn, 500);
   }
@@ -679,7 +778,8 @@
 
   function startPlayerTurn(){
     state.round += 1;
-    state.moveUsed = false; state.attackUsed = false;
+    state.menorAvailable = true; state.mayorAvailable = true;
+    state.reachable = computeReachable(player); // rango congelado para todo el turno
     state.phase = 'player-idle';
     turnWho.textContent = 'Turno del Paladín'; turnWho.className = 'who mono player';
     refreshButtons(); setHint();
@@ -711,25 +811,12 @@
 
     if (state.phase==='player-move'){
       var found = state.reachable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
-      if (found){
-        state.moveUsed = true; state.phase = 'anim';
+      if (found && !occupied(found.c,found.r)){
+        state.phase = 'anim';
         resolveMove(player, {c:found.c,r:found.r}, function(){
           state.phase='player-idle'; refreshButtons(); setHint();
         });
-        state.reachable = [];
-      }
-    } else if (state.phase==='player-attack'){
-      var t2 = state.attackable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
-      if (t2){
-        state.attackUsed = true; state.phase='anim'; state.attackable=[];
-        var opts = state.attackMode==='descarga'
-          ? { abilityName:'Descarga', thresholdStat:'fe', dmgDie:8, afterHit:triggerElectricAoE }
-          : {};
-        if (state.attackMode==='descarga'){ player.mana -= 2; updateManaUI(); }
-        resolveAttack(player, enemy, opts, function(){
-          if (checkGameOver()) return;
-          state.phase='player-idle'; refreshButtons(); setHint();
-        });
+        // el rango NO se limpia ni se recalcula: sigue disponible para moverte de nuevo este turno
       }
     }
   });
@@ -781,9 +868,7 @@
 
   function tileFill(c,r){
     if (isObstacle(c,r)) return T.groundB;
-    var isReach = state.reachable.some(function(t){ return t.c===c && t.r===r; });
-    var isAtk = state.attackable.some(function(t){ return t.c===c && t.r===r; });
-    if (isAtk) return T.vinoSoft;
+    var isReach = state.phase==='player-move' && state.reachable.some(function(t){ return t.c===c && t.r===r; });
     if (isReach) return T.celesteSoft;
     return ((c+r)%2===0) ? T.groundA : T.groundB;
   }
@@ -792,13 +877,12 @@
     var p = tileScreen(c,r);
     var x0 = p.x-TILE/2, y0 = p.y-TILE/2;
     var fill = tileFill(c,r);
-    var isReach = state.reachable.some(function(t){ return t.c===c && t.r===r; });
-    var isAtk = state.attackable.some(function(t){ return t.c===c && t.r===r; });
-    var stroke = (isReach||isAtk) ? (isAtk?T.vino:T.celeste) : T.line;
+    var isReach = state.phase==='player-move' && state.reachable.some(function(t){ return t.c===c && t.r===r; });
+    var stroke = isReach ? T.celeste : T.line;
 
     ctx.fillStyle = fill;
     ctx.fillRect(x0, y0, TILE, TILE);
-    ctx.lineWidth = (isReach||isAtk) ? 1.6 : 1;
+    ctx.lineWidth = isReach ? 1.6 : 1;
     ctx.strokeStyle = stroke;
     ctx.strokeRect(x0+0.5, y0+0.5, TILE-1, TILE-1);
 
@@ -901,15 +985,17 @@
   /* ---------- restart ---------- */
   function restart(){
     player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5; player.mana = player.maxMana;
+    player.electrifiedTurns = 0;
     enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
-    state.phase='player-idle'; state.round=1; state.moveUsed=false; state.attackUsed=false;
-    state.attackMode='basico'; state.shieldArmed=false; state.enemyBlindRolls=0; state.aoeFlash=null;
-    state.reachable=[]; state.attackable=[]; state.anim=null;
+    state.phase='player-idle'; state.round=1;
+    state.menorAvailable=true; state.mayorAvailable=true;
+    state.shieldArmed=false; state.enemyBlindRolls=0; state.aoeFlash=null;
+    state.reachable=computeReachable(player); state.anim=null;
     logList.innerHTML='';
     document.getElementById('victoryOverlay').classList.remove('show');
     document.getElementById('defeatOverlay').classList.remove('show');
     turnWho.textContent='Turno del Paladín'; turnWho.className='who mono player';
-    updateHpUI(); updateManaUI(); refreshButtons(); setHint();
+    updateHpUI(); updateManaUI(); updateStatusUI(); refreshButtons(); setHint();
     addLog(null, 'Empieza el combate en el bosque.');
   }
   document.getElementById('btnRestartVictory').addEventListener('click', restart);
@@ -917,8 +1003,10 @@
 
   /* ---------- init ---------- */
   resizeCanvas();
+  state.reachable = computeReachable(player);
   updateHpUI();
   updateManaUI();
+  updateStatusUI();
   refreshButtons();
   setHint();
   addLog(null, 'Empieza el combate en el bosque.');
