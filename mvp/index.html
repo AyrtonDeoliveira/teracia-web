@@ -123,6 +123,10 @@
   .actionbar button:disabled{ opacity:0.4; cursor:not-allowed; }
   .actionbar button.end{ flex:1 1 100%; border-color:var(--vino); }
   .actionbar button.end:hover:not(:disabled){ border-color:var(--vino); color:var(--vino); }
+  .actionbar button .cost{
+    display:block; font-size:0.62rem; letter-spacing:0.03em; text-transform:none;
+    color:var(--muted); margin-top:0.2rem;
+  }
 
   .side-col{ display:flex; flex-direction:column; gap:1rem; }
   .statcard{ border:1px solid var(--line); padding:0.9rem 1rem; }
@@ -132,6 +136,12 @@
   .hpbar .fill{ height:100%; background:var(--celeste); transition:width 300ms ease; }
   .statcard.enemy .hpbar .fill{ background:var(--vino); }
   .hpnum{ margin-top:0.3rem; font-size:0.72rem; color:var(--muted); }
+  .manarow{ display:flex; gap:0.3rem; margin-top:0.55rem; }
+  .manarow .pip{
+    width:11px; height:11px; border-radius:50%; border:1.5px solid var(--celeste);
+    background:transparent;
+  }
+  .manarow .pip.filled{ background:var(--celeste); }
 
   .log{ border:1px solid var(--line); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
   .log .eyebrow{ margin-bottom:0.5rem; }
@@ -227,11 +237,14 @@
     <div class="actionbar">
       <button id="btnMove" type="button">Mover</button>
       <button id="btnAttack" type="button">Atacar</button>
+      <button id="btnDescarga" type="button">Descarga <span class="cost mono">2 maná</span></button>
+      <button id="btnShield" type="button">Escudo <span class="cost mono">1 maná si bloquea</span></button>
       <button id="btnEnd" type="button" class="end">Terminar turno</button>
     </div>
 
     <div class="rules-note">
-      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.
+      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.<br><br>
+      <b>Descarga:</b> ataque eléctrico más fuerte (D8 en vez de D6), escala con Fe en vez de Fuerza. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita).
     </div>
   </div>
 
@@ -240,6 +253,7 @@
       <div class="name">Paladín <b>Rol de ataque</b></div>
       <div class="hpbar"><div class="fill" id="playerHpFill"></div></div>
       <div class="hpnum mono" id="playerHpNum">38 / 38</div>
+      <div class="manarow" id="playerManaRow"></div>
     </div>
     <div class="statcard enemy" id="enemyCard">
       <div class="name">Caballero Guardián <b>Bosque</b></div>
@@ -311,8 +325,9 @@
   /* ---------- game state ---------- */
   var player = {
     name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
-    fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
-    spriteScaleH:0.72, spriteScaleW:1.45
+    fuerza:5, destreza:5, fe:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
+    spriteScaleH:0.95, spriteScaleW:1.45,
+    maxMana:2, mana:2
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
@@ -338,6 +353,9 @@
     attackable:[],
     moveUsed:false,
     attackUsed:false,
+    attackMode:'basico', // 'basico' | 'descarga' — cual ataque se esta apuntando
+    shieldArmed:false,
+    enemyBlindRolls:0, // tiradas del enemigo que todavia sufren el +2 de la ceguera
     anim:null // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
   };
 
@@ -404,15 +422,24 @@
   }
 
   /* ---------- roll resolution ---------- */
-  function attackThreshold(unit){ return 15 - Math.min(2, Math.max(0, Math.floor(unit.fuerza/5))); }
+  function attackThreshold(unit, statName){
+    var stat = unit[statName||'fuerza'] || 0;
+    return 15 - Math.min(2, Math.max(0, Math.floor(stat/5)));
+  }
   function moveThreshold(unit){ return 10 - Math.min(2, Math.max(0, Math.floor(unit.destreza/5))); }
+  function blindPenalty(unit){
+    if (unit===enemy && state.enemyBlindRolls>0){ state.enemyBlindRolls--; return 2; }
+    return 0;
+  }
 
-  function resolveAttack(attacker, defender, onDone){
+  function resolveAttack(attacker, defender, opts, onDone){
+    opts = opts || {};
     var roll = rollD20();
     var tier = outcomeTier(roll);
-    var threshold = attackThreshold(attacker);
+    var threshold = attackThreshold(attacker, opts.thresholdStat) + blindPenalty(attacker);
     var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
-    var label = attacker.name+' tira D20 → '+roll+' (necesita '+threshold+'+)';
+    var prefix = opts.abilityName ? opts.abilityName+' — ' : '';
+    var label = prefix+attacker.name+' tira D20 → '+roll+' (necesita '+threshold+'+)';
     showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
 
     if (tier==='crit-fail'){
@@ -425,7 +452,7 @@
       setTimeout(onDone, 500);
       return;
     }
-    var dmg = rollDamage(attacker);
+    var dmg = opts.dmgDie ? rollDie(opts.dmgDie) : rollDamage(attacker);
     if (tier==='crit'){ dmg *= 2; addLog(tier, label+'. ¡Crítico! Daño x2 → '+dmg+'.'); }
     else { addLog(tier, label+'. Impacta por '+dmg+'.'); }
     applyDamage(defender, dmg);
@@ -459,7 +486,7 @@
   function resolveMove(unit, dest, onDone){
     var roll = rollD20();
     var tier = outcomeTier(roll);
-    var threshold = moveThreshold(unit);
+    var threshold = moveThreshold(unit) + blindPenalty(unit);
     var success = roll>=threshold;
     showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
     if (tier==='crit-fail'){
@@ -494,6 +521,8 @@
   /* ---------- UI wiring ---------- */
   var btnMove = document.getElementById('btnMove');
   var btnAttack = document.getElementById('btnAttack');
+  var btnDescarga = document.getElementById('btnDescarga');
+  var btnShield = document.getElementById('btnShield');
   var btnEnd = document.getElementById('btnEnd');
   var turnWho = document.getElementById('turnWho');
   var turnHint = document.getElementById('turnHint');
@@ -505,21 +534,38 @@
     document.getElementById('enemyHpNum').textContent = enemy.hp+' / '+enemy.maxHp;
   }
 
+  function updateManaUI(){
+    var el = document.getElementById('playerManaRow');
+    el.innerHTML = '';
+    for (var i=0;i<player.maxMana;i++){
+      var dot = document.createElement('span');
+      dot.className = 'pip' + (i<player.mana ? ' filled' : '');
+      el.appendChild(dot);
+    }
+  }
+
   function refreshButtons(){
     var idle = state.phase==='player-idle' || state.phase==='player-move' || state.phase==='player-attack';
     btnMove.disabled = !idle || state.moveUsed;
     btnAttack.disabled = !idle || state.attackUsed;
+    btnDescarga.disabled = !idle || state.attackUsed || player.mana<2;
+    btnShield.disabled = !idle || (player.mana<1 && !state.shieldArmed);
     btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move' && state.phase!=='player-attack';
     btnMove.classList.toggle('active', state.phase==='player-move');
-    btnAttack.classList.toggle('active', state.phase==='player-attack');
+    btnAttack.classList.toggle('active', state.phase==='player-attack' && state.attackMode==='basico');
+    btnDescarga.classList.toggle('active', state.phase==='player-attack' && state.attackMode==='descarga');
+    btnShield.classList.toggle('active', state.shieldArmed);
   }
 
   function setHint(){
     if (state.phase==='player-move') turnHint.textContent = state.reachable.length ? 'Elegí una casilla resaltada para moverte' : 'No hay casillas libres a las que moverte';
-    else if (state.phase==='player-attack') turnHint.textContent = state.attackable.length ? 'Elegí un enemigo adyacente para atacar' : 'El enemigo no está a rango — acercate primero';
+    else if (state.phase==='player-attack'){
+      var abilityLabel = state.attackMode==='descarga' ? ' con Descarga' : '';
+      turnHint.textContent = state.attackable.length ? ('Elegí un enemigo adyacente para atacar'+abilityLabel) : 'El enemigo no está a rango — acercate primero';
+    }
     else if (state.phase==='enemy-turn') turnHint.textContent = 'El Caballero Guardián actúa...';
     else if (state.phase==='over') turnHint.textContent = 'Combate terminado';
-    else turnHint.textContent = 'Elegí Mover o Atacar, o terminá el turno';
+    else turnHint.textContent = 'Elegí Mover, Atacar/Descarga o armar el Escudo, o terminá el turno';
   }
 
   btnMove.addEventListener('click', function(){
@@ -527,14 +573,22 @@
     else { state.phase='player-move'; state.reachable = computeReachable(player); }
     refreshButtons(); setHint();
   });
-  btnAttack.addEventListener('click', function(){
-    if (state.phase==='player-attack'){ state.phase='player-idle'; }
+  function enterAttackMode(mode){
+    if (state.phase==='player-attack' && state.attackMode===mode){ state.phase='player-idle'; }
     else {
       state.phase='player-attack';
+      state.attackMode = mode;
       state.attackable = enemy.alive && isAdjacent(player, enemy) ? [{c:enemy.c,r:enemy.r}] : [];
       if (!state.attackable.length) addLog(null, 'El enemigo no está al alcance todavía.');
     }
     refreshButtons(); setHint();
+  }
+  btnAttack.addEventListener('click', function(){ enterAttackMode('basico'); });
+  btnDescarga.addEventListener('click', function(){ enterAttackMode('descarga'); });
+  btnShield.addEventListener('click', function(){
+    state.shieldArmed = !state.shieldArmed;
+    addLog(null, state.shieldArmed ? 'Armás el Escudo reactivo — listo para frenar el próximo golpe.' : 'Bajás el Escudo.');
+    refreshButtons();
   });
   btnEnd.addEventListener('click', function(){ endPlayerTurn(); });
 
@@ -559,10 +613,24 @@
     return false;
   }
 
+  function enemyAttacksPlayer(onDone){
+    if (state.shieldArmed && player.mana>=1){
+      player.mana -= 1; updateManaUI();
+      state.shieldArmed = false;
+      state.enemyBlindRolls = 2;
+      showToast('hit', '¡Escudo reactivo!');
+      addLog('hit', 'Escudo reactivo: frenás el golpe de '+enemy.name+' gastando 1 maná y lo cegás — Destello, +2 al número pedido en sus próximas 2 tiradas.');
+      refreshButtons();
+      setTimeout(onDone, 700);
+      return;
+    }
+    resolveAttack(enemy, player, {}, onDone);
+  }
+
   function runEnemyTurn(){
     if (checkGameOver()) return;
     if (isAdjacent(enemy, player)){
-      resolveAttack(enemy, player, function(){
+      enemyAttacksPlayer(function(){
         if (checkGameOver()) return;
         startPlayerTurn();
       });
@@ -578,7 +646,7 @@
     var target = options[0];
     resolveMove(enemy, target, function(){
       if (isAdjacent(enemy, player)){
-        resolveAttack(enemy, player, function(){
+        enemyAttacksPlayer(function(){
           if (checkGameOver()) return;
           startPlayerTurn();
         });
@@ -629,7 +697,11 @@
       var t2 = state.attackable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
       if (t2){
         state.attackUsed = true; state.phase='anim'; state.attackable=[];
-        resolveAttack(player, enemy, function(){
+        var opts = state.attackMode==='descarga'
+          ? { abilityName:'Descarga', thresholdStat:'fe', dmgDie:8 }
+          : {};
+        if (state.attackMode==='descarga'){ player.mana -= 2; updateManaUI(); }
+        resolveAttack(player, enemy, opts, function(){
           if (checkGameOver()) return;
           state.phase='player-idle'; refreshButtons(); setHint();
         });
@@ -787,15 +859,16 @@
 
   /* ---------- restart ---------- */
   function restart(){
-    player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5;
+    player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5; player.mana = player.maxMana;
     enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
     state.phase='player-idle'; state.round=1; state.moveUsed=false; state.attackUsed=false;
+    state.attackMode='basico'; state.shieldArmed=false; state.enemyBlindRolls=0;
     state.reachable=[]; state.attackable=[]; state.anim=null;
     logList.innerHTML='';
     document.getElementById('victoryOverlay').classList.remove('show');
     document.getElementById('defeatOverlay').classList.remove('show');
     turnWho.textContent='Turno del Paladín'; turnWho.className='who mono player';
-    updateHpUI(); refreshButtons(); setHint();
+    updateHpUI(); updateManaUI(); refreshButtons(); setHint();
     addLog(null, 'Empieza el combate en el bosque.');
   }
   document.getElementById('btnRestartVictory').addEventListener('click', restart);
@@ -804,6 +877,7 @@
   /* ---------- init ---------- */
   resizeCanvas();
   updateHpUI();
+  updateManaUI();
   refreshButtons();
   setHint();
   addLog(null, 'Empieza el combate en el bosque.');
