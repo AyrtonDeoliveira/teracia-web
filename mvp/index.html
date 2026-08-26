@@ -311,11 +311,13 @@
   /* ---------- game state ---------- */
   var player = {
     name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
-    fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png'
+    fuerza:5, destreza:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
+    spriteScaleH:0.72, spriteScaleW:1.45
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
-    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png', flipSprite:true
+    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png', flipSprite:true,
+    spriteScaleH:1.4, spriteScaleW:1.4
   };
 
   /* ---------- sprites ---------- */
@@ -727,9 +729,10 @@
     if (unit.spriteImg){
       var img = unit.spriteImg;
       var aspect = img.naturalWidth / img.naturalHeight;
-      var spriteH = TILE*1.3, spriteW = spriteH * aspect;
-      var maxW = TILE*1.15;
-      if (spriteW > maxW){ spriteW = maxW; spriteH = spriteW / aspect; }
+      var spriteH = TILE*1.3 * (unit.spriteScaleH||1);
+      var spriteW = TILE*1.3 * aspect * (unit.spriteScaleW||1);
+      var maxW = TILE*1.8;
+      if (spriteW > maxW){ var shrink = maxW/spriteW; spriteW *= shrink; spriteH *= shrink; }
       visualTop = visualBottom - spriteH;
       if (unit.flipSprite){
         ctx.save();
