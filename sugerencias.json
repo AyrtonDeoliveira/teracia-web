@@ -103,11 +103,11 @@
     "text": "No hay modificación de crítico (ni fallo ni acierto) en las tiradas de movimiento.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.475Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:25:00.000Z",
+    "notes": "Fallo crítico en movimiento = quedás caído hasta sacar una tirada buena (esa te levanta). Crítico = un paso extra gratis. Vale para el Paladín y el enemigo.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 11,
