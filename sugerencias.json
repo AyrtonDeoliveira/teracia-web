@@ -92,11 +92,11 @@
     "text": "No se muestra el número que salió en la tirada de ataque, ni el daño hecho al objetivo.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.475Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:00:00.000Z",
+    "notes": "El tablero ahora muestra un número flotante por cada tirada (\"D20 N\", coloreado por resultado) y el daño (\"-X\") sobre el objetivo, además del toast y el registro.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 10,
