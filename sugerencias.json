@@ -136,10 +136,10 @@
     "text": "Falta implementar la habilidad Destello del Paladín.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.477Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T21:05:00.000Z",
+    "notes": "Destello es ahora un botón propio: reacción de 2 maná que, si la salvación D20 sale, frena el golpe y además ciega al enemigo (+2 a lo que necesita en sus próximas 2 tiradas).",
+    "screenshotHint": "mvp"
   }
 ]
