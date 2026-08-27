@@ -244,6 +244,7 @@
       <button id="btnAttack" type="button">Atacar <span class="cost mono">3x3 cuerpo a cuerpo</span></button>
       <button id="btnDescarga" type="button">Descarga <span class="cost mono">2 maná</span></button>
       <button id="btnShield" type="button">Escudo <span class="cost mono">1 maná si bloquea</span></button>
+      <button id="btnDestello" type="button">Destello <span class="cost mono">2 maná si bloquea</span></button>
       <button id="btnRest" type="button">Descansar <span class="cost mono">+1 maná</span></button>
       <button id="btnEnd" type="button" class="end">Terminar turno</button>
     </div>
@@ -251,7 +252,7 @@
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa te levanta) y un 18–20 te da un paso extra gratis.<br><br>
       <b>Moverte:</b> hasta 2 veces por turno con el mismo botón Mover. La primera es gratis; la segunda te gasta el ataque de ese turno. Cada vez que abrís Mover el rango se recalcula desde donde estás parado, no desde donde arrancaste el turno.<br><br>
-      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
+      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná y tirás una salvación D20 (Fe baja el número pedido) — si sale, frenás el golpe entero; si no, el golpe entra igual y perdés el maná. <b>Destello:</b> igual que el Escudo pero cuesta 2 maná; si la salvación sale, además ciega al enemigo dos tiradas (+2 a lo que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
   </div>
 
@@ -341,7 +342,7 @@
     name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
     fuerza:5, destreza:5, fe:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
     spriteScaleH:0.95, spriteScaleW:1.45,
-    maxMana:2, mana:2,
+    maxMana:4, mana:4,
     fallen:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
   };
   var enemy = {
@@ -368,7 +369,7 @@
     reachable:[], // rango de movimiento visible ahora mismo (se recalcula cada vez que abrís "Mover")
     movesUsed:0, // 0, 1 o 2 — movimientos ya gastados este turno (máx 2; la 2da gasta el ataque)
     mayorAvailable:true, // turno mayor: atacar / Descarga / Descansar / 2° movimiento
-    shieldArmed:false,
+    reactiveStance:null, // null | 'escudo' | 'destello' — qué reacción está armada (dura hasta tu próximo turno)
     enemyBlindRolls:0, // tiradas del enemigo que todavia sufren el +2 de la ceguera
     anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
     aoeFlash:null, // {tiles:[{c,r}], t0, dur} — destello del area electrica
@@ -618,6 +619,7 @@
   var btnAttack = document.getElementById('btnAttack');
   var btnDescarga = document.getElementById('btnDescarga');
   var btnShield = document.getElementById('btnShield');
+  var btnDestello = document.getElementById('btnDestello');
   var btnRest = document.getElementById('btnRest');
   var btnEnd = document.getElementById('btnEnd');
   var turnWho = document.getElementById('turnWho');
@@ -642,12 +644,9 @@
 
   function updateStatusUI(){
     var tag = document.getElementById('playerStatusTag');
-    if (state.shieldArmed){
-      tag.hidden = false;
-      tag.textContent = 'Escudo armado';
-    } else {
-      tag.hidden = true;
-    }
+    if (state.reactiveStance==='escudo'){ tag.hidden = false; tag.textContent = 'Escudo armado'; }
+    else if (state.reactiveStance==='destello'){ tag.hidden = false; tag.textContent = 'Destello armado'; }
+    else { tag.hidden = true; }
   }
 
   function canMoveAgain(){
@@ -660,11 +659,13 @@
     btnMove.disabled = !moveIdle || !canMoveAgain();
     btnAttack.disabled = !idle || !state.mayorAvailable;
     btnDescarga.disabled = !idle || !state.mayorAvailable || player.mana<2;
-    btnShield.disabled = !idle || (player.mana<1 && !state.shieldArmed);
+    btnShield.disabled = !idle || (player.mana<1 && state.reactiveStance!=='escudo');
+    btnDestello.disabled = !idle || (player.mana<2 && state.reactiveStance!=='destello');
     btnRest.disabled = !idle || state.movesUsed>0 || !state.mayorAvailable;
     btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
     btnMove.classList.toggle('active', state.phase==='player-move');
-    btnShield.classList.toggle('active', state.shieldArmed);
+    btnShield.classList.toggle('active', state.reactiveStance==='escudo');
+    btnDestello.classList.toggle('active', state.reactiveStance==='destello');
     updateStatusUI();
   }
 
@@ -718,8 +719,14 @@
   });
 
   btnShield.addEventListener('click', function(){
-    state.shieldArmed = !state.shieldArmed;
-    addLog(null, state.shieldArmed ? 'Armás el Escudo reactivo — listo para frenar el próximo golpe.' : 'Bajás el Escudo.');
+    if (state.reactiveStance==='escudo'){ state.reactiveStance = null; addLog(null, 'Bajás el Escudo.'); }
+    else { state.reactiveStance = 'escudo'; addLog(null, 'Armás el Escudo — 1 maná y salvación D20 si llega a bloquear.'); }
+    refreshButtons();
+  });
+
+  btnDestello.addEventListener('click', function(){
+    if (state.reactiveStance==='destello'){ state.reactiveStance = null; addLog(null, 'Bajás Destello.'); }
+    else { state.reactiveStance = 'destello'; addLog(null, 'Armás Destello — 2 maná y salvación D20; si bloquea, además ciega al enemigo.'); }
     refreshButtons();
   });
 
@@ -767,30 +774,50 @@
   }
 
   function enemyAttacksPlayer(onDone){
-    if (state.shieldArmed && player.mana>=1){
-      player.mana -= 1; updateManaUI();
-      state.shieldArmed = false;
-      state.enemyBlindRolls = 2;
-      showToast('hit', '¡Escudo reactivo!');
-      addLog('hit', 'Escudo reactivo: frenás el golpe de '+enemy.name+' gastando 1 maná y lo cegás — Destello, +2 al número pedido en sus próximas 2 tiradas.');
+    var stance = state.reactiveStance;
+    var canPay = (stance==='escudo' && player.mana>=1) || (stance==='destello' && player.mana>=2);
+    if (stance && canPay){
+      var cost = stance==='destello' ? 2 : 1;
+      var name = stance==='destello' ? 'Destello' : 'Escudo';
+      player.mana -= cost; updateManaUI();
+      state.reactiveStance = null;
+      var roll = rollD20();
+      var tier = outcomeTier(roll);
+      var threshold = 10 - Math.min(2, Math.max(0, Math.floor(player.fe/5))); // tirada de salvación, baja con Fe
+      var saved = roll >= threshold;
+      spawnFloatingText(player, 'D20 '+roll, tierColor(tier));
+      showToast(saved?'hit':'crit-fail', name+' — salvación '+roll+' / '+threshold);
+      if (saved){
+        addLog('hit', name+': salvación D20 → '+roll+' (necesita '+threshold+'+). Frenás el golpe de '+enemy.name+' y gastás '+cost+' de maná.');
+        if (stance==='destello'){
+          state.enemyBlindRolls = 2;
+          addLog('small', 'Destello ciega a '+enemy.name+': +2 a lo que necesita en sus próximas 2 tiradas.');
+        }
+        refreshButtons();
+        setTimeout(onDone, 700);
+        return;
+      }
+      addLog('crit-fail', name+': salvación D20 → '+roll+' (necesita '+threshold+'+). No llega — el golpe entra igual y perdés el maná.');
       refreshButtons();
-      setTimeout(onDone, 700);
+      setTimeout(function(){ resolveAttack(enemy, player, {}, onDone); }, 550);
       return;
     }
     resolveAttack(enemy, player, {}, onDone);
   }
 
   // como resolveMove, pero si la tirada es crítica encadena un paso extra gratis
-  // (el mismo "el movimiento se duplica" que tiene el Paladín).
-  function enemyAttemptMove(dest, onDone){
+  // (el mismo "el movimiento se duplica" que tiene el Paladín). Se limita la
+  // cadena para no colgar el turno si salen varios críticos seguidos.
+  function enemyAttemptMove(dest, onDone, depth){
+    depth = depth || 0;
     resolveMove(enemy, dest, function(outcome){
-      if (outcome.crit){
+      if (outcome.crit && depth < 3){
         var opts = computeReachable(enemy).filter(function(t){ return !occupied(t.c,t.r); });
         if (opts.length){
           opts.sort(function(a,b){
             return (Math.abs(a.c-player.c)+Math.abs(a.r-player.r)) - (Math.abs(b.c-player.c)+Math.abs(b.r-player.r));
           });
-          enemyAttemptMove(opts[0], onDone);
+          enemyAttemptMove(opts[0], onDone, depth+1);
           return;
         }
       }
@@ -830,6 +857,8 @@
   function startPlayerTurn(){
     state.round += 1;
     state.movesUsed = 0; state.mayorAvailable = true;
+    // el Escudo/Destello armado cubre exactamente el turno enemigo que acaba de pasar y ahora expira
+    state.reactiveStance = null;
     state.reachable = computeReachable(player); // vista inicial; se recalcula al abrir "Mover"
     state.phase = 'player-idle';
     turnWho.textContent = 'Turno del Paladín'; turnWho.className = 'who mono player';
@@ -1073,7 +1102,7 @@
     state.phase='player-idle'; state.round=1;
     state.movesUsed=0; state.mayorAvailable=true;
     player.fallen=false; enemy.fallen=false;
-    state.shieldArmed=false; state.enemyBlindRolls=0; state.aoeFlash=null;
+    state.reactiveStance=null; state.enemyBlindRolls=0; state.aoeFlash=null;
     state.floatingTexts=[];
     state.reachable=computeReachable(player); state.anim=null;
     logList.innerHTML='';
