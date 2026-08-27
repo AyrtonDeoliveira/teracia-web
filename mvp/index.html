@@ -249,7 +249,7 @@
     </div>
 
     <div class="rules-note">
-      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.<br><br>
+      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa te levanta) y un 18–20 te da un paso extra gratis.<br><br>
       <b>Moverte:</b> hasta 2 veces por turno con el mismo botón Mover. La primera es gratis; la segunda te gasta el ataque de ese turno. Cada vez que abrís Mover el rango se recalcula desde donde estás parado, no desde donde arrancaste el turno.<br><br>
       <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> no ataca — potencia tus golpes cuerpo a cuerpo por 2 turnos, para que salgan eléctricos y con daño extra que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
@@ -342,12 +342,14 @@
     fuerza:5, destreza:5, fe:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
     spriteScaleH:0.95, spriteScaleW:1.45,
     maxMana:2, mana:2,
-    electrifiedTurns:0 // Descarga: golpes cuerpo a cuerpo electrificados por N turnos
+    electrifiedTurns:0, // Descarga: golpes cuerpo a cuerpo electrificados por N turnos
+    fallen:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
   };
   var enemy = {
     name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
     fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png', flipSprite:true,
-    spriteScaleH:1.4, spriteScaleW:1.4
+    spriteScaleH:1.4, spriteScaleW:1.4,
+    fallen:false
   };
 
   /* ---------- sprites ---------- */
@@ -585,25 +587,31 @@
   }
 
   // onDone recibe {success, crit}: success = si de verdad se movió (una falla no
-  // gasta uno de los 2 movimientos del turno).
+  // gasta uno de los 2 movimientos del turno); crit = un 18–20, que duplica el
+  // movimiento (un paso extra gratis). Un fallo crítico deja a la unidad caída.
   function resolveMove(unit, dest, onDone){
     var roll = rollD20();
     var tier = outcomeTier(roll);
     var threshold = moveThreshold(unit) + blindPenalty(unit);
     var success = roll>=threshold;
+    var wasFallen = unit.fallen;
     showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
     spawnFloatingText(unit, 'D20 '+roll, tierColor(tier));
     if (tier==='crit-fail'){
-      addLog(tier, unit.name+' tropieza al moverse (D20 → '+roll+'). Se cae.');
+      unit.fallen = true;
+      addLog(tier, unit.name+' tropieza al moverse (D20 → '+roll+'). Queda en el piso.');
       setTimeout(function(){ onDone({success:false, crit:false}); }, 500);
       return;
     }
     if (!success){
-      addLog(tier, unit.name+' no logra moverse a tiempo (D20 → '+roll+', necesita '+threshold+'+).');
+      addLog(tier, wasFallen
+        ? unit.name+' sigue en el piso, no logra levantarse (D20 → '+roll+').'
+        : unit.name+' no logra moverse a tiempo (D20 → '+roll+', necesita '+threshold+'+).');
       setTimeout(function(){ onDone({success:false, crit:false}); }, 500);
       return;
     }
-    addLog(tier, unit.name+' se mueve (D20 → '+roll+')'+(tier==='crit'?'. ¡Crítico!':'.'));
+    unit.fallen = false;
+    addLog(tier, unit.name+' se mueve (D20 → '+roll+')'+(wasFallen?', se levanta':'')+(tier==='crit'?'. ¡Crítico!':'.'));
     animateMove(unit, dest, function(){ onDone({success:true, crit: tier==='crit'}); });
   }
 
@@ -678,7 +686,8 @@
 
   function setHint(){
     if (state.phase==='player-move'){
-      if (!state.reachable.length) turnHint.textContent = 'No hay casillas libres a las que moverte';
+      if (player.fallen) turnHint.textContent = 'Estás caído — elegí casilla e intentá; una tirada exitosa te levanta';
+      else if (!state.reachable.length) turnHint.textContent = 'No hay casillas libres a las que moverte';
       else if (state.movesUsed>=1) turnHint.textContent = 'Elegí casilla — es tu 2° movimiento, gasta tu ataque de este turno';
       else turnHint.textContent = 'Elegí una casilla para moverte';
     }
@@ -774,6 +783,24 @@
     resolveAttack(enemy, player, {}, onDone);
   }
 
+  // como resolveMove, pero si la tirada es crítica encadena un paso extra gratis
+  // (el mismo "el movimiento se duplica" que tiene el Paladín).
+  function enemyAttemptMove(dest, onDone){
+    resolveMove(enemy, dest, function(outcome){
+      if (outcome.crit){
+        var opts = computeReachable(enemy).filter(function(t){ return !occupied(t.c,t.r); });
+        if (opts.length){
+          opts.sort(function(a,b){
+            return (Math.abs(a.c-player.c)+Math.abs(a.r-player.r)) - (Math.abs(b.c-player.c)+Math.abs(b.r-player.r));
+          });
+          enemyAttemptMove(opts[0], onDone);
+          return;
+        }
+      }
+      onDone(outcome);
+    });
+  }
+
   function runEnemyTurn(){
     if (checkGameOver()) return;
     if (isAdjacent(enemy, player)){
@@ -791,7 +818,7 @@
       return da-db;
     });
     var target = options[0];
-    resolveMove(enemy, target, function(){
+    enemyAttemptMove(target, function(){
       if (isAdjacent(enemy, player)){
         enemyAttacksPlayer(function(){
           if (checkGameOver()) return;
@@ -841,12 +868,19 @@
       if (found && !occupied(found.c,found.r)){
         state.phase = 'anim';
         resolveMove(player, {c:found.c,r:found.r}, function(outcome){
-          if (outcome.success){
+          if (outcome.success && !outcome.crit){
             state.movesUsed += 1;
             if (state.movesUsed>=2) state.mayorAvailable = false; // la 2da vez gasta el ataque
           }
-          state.reachable = [];
-          state.phase = 'player-idle';
+          if (outcome.crit){
+            // crítico: el movimiento se duplica — otro paso gratis, no cuenta para el tope
+            addLog('crit', 'Movimiento crítico: te movés otra vez gratis.');
+            state.phase = 'player-move';
+            state.reachable = computeReachable(player);
+          } else {
+            state.reachable = [];
+            state.phase = 'player-idle';
+          }
           refreshButtons(); setHint();
         });
       }
@@ -1042,6 +1076,7 @@
     enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
     state.phase='player-idle'; state.round=1;
     state.movesUsed=0; state.mayorAvailable=true;
+    player.fallen=false; enemy.fallen=false;
     state.shieldArmed=false; state.enemyBlindRolls=0; state.aoeFlash=null;
     state.floatingTexts=[];
     state.reachable=computeReachable(player); state.anim=null;
