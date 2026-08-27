@@ -2,7 +2,7 @@ import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '@whiskeys
 import qrcodeTerminal from 'qrcode-terminal';
 import pino from 'pino';
 import { paths, BOT_PREFIX } from './config.js';
-import { handleMessage } from './lib/messageRouter.js';
+import { handleMessage, extractText } from './lib/messageRouter.js';
 import { startSuggestionsWatcher } from './lib/suggestionsWatcher.js';
 import { getTargetGroup } from './lib/groupConfig.js';
 
@@ -49,7 +49,10 @@ async function start() {
   sock.ev.on('messages.upsert', ({ messages }) => {
     for (const msg of messages) {
       if (!msg.message) continue;
-      if (msg.key.fromMe) continue;
+      // si el numero del bot es el mismo que el tuyo, tus mensajes tambien
+      // llegan marcados "fromMe" — solo descartamos los que son del bot
+      // mismo (arrancan con su emoji), no todo lo que venga de ese numero.
+      if (msg.key.fromMe && extractText(msg).startsWith(BOT_PREFIX)) continue;
       if (!msg.key.remoteJid?.endsWith('@g.us')) continue;
       handleMessage(sock, msg).catch((err) => console.error('Error en handleMessage:', err));
     }

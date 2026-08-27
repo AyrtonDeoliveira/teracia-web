@@ -10,7 +10,7 @@ import { getTargetGroup } from './groupConfig.js';
 
 const PREFIX = /^t!\s*/i;
 
-function extractText(msg) {
+export function extractText(msg) {
   const m = msg.message;
   if (!m) return '';
   return m.extendedTextMessage?.text || m.conversation || '';
