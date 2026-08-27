@@ -1076,8 +1076,9 @@
     var el = performance.now() - unit.hitFx.t0;
     if (el >= unit.hitFx.dur){ unit.hitFx = null; return null; }
     var pr = el / unit.hitFx.dur;
+    // la sacudida es feedback de combate (breve), va incluso con prefers-reduced-motion
     return {
-      angle: reduceMotion ? 0 : 0.26 * Math.sin(pr * Math.PI * 3) * (1 - pr),
+      angle: 0.34 * Math.sin(pr * Math.PI * 3) * (1 - pr),
       red: pr < 0.45 ? 0.62 : Math.max(0, 0.62 * (1 - (pr - 0.45) / 0.55))
     };
   }
