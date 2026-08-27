@@ -145,7 +145,7 @@
   .statustag{
     display:inline-block; margin-top:0.6rem; padding:0.2rem 0.55rem;
     font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase;
-    border:1px solid var(--st-electricidad); color:var(--st-electricidad);
+    border:1px solid var(--celeste); color:var(--celeste);
   }
 
   .log{ border:1px solid var(--line); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
@@ -251,7 +251,7 @@
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa te levanta) y un 18–20 te da un paso extra gratis.<br><br>
       <b>Moverte:</b> hasta 2 veces por turno con el mismo botón Mover. La primera es gratis; la segunda te gasta el ataque de ese turno. Cada vez que abrís Mover el rango se recalcula desde donde estás parado, no desde donde arrancaste el turno.<br><br>
-      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> no ataca — potencia tus golpes cuerpo a cuerpo por 2 turnos, para que salgan eléctricos y con daño extra que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
+      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
   </div>
 
@@ -261,7 +261,7 @@
       <div class="hpbar"><div class="fill" id="playerHpFill"></div></div>
       <div class="hpnum mono" id="playerHpNum">38 / 38</div>
       <div class="manarow" id="playerManaRow"></div>
-      <div class="statustag mono" id="playerStatusTag" hidden>Electrificado</div>
+      <div class="statustag mono" id="playerStatusTag" hidden>Escudo armado</div>
     </div>
     <div class="statcard enemy" id="enemyCard">
       <div class="name">Caballero Guardián <b>Bosque</b></div>
@@ -342,7 +342,6 @@
     fuerza:5, destreza:5, fe:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
     spriteScaleH:0.95, spriteScaleW:1.45,
     maxMana:2, mana:2,
-    electrifiedTurns:0, // Descarga: golpes cuerpo a cuerpo electrificados por N turnos
     fallen:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
   };
   var enemy = {
@@ -504,15 +503,18 @@
     state.aoeFlash = { tiles:tiles, t0:performance.now(), dur:550 };
   }
 
-  // Atacar del Paladin: golpe cuerpo a cuerpo en area 3x3 alrededor suyo (con diagonales).
-  // Si Descarga esta activa (player.electrifiedTurns>0), el golpe sale electrificado:
-  // daño extra que ignora armadura.
-  function resolveMeleeAoE(attacker, defenders, onDone){
+  // Ataque en área 3x3 del Paladín (cuerpo a cuerpo, con diagonales).
+  // opts.electric (Descarga): además del daño normal, todo el área recibe 3 de
+  // daño que ignora armadura. opts.thresholdStat cambia la habilidad de tirada
+  // (Descarga usa Fe). opts.abilityName es solo para el texto del registro.
+  function resolveMeleeAoE(attacker, defenders, onDone, opts){
+    opts = opts || {};
     var roll = rollD20();
     var tier = outcomeTier(roll);
-    var threshold = attackThreshold(attacker, 'fuerza') + blindPenalty(attacker);
+    var threshold = attackThreshold(attacker, opts.thresholdStat || 'fuerza') + blindPenalty(attacker);
     var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
-    var label = attacker.name+' ataca en área (3x3) — D20 → '+roll+' (necesita '+threshold+'+)';
+    var prefix = opts.abilityName ? opts.abilityName+' — ' : '';
+    var label = prefix+attacker.name+' ataca en área (3x3) — D20 → '+roll+' (necesita '+threshold+'+)';
     showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
     spawnFloatingText(attacker, 'D20 '+roll, tierColor(tier));
 
@@ -526,35 +528,16 @@
       setTimeout(onDone, 500);
       return;
     }
-    var electrified = attacker.electrifiedTurns>0;
-    var dmg = rollDamage(attacker) + (electrified ? 3 : 0);
+    var dmg = rollDamage(attacker);
     if (tier==='crit'){ dmg *= 2; }
     var names = defenders.map(function(d){ return d.name; }).join(', ');
-    var flavor = electrified ? ' ¡Electrificado! (ignora armadura)' : '';
-    if (tier==='crit') addLog(tier, label+'. ¡Crítico! Golpea a '+names+' por '+dmg+' cada uno.'+flavor);
-    else addLog(tier, label+'. Impacta a '+names+' por '+dmg+' cada uno.'+flavor);
+    if (tier==='crit') addLog(tier, label+'. ¡Crítico! Golpea a '+names+' por '+dmg+' cada uno.');
+    else addLog(tier, label+'. Impacta a '+names+' por '+dmg+' cada uno.');
     defenders.forEach(function(d){ applyDamage(d, dmg); spawnFloatingText(d, '-'+dmg, T.vino); });
-    if (electrified) flashArea(attacker);
-    setTimeout(onDone, 500);
-  }
-
-  // Descarga: no ataca — potencia el proximo golpe cuerpo a cuerpo del Paladin por 2 turnos.
-  function castDescarga(onDone){
-    var roll = rollD20();
-    var tier = outcomeTier(roll);
-    var threshold = attackThreshold(player, 'fe');
-    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
-    var label = 'Descarga — Paladín tira D20 → '+roll+' (necesita '+threshold+'+)';
-    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
-    spawnFloatingText(player, 'D20 '+roll, tierColor(tier));
-    if (tier==='crit-fail'){
-      addLog(tier, label+'. Fallo crítico — la carga se disipa sin efecto.');
-    } else if (!success){
-      addLog(tier, label+'. No lográs cargarla.');
-    } else {
-      player.electrifiedTurns = 2;
-      updateStatusUI();
-      addLog(tier, label+'. Tus próximos golpes cuerpo a cuerpo, por 2 turnos, salen eléctricos.');
+    if (opts.electric){
+      flashArea(attacker);
+      addLog('small', 'Electricidad — 3 de daño en área que ignora armadura.');
+      defenders.forEach(function(d){ applyDamage(d, 3); spawnFloatingText(d, '-3', T.electricidad); });
     }
     setTimeout(onDone, 500);
   }
@@ -659,9 +642,9 @@
 
   function updateStatusUI(){
     var tag = document.getElementById('playerStatusTag');
-    if (player.electrifiedTurns>0){
+    if (state.shieldArmed){
       tag.hidden = false;
-      tag.textContent = 'Electrificado ('+player.electrifiedTurns+')';
+      tag.textContent = 'Escudo armado';
     } else {
       tag.hidden = true;
     }
@@ -682,6 +665,7 @@
     btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
     btnMove.classList.toggle('active', state.phase==='player-move');
     btnShield.classList.toggle('active', state.shieldArmed);
+    updateStatusUI();
   }
 
   function setHint(){
@@ -722,12 +706,15 @@
 
   btnDescarga.addEventListener('click', function(){
     if (!state.mayorAvailable || player.mana<2) return;
+    var targets = getEnemiesInMeleeRange(player);
+    if (!targets.length){ addLog(null, 'Descarga es cuerpo a cuerpo — nadie está en tu área 3x3 todavía.'); return; }
     player.mana -= 2; updateManaUI();
     state.mayorAvailable = false; state.phase = 'anim';
     refreshButtons();
-    castDescarga(function(){
+    resolveMeleeAoE(player, targets, function(){
+      if (checkGameOver()) return;
       state.phase='player-idle'; refreshButtons(); setHint();
-    });
+    }, { electric:true, thresholdStat:'fe', abilityName:'Descarga' });
   });
 
   btnShield.addEventListener('click', function(){
@@ -759,7 +746,6 @@
   });
 
   function endPlayerTurn(){
-    if (player.electrifiedTurns>0){ player.electrifiedTurns--; updateStatusUI(); }
     state.phase = 'enemy-turn';
     state.reachable = [];
     refreshButtons(); setHint(); turnWho.textContent='Turno del Caballero Guardián'; turnWho.className='who mono enemy';
@@ -1083,7 +1069,6 @@
   /* ---------- restart ---------- */
   function restart(){
     player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5; player.mana = player.maxMana;
-    player.electrifiedTurns = 0;
     enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
     state.phase='player-idle'; state.round=1;
     state.movesUsed=0; state.mayorAvailable=true;
