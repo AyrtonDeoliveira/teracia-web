@@ -37,11 +37,11 @@
     "text": "El Paladín se auto-aplicó una habilidad y se electrocutó a sí mismo.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.472Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:46:00.000Z",
+    "notes": "Venía del estado \"Electrificado\" que aparecía en la ficha del Paladín. Al pasar Descarga a ser un ataque de un solo uso, el daño eléctrico solo toca a enemigos y no hay estado propio.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 5,
