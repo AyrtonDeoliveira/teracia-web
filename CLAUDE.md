@@ -54,14 +54,15 @@ Campos:
 
 1. **Al empezar cualquier sesión de trabajo en este repo**, leé `sugerencias.json` — sin que haga falta que el usuario te lo pida. Es tu forma de estar al tanto de lo que el equipo necesita, incluso si Ayrton se olvidó de mencionarlo o si otra sesión de Claude (en otra PC) cambió algo desde la última vez que viste el repo.
 2. Si hay entradas `pendiente`: si el usuario te pide "seguí con lo que falta" (o algo similar), o si una sugerencia pendiente es claramente relevante a lo que ya te está pidiendo, resolvela vos mismo sin esperar que te la repita — para eso está este archivo.
-3. **Al arrancar una sugerencia:** marcala `en_proceso` (actualizando `updatedAt`) y guardá el archivo **antes** de empezar a programar el cambio, como un paso propio y commiteado aparte (no lo mezcles en el mismo commit que edits no relacionados). El bot avisa al grupo apenas detecta este cambio.
-4. **Al terminarla:**
+3. **Si el texto de una sugerencia es ambiguo, incompleto, o no entendés bien qué se pide:** no adivines ni la ignores. Preguntale al usuario (a Ayrton, en el chat) qué quiso decir esa sugerencia antes de marcarla `en_proceso` o tocar código. Él va a responderte directo, o va a preguntarle al equipo si hace falta — no lo resuelvas por tu cuenta con una interpretación incierta.
+4. **Al arrancar una sugerencia** (ya entendida, sin ambigüedad pendiente): marcala `en_proceso` (actualizando `updatedAt`) y guardá el archivo **antes** de empezar a programar el cambio, como un paso propio y commiteado aparte (no lo mezcles en el mismo commit que edits no relacionados). El bot avisa al grupo apenas detecta este cambio.
+5. **Al terminarla:**
    - Marcala `hecho`, actualizá `updatedAt`, y dejá en `notes` una línea corta describiendo qué se hizo.
    - Si el cambio es algo visible en la página o el MVP (no si es, por ejemplo, un fix interno del bot o un doc de diseño), completá `screenshotHint` para que el aviso de WhatsApp incluya una captura automática. El valor es el mismo texto que usarías después de `T!captura` en WhatsApp:
      - `""` (string vacío) → captura de toda la página (`pagina-teracia/index.html`).
      - `"combate"`, `"clases"`, `"personaje"`, `"mundo"`, `"aventura"`, `"enemigos"`, `"taller"`, `"steam"` → esa sección de la página.
      - `"mvp"` → el prototipo jugable completo; `"mvp tablero"` → solo el tablero del MVP.
    - Si el cambio **no** es visual, dejá `screenshotHint` en `null` — el bot va a avisar solo con texto, sin intentar sacar una captura que no tendría sentido.
-   - Guardá este cambio de estado como su propio paso (commit aparte), igual que en el punto 3.
-5. Nunca borres ni reordenes entradas del array. Reescribí siempre el archivo completo, con indentación de 2 espacios.
-6. No toques `whatsapp-bot/auth_info_baileys/` ni `whatsapp-bot/data/` — son credenciales y estado local de esa máquina, están en `.gitignore` a propósito y nunca viajan por git.
+   - Guardá este cambio de estado como su propio paso (commit aparte), igual que en el punto 4.
+6. Nunca borres ni reordenes entradas del array. Reescribí siempre el archivo completo, con indentación de 2 espacios.
+7. No toques `whatsapp-bot/auth_info_baileys/` ni `whatsapp-bot/data/` — son credenciales y estado local de esa máquina, están en `.gitignore` a propósito y nunca viajan por git.
