@@ -745,7 +745,18 @@
     refreshButtons(); setHint();
   });
 
-  btnEnd.addEventListener('click', function(){ endPlayerTurn(); });
+  btnEnd.addEventListener('click', function(){
+    // no se puede terminar el turno con "Mover" a medio seleccionar:
+    // el primer click cancela la selección, recién el segundo termina el turno.
+    if (state.phase==='player-move'){
+      state.phase = 'player-idle';
+      state.reachable = [];
+      addLog(null, 'Cancelás el movimiento. Volvé a Terminar turno para pasar.');
+      refreshButtons(); setHint();
+      return;
+    }
+    endPlayerTurn();
+  });
 
   function endPlayerTurn(){
     if (player.electrifiedTurns>0){ player.electrifiedTurns--; updateStatusUI(); }
