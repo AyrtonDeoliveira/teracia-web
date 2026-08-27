@@ -4,11 +4,11 @@
     "text": "Hay un botón extra que es para mover otra vez.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.458Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:10:00.000Z",
+    "notes": "Se eliminó el botón \"Mover otra vez\". Ahora un solo botón Mover cubre el 1er y el 2do movimiento del turno.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 2,
