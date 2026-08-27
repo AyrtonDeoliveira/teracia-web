@@ -48,11 +48,11 @@
     "text": "No hay interfaz de salvación con el escudo — la habilidad siguió activa e hizo efecto durante más de un turno.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.473Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T21:06:00.000Z",
+    "notes": "Al bloquear con Escudo/Destello se tira una salvación D20 (10+, la Fe baja el número): si sale frena el golpe, si no entra igual y se pierde el maná. La reacción armada dura solo el turno enemigo siguiente y expira al empezar tu turno.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 6,
