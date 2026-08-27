@@ -93,7 +93,9 @@ export function startSuggestionsWatcher({ sendText, sendImage }) {
       }
     }
     if (changedLines.length > 0) {
-      sendText(`Mientras estaba desconectado:\n${changedLines.join('\n')}`);
+      Promise.resolve()
+        .then(() => sendText(`Mientras estaba desconectado:\n${changedLines.join('\n')}`))
+        .catch((err) => console.error('No pude mandar el resumen de cambios offline:', err));
     }
     announced = currentState;
     writeAnnouncedState(announced);
@@ -103,7 +105,12 @@ export function startSuggestionsWatcher({ sendText, sendImage }) {
     awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
   });
 
-  watcher.on('change', async () => {
+  // Un solo cambio de archivo puede llegar como varios eventos, y varios cambios
+  // seguidos (Claude Code marcando sugerencias una tras otra) pueden pisarse. Si
+  // dos pasadas corren en paralelo, ambas ven el mismo announced viejo y avisan
+  // de más o se pierden avisos. Encadenamos cada evento para procesarlos de a uno.
+  let queue = Promise.resolve();
+  async function processChanges() {
     let list;
     try {
       list = listSuggestions();
@@ -112,12 +119,23 @@ export function startSuggestionsWatcher({ sendText, sendImage }) {
       return;
     }
     for (const s of list) {
-      if (announced[s.id] !== s.status) {
+      if (announced[s.id] === s.status) continue;
+      try {
         await announceChange(s, { sendText, sendImage });
         announced[s.id] = s.status;
         writeAnnouncedState(announced);
+      } catch (err) {
+        // el envío no llegó: NO marcamos como avisada, se reintenta en el
+        // próximo cambio del archivo (o en el arranque del bot).
+        console.error('No pude anunciar el cambio de la sugerencia', s.id, '— se reintenta más tarde:', err);
       }
     }
+  }
+
+  watcher.on('change', () => {
+    queue = queue
+      .then(() => processChanges())
+      .catch((err) => console.error('Error procesando cambios de sugerencias:', err));
   });
 
   return watcher;

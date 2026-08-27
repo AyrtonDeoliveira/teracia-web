@@ -68,20 +68,19 @@ function getTargetOrWarn(context) {
   return target.targetGroupJid;
 }
 
+// Devuelven la promesa del envío para que quien llama pueda esperar la entrega
+// real (y saber si falló). Si no hay grupo activado, rechazan: así el watcher
+// no marca la sugerencia como "avisada" cuando en realidad no se mandó nada.
 function sendTextToTargetGroup(sock, text) {
   const jid = getTargetOrWarn('Aviso');
-  if (!jid) return;
-  sock.sendMessage(jid, { text: BOT_PREFIX + text }).catch((err) => {
-    console.error('Error mandando aviso al grupo:', err);
-  });
+  if (!jid) return Promise.reject(new Error('no hay grupo activado'));
+  return sock.sendMessage(jid, { text: BOT_PREFIX + text });
 }
 
 function sendImageToTargetGroup(sock, buffer, caption) {
   const jid = getTargetOrWarn('Aviso con captura');
-  if (!jid) return;
-  sock.sendMessage(jid, { image: buffer, caption: BOT_PREFIX + caption }).catch((err) => {
-    console.error('Error mandando aviso con captura al grupo:', err);
-  });
+  if (!jid) return Promise.reject(new Error('no hay grupo activado'));
+  return sock.sendMessage(jid, { image: buffer, caption: BOT_PREFIX + caption });
 }
 
 start().catch((err) => {
