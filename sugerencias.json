@@ -114,11 +114,11 @@
     "text": "Falta la mecánica de contraataque.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.476Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T21:20:00.000Z",
+    "notes": "Ya está funcionando: un fallo crítico (1-5) al atacar dispara el contraataque — ambos tiran D20, gana el mayor; si pierde quien falló, recibe un golpe gratis que no gasta turno. Se aclaró el texto del registro.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 12,
