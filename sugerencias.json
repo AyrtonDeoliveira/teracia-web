@@ -70,11 +70,11 @@
     "text": "Revisar el maná al llegar a nivel máximo (hay un bug/falta manejar ese caso).",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.474Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T21:12:00.000Z",
+    "notes": "El Paladín tenía todas las habilidades pero el maná de nivel 1 (2). Subido a 4, que es el máximo que le corresponde por las habilidades desbloqueadas.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 8,
