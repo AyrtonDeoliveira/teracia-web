@@ -81,11 +81,11 @@
     "text": "Electrificado no debería ser un efecto de estado — es una modificación de ataque.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.474Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:45:00.000Z",
+    "notes": "Se sacó el estado con duración. Descarga es ahora un golpe eléctrico de un solo uso: daño normal al objetivo + 3 en área que ignora armadura.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 9,
