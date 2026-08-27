@@ -244,15 +244,14 @@
       <button id="btnAttack" type="button">Atacar <span class="cost mono">3x3 cuerpo a cuerpo</span></button>
       <button id="btnDescarga" type="button">Descarga <span class="cost mono">2 maná</span></button>
       <button id="btnShield" type="button">Escudo <span class="cost mono">1 maná si bloquea</span></button>
-      <button id="btnSecondMove" type="button">Mover otra vez <span class="cost mono">sacrifica el ataque</span></button>
       <button id="btnRest" type="button">Descansar <span class="cost mono">+1 maná</span></button>
       <button id="btnEnd" type="button" class="end">Terminar turno</button>
     </div>
 
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor.<br><br>
-      <b>Movimiento libre:</b> el rango que ves al mover queda fijo en el lugar donde empezaste el turno — podés moverte por esas casillas todas las veces que quieras, para acercarte o alejarte antes de decidir tu ataque. Recién en tu próximo turno el rango se recalcula desde donde terminaste.<br><br>
-      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> no ataca — potencia tus golpes cuerpo a cuerpo por 2 turnos, para que salgan eléctricos y con daño extra que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Mover otra vez:</b> sacrificás tu turno de ataque para recalcular el rango de movimiento desde tu posición actual. <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
+      <b>Moverte:</b> hasta 2 veces por turno con el mismo botón Mover. La primera es gratis; la segunda te gasta el ataque de ese turno. Cada vez que abrís Mover el rango se recalcula desde donde estás parado, no desde donde arrancaste el turno.<br><br>
+      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> no ataca — potencia tus golpes cuerpo a cuerpo por 2 turnos, para que salgan eléctricos y con daño extra que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná, bloqueás el golpe entero y lo cegás dos tiradas (+2 al número que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
   </div>
 
@@ -365,9 +364,9 @@
   var state = {
     phase:'player-idle',   // player-idle | player-move | anim | enemy-turn | over
     round:1,
-    reachable:[], // rango de movimiento congelado (se recalcula solo al empezar turno, o al usar "Mover otra vez")
-    menorAvailable:true, // turno menor (mover) sin usar todavia
-    mayorAvailable:true, // turno mayor (atacar/descarga/escudo activo cuenta aparte/mover-otra-vez/descansar) sin usar
+    reachable:[], // rango de movimiento visible ahora mismo (se recalcula cada vez que abrís "Mover")
+    movesUsed:0, // 0, 1 o 2 — movimientos ya gastados este turno (máx 2; la 2da gasta el ataque)
+    mayorAvailable:true, // turno mayor: atacar / Descarga / Descansar / 2° movimiento
     shieldArmed:false,
     enemyBlindRolls:0, // tiradas del enemigo que todavia sufren el +2 de la ceguera
     anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
@@ -585,6 +584,8 @@
     if (unit.hp<=0){ unit.alive = false; }
   }
 
+  // onDone recibe {success, crit}: success = si de verdad se movió (una falla no
+  // gasta uno de los 2 movimientos del turno).
   function resolveMove(unit, dest, onDone){
     var roll = rollD20();
     var tier = outcomeTier(roll);
@@ -594,16 +595,16 @@
     spawnFloatingText(unit, 'D20 '+roll, tierColor(tier));
     if (tier==='crit-fail'){
       addLog(tier, unit.name+' tropieza al moverse (D20 → '+roll+'). Se cae.');
-      setTimeout(onDone, 500);
+      setTimeout(function(){ onDone({success:false, crit:false}); }, 500);
       return;
     }
     if (!success){
       addLog(tier, unit.name+' no logra moverse a tiempo (D20 → '+roll+', necesita '+threshold+'+).');
-      setTimeout(onDone, 500);
+      setTimeout(function(){ onDone({success:false, crit:false}); }, 500);
       return;
     }
-    addLog(tier, unit.name+' se mueve (D20 → '+roll+').');
-    animateMove(unit, dest, onDone);
+    addLog(tier, unit.name+' se mueve (D20 → '+roll+')'+(tier==='crit'?'. ¡Crítico!':'.'));
+    animateMove(unit, dest, function(){ onDone({success:true, crit: tier==='crit'}); });
   }
 
   function animateMove(unit, dest, onDone){
@@ -626,7 +627,6 @@
   var btnAttack = document.getElementById('btnAttack');
   var btnDescarga = document.getElementById('btnDescarga');
   var btnShield = document.getElementById('btnShield');
-  var btnSecondMove = document.getElementById('btnSecondMove');
   var btnRest = document.getElementById('btnRest');
   var btnEnd = document.getElementById('btnEnd');
   var turnWho = document.getElementById('turnWho');
@@ -659,29 +659,43 @@
     }
   }
 
+  function canMoveAgain(){
+    return state.movesUsed<2 && (state.movesUsed===0 || state.mayorAvailable);
+  }
+
   function refreshButtons(){
-    var idle = state.phase==='player-idle' || state.phase==='player-move';
-    btnMove.disabled = !idle || !state.menorAvailable;
+    var idle = state.phase==='player-idle';
+    var moveIdle = idle || state.phase==='player-move';
+    btnMove.disabled = !moveIdle || !canMoveAgain();
     btnAttack.disabled = !idle || !state.mayorAvailable;
     btnDescarga.disabled = !idle || !state.mayorAvailable || player.mana<2;
     btnShield.disabled = !idle || (player.mana<1 && !state.shieldArmed);
-    btnSecondMove.disabled = !idle || !state.mayorAvailable;
-    btnRest.disabled = !idle || !(state.menorAvailable && state.mayorAvailable);
+    btnRest.disabled = !idle || state.movesUsed>0 || !state.mayorAvailable;
     btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
     btnMove.classList.toggle('active', state.phase==='player-move');
     btnShield.classList.toggle('active', state.shieldArmed);
   }
 
   function setHint(){
-    if (state.phase==='player-move') turnHint.textContent = state.reachable.length ? 'Elegí una casilla — podés repetir todas las veces que quieras este turno' : 'No hay casillas libres a las que moverte';
+    if (state.phase==='player-move'){
+      if (!state.reachable.length) turnHint.textContent = 'No hay casillas libres a las que moverte';
+      else if (state.movesUsed>=1) turnHint.textContent = 'Elegí casilla — es tu 2° movimiento, gasta tu ataque de este turno';
+      else turnHint.textContent = 'Elegí una casilla para moverte';
+    }
     else if (state.phase==='enemy-turn') turnHint.textContent = 'El Caballero Guardián actúa...';
     else if (state.phase==='over') turnHint.textContent = 'Combate terminado';
+    else if (state.movesUsed===1 && state.mayorAvailable) turnHint.textContent = 'Movete otra vez y perdés el ataque, o atacá ahora';
     else turnHint.textContent = 'Elegí una acción, o terminá el turno';
   }
 
   btnMove.addEventListener('click', function(){
-    if (!state.menorAvailable) return;
-    state.phase = state.phase==='player-move' ? 'player-idle' : 'player-move';
+    if (!canMoveAgain()) return;
+    if (state.phase==='player-move'){
+      state.phase = 'player-idle';
+    } else if (state.phase==='player-idle'){
+      state.phase = 'player-move';
+      state.reachable = computeReachable(player); // siempre desde la posición actual
+    }
     refreshButtons(); setHint();
   });
 
@@ -713,17 +727,9 @@
     refreshButtons();
   });
 
-  btnSecondMove.addEventListener('click', function(){
-    if (!state.mayorAvailable) return;
-    state.mayorAvailable = false;
-    state.reachable = computeReachable(player);
-    addLog(null, 'Sacrificás tu ataque para moverte otra vez — nuevo rango calculado desde donde estás.');
-    refreshButtons(); setHint();
-  });
-
   btnRest.addEventListener('click', function(){
-    if (!(state.menorAvailable && state.mayorAvailable)) return;
-    state.menorAvailable = false; state.mayorAvailable = false;
+    if (state.movesUsed>0 || !state.mayorAvailable) return;
+    state.movesUsed = 2; state.mayorAvailable = false;
     player.mana = Math.min(player.maxMana, player.mana+1);
     updateManaUI();
     addLog(null, 'Descansás este turno: no te movés ni atacás, pero recuperás 1 de maná.');
@@ -799,8 +805,8 @@
 
   function startPlayerTurn(){
     state.round += 1;
-    state.menorAvailable = true; state.mayorAvailable = true;
-    state.reachable = computeReachable(player); // rango congelado para todo el turno
+    state.movesUsed = 0; state.mayorAvailable = true;
+    state.reachable = computeReachable(player); // vista inicial; se recalcula al abrir "Mover"
     state.phase = 'player-idle';
     turnWho.textContent = 'Turno del Paladín'; turnWho.className = 'who mono player';
     refreshButtons(); setHint();
@@ -834,10 +840,15 @@
       var found = state.reachable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
       if (found && !occupied(found.c,found.r)){
         state.phase = 'anim';
-        resolveMove(player, {c:found.c,r:found.r}, function(){
-          state.phase='player-idle'; refreshButtons(); setHint();
+        resolveMove(player, {c:found.c,r:found.r}, function(outcome){
+          if (outcome.success){
+            state.movesUsed += 1;
+            if (state.movesUsed>=2) state.mayorAvailable = false; // la 2da vez gasta el ataque
+          }
+          state.reachable = [];
+          state.phase = 'player-idle';
+          refreshButtons(); setHint();
         });
-        // el rango NO se limpia ni se recalcula: sigue disponible para moverte de nuevo este turno
       }
     }
   });
@@ -1030,7 +1041,7 @@
     player.electrifiedTurns = 0;
     enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
     state.phase='player-idle'; state.round=1;
-    state.menorAvailable=true; state.mayorAvailable=true;
+    state.movesUsed=0; state.mayorAvailable=true;
     state.shieldArmed=false; state.enemyBlindRolls=0; state.aoeFlash=null;
     state.floatingTexts=[];
     state.reachable=computeReachable(player); state.anim=null;
