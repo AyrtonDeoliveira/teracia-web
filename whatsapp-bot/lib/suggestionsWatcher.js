@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import chokidar from 'chokidar';
 import { paths } from '../config.js';
 import { listSuggestions } from './suggestionsStore.js';
+import { formatSuggestionId } from './format.js';
+import { takeScreenshot } from '../commands/screenshot.js';
 
 function readAnnouncedState() {
   if (!fs.existsSync(paths.announcedStateFile)) return null;
@@ -24,16 +26,23 @@ function stateFromList(list) {
   return state;
 }
 
-const STATUS_LABEL = {
-  pendiente: 'pendiente',
-  en_proceso: 'en proceso',
-  hecho: 'hecha',
+const STATUS_PHRASE = {
+  pendiente: 'volvió a estar pendiente',
+  en_proceso: 'está en proceso',
+  hecho: 'está completa',
 };
 
-function announcementLine(id, text, status) {
-  const icon = status === 'hecho' ? '✅' : status === 'en_proceso' ? '🔧' : '📋';
-  const verb = status === 'hecho' ? 'ya está' : 'pasó a';
-  return `${icon} Sugerencia #${id} (${text}) ${verb} ${STATUS_LABEL[status] || status}`;
+const STATUS_ICON = {
+  pendiente: '📋',
+  en_proceso: '🔧',
+  hecho: '✅',
+};
+
+function announcementText(suggestion) {
+  const icon = STATUS_ICON[suggestion.status] || '•';
+  const phrase = STATUS_PHRASE[suggestion.status] || `cambió a "${suggestion.status}"`;
+  const author = suggestion.authorName || 'desconocido';
+  return `${icon} La sugerencia ${formatSuggestionId(suggestion.id)}: ${suggestion.text}. Autor: ${author}. ${phrase[0].toUpperCase()}${phrase.slice(1)}.`;
 }
 
 let announced = null;
@@ -50,7 +59,24 @@ export function noteLocalChange(id, status) {
   writeAnnouncedState(announced);
 }
 
-export function startSuggestionsWatcher(sendToTargetGroup) {
+async function announceChange(suggestion, { sendText, sendImage }) {
+  const text = announcementText(suggestion);
+
+  if (suggestion.status === 'hecho' && suggestion.screenshotHint !== null && suggestion.screenshotHint !== undefined) {
+    try {
+      const buffer = await takeScreenshot(suggestion.screenshotHint);
+      await sendImage(buffer, text);
+      return;
+    } catch (err) {
+      console.error('No pude sacar la captura para el aviso de la sugerencia', suggestion.id, err);
+      // sigue abajo y manda el aviso solo en texto
+    }
+  }
+
+  await sendText(text);
+}
+
+export function startSuggestionsWatcher({ sendText, sendImage }) {
   announced = readAnnouncedState();
   const currentList = listSuggestions();
   const currentState = stateFromList(currentList);
@@ -63,11 +89,11 @@ export function startSuggestionsWatcher(sendToTargetGroup) {
     const changedLines = [];
     for (const s of currentList) {
       if (announced[s.id] !== s.status) {
-        changedLines.push(announcementLine(s.id, s.text, s.status));
+        changedLines.push(announcementText(s));
       }
     }
     if (changedLines.length > 0) {
-      sendToTargetGroup(`Mientras estaba desconectado:\n${changedLines.join('\n')}`);
+      sendText(`Mientras estaba desconectado:\n${changedLines.join('\n')}`);
     }
     announced = currentState;
     writeAnnouncedState(announced);
@@ -77,7 +103,7 @@ export function startSuggestionsWatcher(sendToTargetGroup) {
     awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
   });
 
-  watcher.on('change', () => {
+  watcher.on('change', async () => {
     let list;
     try {
       list = listSuggestions();
@@ -87,7 +113,7 @@ export function startSuggestionsWatcher(sendToTargetGroup) {
     }
     for (const s of list) {
       if (announced[s.id] !== s.status) {
-        sendToTargetGroup(announcementLine(s.id, s.text, s.status));
+        await announceChange(s, { sendText, sendImage });
         announced[s.id] = s.status;
         writeAnnouncedState(announced);
       }

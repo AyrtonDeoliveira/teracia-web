@@ -33,6 +33,7 @@ export function addSuggestion({ text, author, authorName }) {
     createdAt: now,
     updatedAt: now,
     notes: null,
+    screenshotHint: null,
   };
   list.push(entry);
   writeAll(list);
@@ -41,7 +42,7 @@ export function addSuggestion({ text, author, authorName }) {
 
 const VALID_STATUSES = ['pendiente', 'en_proceso', 'hecho'];
 
-export function markSuggestion(id, status, notes) {
+export function markSuggestion(id, status, { notes, screenshotHint } = {}) {
   if (!VALID_STATUSES.includes(status)) {
     throw new Error(`Estado inválido: ${status}`);
   }
@@ -51,6 +52,7 @@ export function markSuggestion(id, status, notes) {
   entry.status = status;
   entry.updatedAt = new Date().toISOString();
   if (notes) entry.notes = notes;
+  if (screenshotHint !== undefined) entry.screenshotHint = screenshotHint;
   writeAll(list);
   return entry;
 }

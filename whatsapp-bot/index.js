@@ -29,7 +29,10 @@ async function start() {
 
     if (connection === 'open') {
       console.log('Conectado a WhatsApp.');
-      startSuggestionsWatcher((text) => sendToTargetGroup(sock, text));
+      startSuggestionsWatcher({
+        sendText: (text) => sendTextToTargetGroup(sock, text),
+        sendImage: (buffer, caption) => sendImageToTargetGroup(sock, buffer, caption),
+      });
     }
 
     if (connection === 'close') {
@@ -53,14 +56,28 @@ async function start() {
   });
 }
 
-function sendToTargetGroup(sock, text) {
+function getTargetOrWarn(context) {
   const target = getTargetGroup();
   if (!target?.targetGroupJid) {
-    console.warn('No hay grupo activado todavía (mandá "activar" desde el grupo del equipo). Mensaje perdido:', text);
-    return;
+    console.warn(`No hay grupo activado todavía (mandá "T!activar" desde el grupo del equipo). ${context} perdido.`);
+    return null;
   }
-  sock.sendMessage(target.targetGroupJid, { text: BOT_PREFIX + text }).catch((err) => {
+  return target.targetGroupJid;
+}
+
+function sendTextToTargetGroup(sock, text) {
+  const jid = getTargetOrWarn('Aviso');
+  if (!jid) return;
+  sock.sendMessage(jid, { text: BOT_PREFIX + text }).catch((err) => {
     console.error('Error mandando aviso al grupo:', err);
+  });
+}
+
+function sendImageToTargetGroup(sock, buffer, caption) {
+  const jid = getTargetOrWarn('Aviso con captura');
+  if (!jid) return;
+  sock.sendMessage(jid, { image: buffer, caption: BOT_PREFIX + caption }).catch((err) => {
+    console.error('Error mandando aviso con captura al grupo:', err);
   });
 }
 
