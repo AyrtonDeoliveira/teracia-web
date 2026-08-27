@@ -251,7 +251,7 @@
 
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa solo te levanta en el lugar, sin moverte) y un 18–20 te da un paso extra gratis.<br><br>
-      <b>Moverte:</b> el botón Mover se puede usar 2 veces por turno (cada acierto crítico en una tirada de movimiento suma un uso más). La primera tirada es gratis; si tu segundo movimiento real (no de crítico) te desplaza, perdés el ataque de ese turno. Una tirada fallida igual gasta un uso. Cada vez que abrís Mover el rango se recalcula desde donde estás parado, no desde donde arrancaste el turno.<br><br>
+      <b>Moverte:</b> el botón Mover se puede usar 2 veces por turno (cada acierto crítico en una tirada de movimiento suma un uso más). La primera tirada es gratis; si tu segundo movimiento real (no de crítico) te desplaza, perdés el ataque de ese turno. Una tirada fallida igual gasta un uso. El rango es un cuadrado de 4 casillas para cada lado y se recalcula desde donde estás parado cada vez que abrís Mover, no desde donde arrancaste el turno.<br><br>
       <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná y tirás una salvación D20 (Fe baja el número pedido) — si sale, frenás el golpe entero; si no, el golpe entra igual y perdés el maná. <b>Destello:</b> igual que el Escudo pero cuesta 2 maná; si la salvación sale, además ciega al enemigo dos tiradas (+2 a lo que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
   </div>
@@ -298,7 +298,7 @@
   /* ---------- grid / top-down projection ---------- */
   var COLS = 11, ROWS = 11;
   var TILE = 64;
-  var obstacles = [ {c:5,r:2}, {c:8,r:2}, {c:3,r:6}, {c:7,r:6}, {c:5,r:8} ];
+  var obstacles = []; // tablero libre, sin árboles ni obstáculos
 
   function isObstacle(c,r){ return obstacles.some(function(o){ return o.c===c && o.r===r; }); }
   function inBounds(c,r){ return c>=0 && c<COLS && r>=0 && r<ROWS; }
@@ -378,26 +378,15 @@
     floatingTexts:[] // [{text, x, y, color, t0, dur}] — numeros de tirada/daño sobre el tablero
   };
 
-  /* ---------- BFS movement range ---------- */
+  /* ---------- rango de movimiento: cuadrado de MOVE_RANGE casillas para cada lado ---------- */
   function computeReachable(unit){
-    var start = {c:unit.c,r:unit.r};
-    var visited = {}; visited[start.c+','+start.r] = 0;
-    var queue = [start];
     var result = [];
-    while(queue.length){
-      var cur = queue.shift();
-      var d = visited[cur.c+','+cur.r];
-      if (d>0) result.push({c:cur.c,r:cur.r,dist:d});
-      if (d>=MOVE_RANGE) continue;
-      var deltas = [[1,0],[-1,0],[0,1],[0,-1]];
-      for (var i=0;i<deltas.length;i++){
-        var nc = cur.c+deltas[i][0], nr = cur.r+deltas[i][1];
-        if (!inBounds(nc,nr) || isObstacle(nc,nr)) continue;
-        if (occupied(nc,nr)) continue;
-        var key = nc+','+nr;
-        if (visited[key]!==undefined) continue;
-        visited[key] = d+1;
-        queue.push({c:nc,r:nr});
+    for (var dc = -MOVE_RANGE; dc <= MOVE_RANGE; dc++){
+      for (var dr = -MOVE_RANGE; dr <= MOVE_RANGE; dr++){
+        if (dc === 0 && dr === 0) continue;
+        var c = unit.c + dc, r = unit.r + dr;
+        if (!inBounds(c,r) || isObstacle(c,r) || occupied(c,r)) continue;
+        result.push({ c:c, r:r, dist: Math.max(Math.abs(dc), Math.abs(dr)) });
       }
     }
     return result;
@@ -1010,7 +999,6 @@
   }
 
   function tileFill(c,r){
-    if (isObstacle(c,r)) return T.groundB;
     var isReach = state.phase==='player-move' && state.reachable.some(function(t){ return t.c===c && t.r===r; });
     if (isReach) return T.celesteSoft;
     return ((c+r)%2===0) ? T.groundA : T.groundB;
@@ -1028,17 +1016,6 @@
     ctx.lineWidth = isReach ? 1.6 : 1;
     ctx.strokeStyle = stroke;
     ctx.strokeRect(x0+0.5, y0+0.5, TILE-1, TILE-1);
-
-    if (isObstacle(c,r)){
-      ctx.fillStyle = T.tree;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, TILE*0.24, 0, Math.PI*2);
-      ctx.fill();
-      ctx.fillStyle = T.line;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, TILE*0.24, 0, Math.PI*2);
-      ctx.lineWidth = 1.5; ctx.strokeStyle = T.line; ctx.stroke();
-    }
   }
 
   function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
