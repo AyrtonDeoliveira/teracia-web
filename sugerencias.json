@@ -1,1 +1,145 @@
-[]
+[
+  {
+    "id": 1,
+    "text": "Hay un botón extra que es para mover otra vez.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.458Z",
+    "updatedAt": "2026-08-27T02:20:54.458Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 2,
+    "text": "No hay límite de movimiento, y en el mismo turno no se actualiza la posición cuando te movés más de una vez.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.471Z",
+    "updatedAt": "2026-08-27T02:20:54.471Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 3,
+    "text": "El botón de \"mover otra vez\" está disponible desde el primer movimiento del turno, no recién en el segundo (como debería).",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.471Z",
+    "updatedAt": "2026-08-27T02:20:54.471Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 4,
+    "text": "El Paladín se auto-aplicó una habilidad y se electrocutó a sí mismo.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.472Z",
+    "updatedAt": "2026-08-27T02:20:54.472Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 5,
+    "text": "No hay interfaz de salvación con el escudo — la habilidad siguió activa e hizo efecto durante más de un turno.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.473Z",
+    "updatedAt": "2026-08-27T02:20:54.473Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 6,
+    "text": "Se tocó \"mover de nuevo\" y no pasó nada.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.473Z",
+    "updatedAt": "2026-08-27T02:20:54.473Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 7,
+    "text": "Revisar el maná al llegar a nivel máximo (hay un bug/falta manejar ese caso).",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.474Z",
+    "updatedAt": "2026-08-27T02:20:54.474Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 8,
+    "text": "Electrificado no debería ser un efecto de estado — es una modificación de ataque.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.474Z",
+    "updatedAt": "2026-08-27T02:20:54.474Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 9,
+    "text": "No se muestra el número que salió en la tirada de ataque, ni el daño hecho al objetivo.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.475Z",
+    "updatedAt": "2026-08-27T02:20:54.475Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 10,
+    "text": "No hay modificación de crítico (ni fallo ni acierto) en las tiradas de movimiento.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.475Z",
+    "updatedAt": "2026-08-27T02:20:54.475Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 11,
+    "text": "Falta la mecánica de contraataque.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.476Z",
+    "updatedAt": "2026-08-27T02:20:54.476Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 12,
+    "text": "Se puede terminar el turno mientras la acción de mover sigue seleccionada.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.477Z",
+    "updatedAt": "2026-08-27T02:20:54.477Z",
+    "notes": null,
+    "screenshotHint": null
+  },
+  {
+    "id": 13,
+    "text": "Falta implementar la habilidad Destello del Paladín.",
+    "author": null,
+    "authorName": "equipo",
+    "status": "pendiente",
+    "createdAt": "2026-08-27T02:20:54.477Z",
+    "updatedAt": "2026-08-27T02:20:54.477Z",
+    "notes": null,
+    "screenshotHint": null
+  }
+]
