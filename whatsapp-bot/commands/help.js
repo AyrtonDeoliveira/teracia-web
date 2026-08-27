@@ -10,7 +10,8 @@ export function helpText() {
     '• pdf — exporta la página en PDF',
     '• sprites — lista los sprites que hay ahora',
     '• cambios / últimos cambios — últimos commits del repo',
-    '• activar — registra este grupo para recibir avisos de sugerencias',
     '• ayuda — este mensaje',
+    '',
+    '(el bot solo responde en este grupo, el que se activó con "activar teracia")',
   ].join('\n');
 }

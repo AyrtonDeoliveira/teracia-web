@@ -6,6 +6,7 @@ import { searchText } from '../commands/search.js';
 import { takeScreenshot, exportPdf } from '../commands/screenshot.js';
 import { addSuggestionCommand, listSuggestionsCommand, markSuggestionCommand } from '../commands/suggestions.js';
 import { activateGroupCommand } from '../commands/activateGroup.js';
+import { getTargetGroup } from './groupConfig.js';
 
 function getBotJid(sock) {
   const raw = sock.user?.id || '';
@@ -47,6 +48,28 @@ export async function handleMessage(sock, msg) {
   const authorJid = msg.key.participant || msg.key.remoteJid;
   const authorName = msg.pushName || authorJid.split('@')[0];
   const text = cleanText(extractText(msg));
+
+  // "activar teracia" es el unico comando que funciona fuera del grupo ya
+  // registrado, y solo mientras todavia no se registro ninguno — asi se
+  // puede hacer el setup inicial, pero despues nadie puede "secuestrar" el
+  // bot mencionandolo desde otro grupo random.
+  if (/\bactivar teracia\b/i.test(text)) {
+    const existing = getTargetGroup();
+    if (!existing?.targetGroupJid) {
+      await reply(sock, chatId, msg, activateGroupCommand(chatId, authorJid));
+    } else if (existing.targetGroupJid === chatId) {
+      await reply(sock, chatId, msg, 'Este grupo ya estaba activado.');
+    }
+    // si ya hay un grupo activado y esto vino de OTRO grupo, se ignora en silencio
+    return;
+  }
+
+  const target = getTargetGroup();
+  if (target?.targetGroupJid !== chatId) {
+    // no es el grupo activado (o todavia no se activo ninguno): no responder,
+    // asi el bot no contesta en grupos de otros proyectos/trabajos
+    return;
+  }
 
   try {
     let m;
@@ -90,11 +113,6 @@ export async function handleMessage(sock, msg) {
 
     if (/cambios|últimos cambios|ultimos cambios|last changes|novedades/i.test(text)) {
       await reply(sock, chatId, msg, await gitLogText());
-      return;
-    }
-
-    if (/\bactivar\b/i.test(text)) {
-      await reply(sock, chatId, msg, activateGroupCommand(chatId, authorJid));
       return;
     }
 
