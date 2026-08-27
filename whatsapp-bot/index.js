@@ -1,12 +1,10 @@
-import baileysPkg from '@whiskeysockets/baileys';
+import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
 import qrcodeTerminal from 'qrcode-terminal';
 import pino from 'pino';
 import { paths, BOT_PREFIX } from './config.js';
 import { handleMessage } from './lib/messageRouter.js';
 import { startSuggestionsWatcher } from './lib/suggestionsWatcher.js';
 import { getTargetGroup } from './lib/groupConfig.js';
-
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = baileysPkg;
 
 const logger = pino({ level: 'silent' });
 
