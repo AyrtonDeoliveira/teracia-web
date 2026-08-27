@@ -59,11 +59,11 @@
     "text": "Se tocó \"mover de nuevo\" y no pasó nada.",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.473Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:11:00.000Z",
+    "notes": "El botón que no respondía ya no existe. Volver a apretar Mover ahora entra en modo movimiento y muestra el rango recalculado desde donde estás.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 7,
