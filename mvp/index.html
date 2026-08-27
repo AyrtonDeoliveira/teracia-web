@@ -547,14 +547,14 @@
     var a = rollD20(), b = rollD20();
     spawnFloatingText(attacker, 'D20 '+a, T.vino);
     spawnFloatingText(defender, 'D20 '+b, T.celeste);
-    addLog(null, 'Contraataque: '+attacker.name+' saca '+a+', '+defender.name+' saca '+b+'.');
+    addLog(null, 'Contraataque — ambos tiran D20: '+attacker.name+' saca '+a+', '+defender.name+' saca '+b+'.');
     if (b>a){
       var dmg = rollDamage(defender);
-      addLog('crit', defender.name+' aprovecha y golpea gratis por '+dmg+'.');
+      addLog('crit', defender.name+' gana el contraataque y golpea gratis por '+dmg+' (no gasta turno).');
       applyDamage(attacker, dmg);
       spawnFloatingText(attacker, '-'+dmg, T.vino);
     } else {
-      addLog('hit', attacker.name+' se salva por poco.');
+      addLog('hit', attacker.name+' gana el contraataque y se salva del golpe.');
     }
     setTimeout(onDone, 550);
   }
