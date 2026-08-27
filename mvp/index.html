@@ -250,7 +250,7 @@
     </div>
 
     <div class="rules-note">
-      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa te levanta) y un 18–20 te da un paso extra gratis.<br><br>
+      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa solo te levanta en el lugar, sin moverte) y un 18–20 te da un paso extra gratis.<br><br>
       <b>Moverte:</b> hasta 2 veces por turno con el mismo botón Mover. La primera es gratis; la segunda te gasta el ataque de ese turno. Cada vez que abrís Mover el rango se recalcula desde donde estás parado, no desde donde arrancaste el turno.<br><br>
       <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná y tirás una salvación D20 (Fe baja el número pedido) — si sale, frenás el golpe entero; si no, el golpe entra igual y perdés el maná. <b>Destello:</b> igual que el Escudo pero cuesta 2 maná; si la salvación sale, además ciega al enemigo dos tiradas (+2 a lo que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
     </div>
@@ -570,9 +570,11 @@
     if (unit.hp<=0){ unit.alive = false; }
   }
 
-  // onDone recibe {success, crit}: success = si de verdad se movió (una falla no
-  // gasta uno de los 2 movimientos del turno); crit = un 18–20, que duplica el
-  // movimiento (un paso extra gratis). Un fallo crítico deja a la unidad caída.
+  // onDone recibe {success, crit, stoodUp}: success = si de verdad se movió (una
+  // falla no gasta uno de los 2 movimientos del turno); crit = un 18–20, que
+  // duplica el movimiento (un paso extra gratis); stoodUp = venía caída y esta
+  // tirada solo la puso de pie en el lugar, sin moverla. Un fallo crítico deja
+  // a la unidad caída.
   function resolveMove(unit, dest, onDone){
     var roll = rollD20();
     var tier = outcomeTier(roll);
@@ -595,7 +597,13 @@
       return;
     }
     unit.fallen = false;
-    addLog(tier, unit.name+' se mueve (D20 → '+roll+')'+(wasFallen?', se levanta':'')+(tier==='crit'?'. ¡Crítico!':'.'));
+    if (wasFallen){
+      // venía caída: esta tirada solo la levanta, no la mueve de la casilla
+      addLog(tier, unit.name+' se levanta (D20 → '+roll+') y queda donde está.');
+      setTimeout(function(){ onDone({success:true, crit:false, stoodUp:true}); }, 450);
+      return;
+    }
+    addLog(tier, unit.name+' se mueve (D20 → '+roll+')'+(tier==='crit'?'. ¡Crítico!':'.'));
     animateMove(unit, dest, function(){ onDone({success:true, crit: tier==='crit'}); });
   }
 
@@ -671,7 +679,7 @@
 
   function setHint(){
     if (state.phase==='player-move'){
-      if (player.fallen) turnHint.textContent = 'Estás caído — elegí casilla e intentá; una tirada exitosa te levanta';
+      if (player.fallen) turnHint.textContent = 'Estás caído — elegí una casilla y tirá; si sale, te levantás en el lugar (sin moverte)';
       else if (!state.reachable.length) turnHint.textContent = 'No hay casillas libres a las que moverte';
       else if (state.movesUsed>=1) turnHint.textContent = 'Elegí casilla — es tu 2° movimiento, gasta tu ataque de este turno';
       else turnHint.textContent = 'Elegí una casilla para moverte';
@@ -894,6 +902,14 @@
       if (found && !occupied(found.c,found.r)){
         state.phase = 'anim';
         resolveMove(player, {c:found.c,r:found.r}, function(outcome){
+          if (outcome.stoodUp){
+            // te levantaste sin moverte: no gasta un movimiento ni el ataque,
+            // podés volver a abrir Mover o hacer otra acción
+            state.reachable = [];
+            state.phase = 'player-idle';
+            refreshButtons(); setHint();
+            return;
+          }
           if (outcome.success && !outcome.crit){
             state.movesUsed += 1;
             if (state.movesUsed>=2) state.mayorAvailable = false; // la 2da vez gasta el ataque
