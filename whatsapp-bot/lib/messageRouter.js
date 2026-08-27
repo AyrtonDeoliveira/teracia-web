@@ -8,19 +8,12 @@ import { addSuggestionCommand, listSuggestionsCommand, markSuggestionCommand } f
 import { activateGroupCommand } from '../commands/activateGroup.js';
 import { getTargetGroup } from './groupConfig.js';
 
-function getBotJid(sock) {
-  const raw = sock.user?.id || '';
-  return raw.split(':')[0] + '@s.whatsapp.net';
-}
+const PREFIX = /^t!\s*/i;
 
 function extractText(msg) {
   const m = msg.message;
   if (!m) return '';
   return m.extendedTextMessage?.text || m.conversation || '';
-}
-
-function cleanText(text) {
-  return text.replace(/@\d+\s*/g, '').trim();
 }
 
 async function reply(sock, chatId, msg, text) {
@@ -40,20 +33,19 @@ async function replyDocument(sock, chatId, msg, buffer, fileName, mimetype, capt
 }
 
 export async function handleMessage(sock, msg) {
-  const mentionedJid = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
-  const botJid = getBotJid(sock);
-  if (!mentionedJid.includes(botJid)) return;
+  const rawText = extractText(msg).trim();
+  if (!PREFIX.test(rawText)) return;
 
   const chatId = msg.key.remoteJid;
   const authorJid = msg.key.participant || msg.key.remoteJid;
   const authorName = msg.pushName || authorJid.split('@')[0];
-  const text = cleanText(extractText(msg));
+  const text = rawText.replace(PREFIX, '').trim();
 
-  // "activar teracia" es el unico comando que funciona fuera del grupo ya
+  // "activar" es el unico comando que funciona fuera del grupo ya
   // registrado, y solo mientras todavia no se registro ninguno — asi se
   // puede hacer el setup inicial, pero despues nadie puede "secuestrar" el
-  // bot mencionandolo desde otro grupo random.
-  if (/\bactivar teracia\b/i.test(text)) {
+  // bot escribiendo el comando desde otro grupo random.
+  if (/^activar\b/i.test(text)) {
     const existing = getTargetGroup();
     if (!existing?.targetGroupJid) {
       await reply(sock, chatId, msg, activateGroupCommand(chatId, authorJid));
