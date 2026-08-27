@@ -26,11 +26,11 @@
     "text": "El botón de \"mover otra vez\" está disponible desde el primer movimiento del turno, no recién en el segundo (como debería).",
     "author": null,
     "authorName": "equipo",
-    "status": "en_proceso",
+    "status": "hecho",
     "createdAt": "2026-08-27T02:20:54.471Z",
-    "updatedAt": "2026-08-27T19:00:00.000Z",
-    "notes": null,
-    "screenshotHint": null
+    "updatedAt": "2026-08-27T20:12:00.000Z",
+    "notes": "El 1er movimiento del turno es siempre gratis; recién el 2do gasta el ataque. El aviso en pantalla lo aclara antes de confirmar.",
+    "screenshotHint": "mvp"
   },
   {
     "id": 4,
