@@ -637,9 +637,9 @@
   // al caer a 0 de vida, la unidad no muere directo: tira D20 hasta 3 veces,
   // pero ahora cada tirada la hace la persona: aparece un D20 celeste y hay
   // que clickear en cualquier parte del cartel (o tocar espacio) para girarlo.
-  // 11+ es una tirada buena, 10- es mala. Un 20 natural cuenta como 2 buenas
-  // de una, un 1 natural cuenta como 2 malas de una. 3 buenas la estabilizan
-  // (revive con 1 de vida); 3 malas, muere de verdad.
+  // 11-17 es una tirada buena (1), 6-10 es mala (1). 18-20 es acierto crítico
+  // y cuenta como 2 buenas de una; 1-5 es fallo crítico y cuenta como 2 malas
+  // de una. 3 buenas la estabilizan (revive con 1 de vida); 3 malas, muere.
   var elCartelTiradaMuerte = document.getElementById('cartelTiradaMuerte');
   var elDadoD20Wrap = document.getElementById('dadoD20Wrap');
   var elDadoD20Numero = document.getElementById('dadoD20Numero');
@@ -705,10 +705,10 @@
       girando = true;
       var tirada = tirarD20();
       var buena = tirada >= 11;
-      var doble = (tirada===20 || tirada===1);
+      var doble = (tirada<=5 || tirada>=18); // 1–5 fallo crítico, 18–20 acierto crítico: cuentan doble
       if (buena) buenas += doble?2:1; else malas += doble?2:1;
-      var etiqueta = tirada===20 ? 'crítico (cuenta doble)' : tirada===1 ? 'fallo crítico (cuenta doble)' : (buena?'buena':'mala');
-      var tramo = tirada===20 ? 'critico' : tirada===1 ? 'pifia' : (buena ? 'acierto' : 'fallo');
+      var etiqueta = tirada>=18 ? 'acierto crítico (cuenta doble)' : tirada<=5 ? 'fallo crítico (cuenta doble)' : (buena?'buena':'mala');
+      var tramo = tirada>=18 ? 'critico' : tirada<=5 ? 'pifia' : (buena ? 'acierto' : 'fallo');
 
       if (menosMovimiento){
         revelar(tirada, buena, tramo, etiqueta);
