@@ -385,8 +385,7 @@
     critMoves:0,    // movimientos críticos: cada uno suma +1 al presupuesto de tiradas de movimiento
     movesLanded:0,  // movimientos que de verdad te desplazaron y NO fueron críticos: al llegar a 2, perdés el ataque
     mayorAvailable:true, // turno mayor: atacar / Descarga / Descansar / 2° movimiento
-    enemyBlindTurns:0, // turnos enemigos que todavía sufren el +2 de la ceguera (Destello)
-    enemyBlindedThisTurn:false, // ¿el enemigo ya estaba cegado al empezar el turno actual? (para no descontar de más)
+    enemyBlindUntilRound:0, // Destello: el enemigo está cegado (+2) mientras state.round <= este número. Se auto-expira, no hace falta descontar.
     anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
     aoeFlash:null, // {tiles:[{c,r}], t0, dur} — destello del area electrica
     floatingTexts:[] // [{text, x, y, color, t0, dur}] — numeros de tirada/daño sobre el tablero
@@ -463,8 +462,10 @@
     return 15 - Math.min(2, Math.max(0, Math.floor(stat/5)));
   }
   function moveThreshold(unit){ return 10 - Math.min(2, Math.max(0, Math.floor(unit.destreza/5))); }
+  function enemyBlinded(){ return state.round <= state.enemyBlindUntilRound; }
+  function enemyBlindLeft(){ return Math.max(0, Math.min(2, state.enemyBlindUntilRound - state.round + 1)); }
   function blindPenalty(unit){
-    return (unit===enemy && state.enemyBlindTurns>0) ? 2 : 0;
+    return (unit===enemy && enemyBlinded()) ? 2 : 0;
   }
 
   function flashArea(centerUnit){
@@ -625,9 +626,9 @@
 
   function updateEnemyStatus(){
     var tag = document.getElementById('enemyStatusTag');
-    if (state.enemyBlindTurns > 0){
+    if (enemyBlinded()){
       tag.hidden = false;
-      tag.textContent = 'Cegado · ' + state.enemyBlindTurns + 't';
+      tag.textContent = 'Cegado · ' + enemyBlindLeft() + 't';
     } else {
       tag.hidden = true;
     }
@@ -787,7 +788,7 @@
       if (saved){
         addLog('hit', name+': salvación D20 → '+roll+' (necesita '+thr+'+). Frenás el golpe y gastás '+cost+' de maná.');
         if (kind==='destello'){
-          state.enemyBlindTurns = 2;
+          state.enemyBlindUntilRound = state.round + 2; // ciega los próximos 2 turnos enemigos
           updateEnemyStatus();
           addLog('small', 'Destello ciega a '+enemy.name+': +2 a lo que necesita en sus próximos 2 turnos.');
         }
@@ -856,17 +857,15 @@
     });
   }
 
-  // cierra el turno enemigo: descuenta un turno de ceguera (salvo el turno en que
-  // se aplicó) y le pasa el turno al jugador.
+  // cierra el turno enemigo y le pasa el turno al jugador. La ceguera se expira
+  // sola por el número de ronda, no hace falta descontar acá.
   function finishEnemyTurn(){
-    if (state.enemyBlindedThisTurn && state.enemyBlindTurns > 0) state.enemyBlindTurns--;
     updateEnemyStatus();
     startPlayerTurn();
   }
 
   function runEnemyTurn(){
     if (checkGameOver()) return;
-    state.enemyBlindedThisTurn = state.enemyBlindTurns > 0; // fijado al empezar, antes de que un Destello de este turno lo cambie
     if (isAdjacent(enemy, player)){
       enemyAttacksPlayer(function(){
         if (checkGameOver()) return;
@@ -1095,11 +1094,11 @@
     };
   }
 
-  // pulso blanco de la ceguera: alterna entre el sprite y blanco durante los 2
-  // turnos que el Caballero Guardián está cegado (Destello).
+  // pulso blanco de la ceguera: el Caballero Guardián parpadea marcado entre su
+  // sprite normal y casi blanco durante los 2 turnos que dura el Destello.
   function blindPulse(unit){
-    if (!(unit===enemy && state.enemyBlindTurns>0)) return 0;
-    return 0.12 + 0.42 * (0.5 + 0.5*Math.sin(performance.now()/110));
+    if (!(unit===enemy && enemyBlinded())) return 0;
+    return 0.22 + 0.6 * (0.5 + 0.5*Math.sin(performance.now()/70)); // ~0.22 .. ~0.82, período ~440ms
   }
 
   var _tintCv = document.createElement('canvas');
@@ -1204,6 +1203,18 @@
     ctx.strokeText(unit.name, g.cx, g.visualBottom+14);
     ctx.fillStyle = T.inkSoft;
     ctx.fillText(unit.name, g.cx, g.visualBottom+14);
+
+    // cartel de CEGADO sobre el enemigo, en el tablero (además del chip de la ficha)
+    if (unit===enemy && enemyBlinded()){
+      var by = hpY - 12;
+      var txt = 'CEGADO ' + enemyBlindLeft() + 'T';
+      ctx.font = '700 10px "Space Mono", monospace';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+      ctx.strokeText(txt, g.cx, by);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(txt, g.cx, by);
+    }
   }
 
   function loop(now){
@@ -1219,7 +1230,7 @@
     state.moveAttempts=0; state.critMoves=0; state.movesLanded=0; state.mayorAvailable=true;
     player.fallen=false; enemy.fallen=false;
     player.hitFx=null; enemy.hitFx=null;
-    state.enemyBlindTurns=0; state.enemyBlindedThisTurn=false; state.aoeFlash=null;
+    state.enemyBlindUntilRound=0; state.aoeFlash=null;
     state.floatingTexts=[];
     state.reachable=computeReachable(player); state.anim=null;
     logList.innerHTML='';
