@@ -375,14 +375,16 @@
     fuerza:5, destreza:5, fe:5, formulaDanio:{dados:1, caras:8, fijo:3},   // el Paladín pega 1D8+3
     vivo:true, spriteUrl:'sprites/paladin.png', escalaSpriteAlto:0.95, escalaSpriteAncho:1.45,
     manaMax:4, mana:4,
-    caido:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
+    caido:false, // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
+    moribundo:false, tiradaDeMuertePendiente:false // ver tiradas de muerte, más abajo
   };
   var enemigo = {
     nombre:'Caballero Guardián', bando:'enemigo', c:9, r:4, vidaMax:45, vida:45,
     fuerza:7, destreza:-5, formulaDanio:{dados:2, caras:4, fijo:2},        // el Caballero pega 2D4+2
     vivo:true, spriteUrl:'sprites/caballero-guardian.png', spriteEspejado:true,
     escalaSpriteAlto:1.4, escalaSpriteAncho:1.4,
-    caido:false
+    caido:false,
+    moribundo:false, tiradaDeMuertePendiente:false
   };
 
   /* ====== carga de los sprites (si no cargan, se dibujan formas simples) ====== */
@@ -556,7 +558,52 @@
     unidad.vida = Math.max(0, unidad.vida - danio);
     if (danio > 0) unidad.fxGolpe = { t0: performance.now(), dur: 1100 }; // dispara la sacudida + tinte rojo
     refrescarVida();
-    if (unidad.vida<=0){ unidad.vivo = false; }
+    // al llegar a 0 no muere todavía: queda pendiente una tirada de muerte
+    // (se resuelve en chequearFinDelCombate, antes de mostrar victoria/derrota)
+    if (unidad.vida<=0 && unidad.vivo && !unidad.moribundo){
+      unidad.tiradaDeMuertePendiente = true;
+    }
+  }
+
+  // ====== tiradas de muerte ======
+  // al caer a 0 de vida, la unidad no muere directo: tira D20 hasta 3 veces.
+  // 11+ es una tirada buena, 10- es mala. Un 20 natural cuenta como 2 buenas
+  // de una, un 1 natural cuenta como 2 malas de una. 3 buenas la estabilizan
+  // (revive con 1 de vida); 3 malas, muere de verdad.
+  function resolverTiradasDeMuerte(unidad, alTerminar){
+    unidad.moribundo = true;
+    var buenas = 0, malas = 0;
+    agregarRegistro(null, unidad.nombre + ' cae a 0 de vida y empieza a tirar para salvarse (necesita 11+).');
+    function tirarUna(){
+      var tirada = tirarD20();
+      var buena = tirada >= 11;
+      var doble = (tirada===20 || tirada===1);
+      if (buena) buenas += doble?2:1; else malas += doble?2:1;
+      var etiqueta = tirada===20 ? 'crítico (cuenta doble)' : tirada===1 ? 'fallo crítico (cuenta doble)' : (buena?'buena':'mala');
+      var tramo = tirada===20 ? 'critico' : tirada===1 ? 'pifia' : (buena ? 'acierto' : 'fallo');
+      textoFlotante(unidad, 'D20 '+tirada, buena ? COL.celeste : COL.vino);
+      mostrarAviso(tramo, unidad.nombre+' tira para salvarse — D20 → '+tirada+' ('+etiqueta+')');
+      agregarRegistro(tramo,
+        unidad.nombre+' tira para salvarse — D20 → '+tirada+' ('+etiqueta+'). '+buenas+' buena(s) / '+malas+' mala(s).');
+
+      if (buenas>=3){
+        unidad.moribundo = false;
+        unidad.vida = 1;
+        refrescarVida();
+        agregarRegistro('acierto', unidad.nombre+' se estabiliza y revive con 1 de vida.');
+        setTimeout(alTerminar, 550);
+        return;
+      }
+      if (malas>=3){
+        unidad.moribundo = false;
+        unidad.vivo = false;
+        agregarRegistro('pifia', unidad.nombre+' no logra salvarse y muere.');
+        setTimeout(alTerminar, 550);
+        return;
+      }
+      setTimeout(tirarUna, 700);
+    }
+    setTimeout(tirarUna, 500);
   }
 
   // alTerminar recibe {exito, critico, seLevanto}: exito = si de verdad se movió (una
@@ -703,8 +750,10 @@
     estado.accionMayorLibre = false; estado.fase = 'anim';
     refrescarBotones();
     resolverAtaqueArea(jugador, objetivos, function(){
-      if (chequearFinDelCombate()) return;
-      estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+      chequearFinDelCombate(function(terminado){
+        if (terminado) return;
+        estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+      });
     });
   });
 
@@ -717,8 +766,10 @@
     estado.accionMayorLibre = false; estado.fase = 'anim';
     refrescarBotones();
     resolverAtaqueArea(jugador, objetivos, function(){
-      if (chequearFinDelCombate()) return;
-      estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+      chequearFinDelCombate(function(terminado){
+        if (terminado) return;
+        estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+      });
     }, { electrico:true, statUmbral:'fe', nombreHabilidad:'Descarga' });
   });
 
@@ -760,19 +811,30 @@
     setTimeout(ejecutarTurnoEnemigo, 500);
   }
 
-  // ¿alguien murió? muestra el cartel de victoria/derrota y devuelve true si el combate terminó
-  function chequearFinDelCombate(){
+  // ¿alguien murió? Si alguien quedó con una tirada de muerte pendiente, la
+  // resuelve primero (puede tardar unos segundos). Al terminar, muestra el
+  // cartel de victoria/derrota si corresponde y le avisa a `callback` si el
+  // combate terminó (true) o sigue (false).
+  function chequearFinDelCombate(callback){
+    var pendiente = jugador.tiradaDeMuertePendiente ? jugador : (enemigo.tiradaDeMuertePendiente ? enemigo : null);
+    if (pendiente){
+      pendiente.tiradaDeMuertePendiente = false;
+      resolverTiradasDeMuerte(pendiente, function(){ chequearFinDelCombate(callback); });
+      return;
+    }
     if (!enemigo.vivo){
       estado.fase = 'fin';
       document.getElementById('cartelVictoria').classList.add('visible');
-      return true;
+      callback(true);
+      return;
     }
     if (!jugador.vivo){
       estado.fase = 'fin';
       document.getElementById('cartelDerrota').classList.add('visible');
-      return true;
+      callback(true);
+      return;
     }
-    return false;
+    callback(false);
   }
 
   /* ====== bloqueo reactivo (cartel Escudo / Destello / No bloquear) ====== */
@@ -891,31 +953,37 @@
 
   // IA del enemigo: si está pegado, ataca; si no, se acerca lo más posible y ataca si llegó
   function ejecutarTurnoEnemigo(){
-    if (chequearFinDelCombate()) return;
-    if (esAdyacente(enemigo, jugador)){
-      enemigoAtacaAlJugador(function(){
-        if (chequearFinDelCombate()) return;
-        terminarTurnoEnemigo();
-      });
-      return;
-    }
-    var opciones = calcularAlcance(enemigo).filter(function(t){ return !casillaOcupada(t.c,t.r); });
-    if (!opciones.length){ terminarTurnoEnemigo(); return; }
-    opciones.sort(function(a,b){
-      var da = Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r);
-      var db = Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r);
-      return da-db;
-    });
-    var objetivo = opciones[0];
-    enemigoIntentaMover(objetivo, function(){
+    chequearFinDelCombate(function(terminado){
+      if (terminado) return;
       if (esAdyacente(enemigo, jugador)){
         enemigoAtacaAlJugador(function(){
-          if (chequearFinDelCombate()) return;
-          terminarTurnoEnemigo();
+          chequearFinDelCombate(function(terminado){
+            if (terminado) return;
+            terminarTurnoEnemigo();
+          });
         });
-      } else {
-        terminarTurnoEnemigo();
+        return;
       }
+      var opciones = calcularAlcance(enemigo).filter(function(t){ return !casillaOcupada(t.c,t.r); });
+      if (!opciones.length){ terminarTurnoEnemigo(); return; }
+      opciones.sort(function(a,b){
+        var da = Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r);
+        var db = Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r);
+        return da-db;
+      });
+      var objetivo = opciones[0];
+      enemigoIntentaMover(objetivo, function(){
+        if (esAdyacente(enemigo, jugador)){
+          enemigoAtacaAlJugador(function(){
+            chequearFinDelCombate(function(terminado){
+              if (terminado) return;
+              terminarTurnoEnemigo();
+            });
+          });
+        } else {
+          terminarTurnoEnemigo();
+        }
+      });
     });
   }
 
@@ -1188,11 +1256,12 @@
       dibujarSprite(g, !!unidad.spriteEspejado);
       if (golpe && golpe.rojo > 0.02) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(214,26,36,' + golpe.rojo.toFixed(3) + ')');
       if (ceguera > 0) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(255,255,255,' + ceguera.toFixed(3) + ')');
+      if (unidad.moribundo) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(20,20,20,0.55)'); // caído, tirando para salvarse
     } else {
       // sin sprite: formas simples (triángulo el jugador, círculo el enemigo)
       var rojoActivo = golpe && golpe.rojo > 0.02;
-      var bordeForma = ceguera>0 ? 'rgba(255,255,255,0.95)' : (rojoActivo ? '#d61a24' : principal);
-      var rellenoForma = ceguera>0 ? ('rgba(255,255,255,' + (0.2 + ceguera*0.5).toFixed(3) + ')') : (rojoActivo ? 'rgba(214,26,36,0.3)' : suave);
+      var bordeForma = unidad.moribundo ? 'rgba(20,20,20,0.85)' : ceguera>0 ? 'rgba(255,255,255,0.95)' : (rojoActivo ? '#d61a24' : principal);
+      var rellenoForma = unidad.moribundo ? 'rgba(20,20,20,0.55)' : ceguera>0 ? ('rgba(255,255,255,' + (0.2 + ceguera*0.5).toFixed(3) + ')') : (rojoActivo ? 'rgba(214,26,36,0.3)' : suave);
       pincel.fillStyle = rellenoForma;
       pincel.lineWidth = 2.5;
       pincel.strokeStyle = bordeForma;
@@ -1263,6 +1332,8 @@
     estado.fase='jugador-quieto'; estado.ronda=1;
     estado.intentosMov=0; estado.movsCriticos=0; estado.movsHechos=0; estado.accionMayorLibre=true;
     jugador.caido=false; enemigo.caido=false;
+    jugador.moribundo=false; enemigo.moribundo=false;
+    jugador.tiradaDeMuertePendiente=false; enemigo.tiradaDeMuertePendiente=false;
     jugador.fxGolpe=null; enemigo.fxGolpe=null;
     estado.enemigoCegadoHastaRonda=0; estado.areaElectrica=null;
     estado.textosFlotantes=[];
