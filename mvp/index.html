@@ -193,6 +193,57 @@
   .opciones-bloqueo button .costo{ text-transform:none; letter-spacing:0.02em; color:var(--apagado); font-size:0.6rem; }
   .opciones-bloqueo button:disabled{ opacity:0.35; cursor:not-allowed; }
 
+  /* ====== cartel de tirada de muerte: D20 celeste que hay que tirar a mano ====== */
+  .cartel.tirada-muerte{ cursor:pointer; }
+  .cartel.tirada-muerte h2{ color:var(--vino); font-size:1.4rem; }
+  .zona-dado{ display:flex; align-items:center; gap:1.8rem; flex-wrap:wrap; justify-content:center; }
+  .dado-d20-wrap{ position:relative; width:112px; height:112px; display:flex; align-items:center; justify-content:center; }
+  .dado-d20{
+    width:88px; height:88px;
+    clip-path:polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    background:linear-gradient(160deg, var(--celeste), color-mix(in srgb, var(--celeste) 45%, black));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 22px 5px var(--celeste-suave), inset 0 0 0 2px color-mix(in srgb, var(--celeste) 65%, white);
+    transition:transform 150ms ease;
+  }
+  .dado-d20-wrap:hover .dado-d20{ transform:scale(1.06); }
+  .dado-d20 span{
+    font-family:"Space Mono",monospace; font-weight:700; font-size:1.8rem;
+    color:var(--fondo); text-shadow:0 1px 0 rgba(255,255,255,0.35);
+  }
+  .dado-d20-wrap.girando .dado-d20{ animation:girar-dado 650ms cubic-bezier(.22,.85,.3,1); }
+  @keyframes girar-dado{
+    0%{ transform:rotate(0deg) scale(1); }
+    40%{ transform:rotate(280deg) scale(1.18); }
+    70%{ transform:rotate(400deg) scale(0.94); }
+    100%{ transform:rotate(360deg) scale(1); }
+  }
+  .brillo{
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:var(--celeste); box-shadow:0 0 7px 2px var(--celeste); pointer-events:none;
+    animation:brillar 1.7s ease-in-out infinite;
+  }
+  .brillo-1{ top:0; left:22px; animation-delay:0s; }
+  .brillo-2{ top:24px; right:2px; animation-delay:0.45s; }
+  .brillo-3{ bottom:14px; left:2px; animation-delay:0.9s; }
+  .brillo-4{ bottom:2px; right:26px; animation-delay:1.3s; }
+  .brillo-5{ top:50%; left:-4px; animation-delay:0.65s; }
+  @keyframes brillar{ 0%,100%{ opacity:0.15; transform:scale(0.5); } 50%{ opacity:1; transform:scale(1.2); } }
+  .historial-dados{
+    display:flex; flex-direction:column; gap:0.35rem; max-height:190px; overflow-y:auto;
+    min-width:60px; padding-right:2px;
+  }
+  .historial-dados .tirada{
+    font-family:"Space Mono",monospace; font-weight:700; font-size:0.95rem;
+    border:1px solid var(--linea); padding:0.25rem 0.6rem; text-align:center; background:var(--fondo-alto);
+  }
+  .historial-dados .tirada.buena{ color:var(--celeste); border-color:var(--celeste); }
+  .historial-dados .tirada.mala{ color:var(--vino); border-color:var(--vino); }
+  @media (prefers-reduced-motion: reduce){
+    .dado-d20-wrap.girando .dado-d20{ animation:none; }
+    .brillo{ animation:none; opacity:0.7; }
+  }
+
   /* ====== aviso flotante arriba del tablero (resultado de la última tirada) ====== */
   .aviso{
     position:absolute; top:0.8rem; left:50%; transform:translateX(-50%);
@@ -252,6 +303,23 @@
         <h2>Derrota</h2>
         <p>El bosque se queda en silencio. Volvé a intentarlo.</p>
         <button id="btnReiniciarDerrota">Reintentar</button>
+      </div>
+
+      <!-- cartel de tirada de muerte: aparece al caer a 0 de vida, hay que tirar a mano -->
+      <div class="cartel tirada-muerte" id="cartelTiradaMuerte">
+        <h2>¡Al borde de la muerte!</h2>
+        <p id="textoTiradaMuerte">Necesita 11+ para salvarse. Click o espacio para tirar.</p>
+        <div class="zona-dado">
+          <div class="dado-d20-wrap" id="dadoD20Wrap">
+            <span class="brillo brillo-1"></span>
+            <span class="brillo brillo-2"></span>
+            <span class="brillo brillo-3"></span>
+            <span class="brillo brillo-4"></span>
+            <span class="brillo brillo-5"></span>
+            <div class="dado-d20"><span id="dadoD20Numero">20</span></div>
+          </div>
+          <div class="historial-dados" id="historialDados"></div>
+        </div>
       </div>
 
       <!-- cartel de bloqueo reactivo: aparece cuando el enemigo mete un golpe efectivo -->
@@ -566,21 +634,46 @@
   }
 
   // ====== tiradas de muerte ======
-  // al caer a 0 de vida, la unidad no muere directo: tira D20 hasta 3 veces.
+  // al caer a 0 de vida, la unidad no muere directo: tira D20 hasta 3 veces,
+  // pero ahora cada tirada la hace la persona: aparece un D20 celeste y hay
+  // que clickear en cualquier parte del cartel (o tocar espacio) para girarlo.
   // 11+ es una tirada buena, 10- es mala. Un 20 natural cuenta como 2 buenas
   // de una, un 1 natural cuenta como 2 malas de una. 3 buenas la estabilizan
   // (revive con 1 de vida); 3 malas, muere de verdad.
+  var elCartelTiradaMuerte = document.getElementById('cartelTiradaMuerte');
+  var elDadoD20Wrap = document.getElementById('dadoD20Wrap');
+  var elDadoD20Numero = document.getElementById('dadoD20Numero');
+  var elTextoTiradaMuerte = document.getElementById('textoTiradaMuerte');
+  var elHistorialDados = document.getElementById('historialDados');
+
   function resolverTiradasDeMuerte(unidad, alTerminar){
     unidad.moribundo = true;
     var buenas = 0, malas = 0;
+    var girando = false;
     agregarRegistro(null, unidad.nombre + ' cae a 0 de vida y empieza a tirar para salvarse (necesita 11+).');
-    function tirarUna(){
-      var tirada = tirarD20();
-      var buena = tirada >= 11;
-      var doble = (tirada===20 || tirada===1);
-      if (buena) buenas += doble?2:1; else malas += doble?2:1;
-      var etiqueta = tirada===20 ? 'crítico (cuenta doble)' : tirada===1 ? 'fallo crítico (cuenta doble)' : (buena?'buena':'mala');
-      var tramo = tirada===20 ? 'critico' : tirada===1 ? 'pifia' : (buena ? 'acierto' : 'fallo');
+
+    elHistorialDados.innerHTML = '';
+    elDadoD20Numero.textContent = '?';
+    elTextoTiradaMuerte.textContent = unidad.nombre+' necesita 11+ para salvarse. Click o espacio para tirar.';
+    elCartelTiradaMuerte.classList.add('visible');
+
+    function terminarYCerrar(){
+      elCartelTiradaMuerte.classList.remove('visible');
+      elCartelTiradaMuerte.removeEventListener('click', alClick);
+      document.removeEventListener('keydown', alTeclado);
+      setTimeout(alTerminar, 350);
+    }
+
+    function revelar(tirada, buena, tramo, etiqueta){
+      elDadoD20Numero.textContent = tirada;
+      elDadoD20Wrap.classList.remove('girando');
+
+      var chip = document.createElement('div');
+      chip.className = 'tirada ' + (buena ? 'buena' : 'mala');
+      chip.textContent = tirada;
+      elHistorialDados.appendChild(chip);
+      elHistorialDados.scrollTop = elHistorialDados.scrollHeight;
+
       textoFlotante(unidad, 'D20 '+tirada, buena ? COL.celeste : COL.vino);
       mostrarAviso(tramo, unidad.nombre+' tira para salvarse — D20 → '+tirada+' ('+etiqueta+')');
       agregarRegistro(tramo,
@@ -591,19 +684,52 @@
         unidad.vida = 1;
         refrescarVida();
         agregarRegistro('acierto', unidad.nombre+' se estabiliza y revive con 1 de vida.');
-        setTimeout(alTerminar, 550);
+        elTextoTiradaMuerte.textContent = unidad.nombre+' se estabiliza y revive con 1 de vida.';
+        terminarYCerrar();
         return;
       }
       if (malas>=3){
         unidad.moribundo = false;
         unidad.vivo = false;
         agregarRegistro('pifia', unidad.nombre+' no logra salvarse y muere.');
-        setTimeout(alTerminar, 550);
+        elTextoTiradaMuerte.textContent = unidad.nombre+' no logra salvarse y muere.';
+        terminarYCerrar();
         return;
       }
-      setTimeout(tirarUna, 700);
+      elTextoTiradaMuerte.textContent = unidad.nombre+' necesita 11+ para salvarse ('+buenas+' buena(s) / '+malas+' mala(s)). Click o espacio para tirar.';
+      girando = false;
     }
-    setTimeout(tirarUna, 500);
+
+    function tirarUna(){
+      if (girando) return;
+      girando = true;
+      var tirada = tirarD20();
+      var buena = tirada >= 11;
+      var doble = (tirada===20 || tirada===1);
+      if (buena) buenas += doble?2:1; else malas += doble?2:1;
+      var etiqueta = tirada===20 ? 'crítico (cuenta doble)' : tirada===1 ? 'fallo crítico (cuenta doble)' : (buena?'buena':'mala');
+      var tramo = tirada===20 ? 'critico' : tirada===1 ? 'pifia' : (buena ? 'acierto' : 'fallo');
+
+      if (menosMovimiento){
+        revelar(tirada, buena, tramo, etiqueta);
+        return;
+      }
+      elDadoD20Wrap.classList.add('girando');
+      var parpadeo = setInterval(function(){
+        elDadoD20Numero.textContent = 1+Math.floor(Math.random()*20);
+      }, 55);
+      setTimeout(function(){
+        clearInterval(parpadeo);
+        revelar(tirada, buena, tramo, etiqueta);
+      }, 650);
+    }
+
+    function alClick(){ tirarUna(); }
+    function alTeclado(e){
+      if (e.code==='Space' || e.key===' '){ e.preventDefault(); tirarUna(); }
+    }
+    elCartelTiradaMuerte.addEventListener('click', alClick);
+    document.addEventListener('keydown', alTeclado);
   }
 
   // alTerminar recibe {exito, critico, seLevanto}: exito = si de verdad se movió (una
