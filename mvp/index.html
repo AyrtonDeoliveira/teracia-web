@@ -147,6 +147,7 @@
     font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase;
     border:1px solid var(--celeste); color:var(--celeste);
   }
+  .statustag.blind{ border-color:var(--ink); color:var(--ink); background:var(--surface); }
 
   .log{ border:1px solid var(--line); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
   .log .eyebrow{ margin-bottom:0.5rem; }
@@ -171,12 +172,17 @@
   .overlay h2{ font-size:1.8rem; }
   .overlay.victory h2{ color:var(--celeste); }
   .overlay.defeat h2{ color:var(--vino); }
+  .overlay.block h2{ color:var(--vino); font-size:1.4rem; }
   .overlay p{ color:var(--ink-soft); max-width:40ch; font-size:0.92rem; }
   .overlay button{
     font-family:"Space Mono",monospace; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
     border:1px solid var(--celeste); color:var(--celeste); background:transparent; padding:0.7rem 1.3rem; cursor:pointer;
   }
-  .overlay button:hover{ background:var(--celeste-soft); }
+  .overlay button:hover:not(:disabled){ background:var(--celeste-soft); }
+  .block-choices{ display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; }
+  .block-choices button{ display:flex; flex-direction:column; align-items:center; gap:0.25rem; }
+  .block-choices button .cost{ text-transform:none; letter-spacing:0.02em; color:var(--muted); font-size:0.6rem; }
+  .block-choices button:disabled{ opacity:0.35; cursor:not-allowed; }
 
   .toast{
     position:absolute; top:0.8rem; left:50%; transform:translateX(-50%);
@@ -232,6 +238,15 @@
         <p>El bosque se queda en silencio. Volvé a intentarlo.</p>
         <button id="btnRestartDefeat">Reintentar</button>
       </div>
+      <div class="overlay block" id="blockOverlay">
+        <h2>¡Golpe entrante!</h2>
+        <p id="blockPromptText">El Caballero Guardián conecta. ¿Reaccionás?</p>
+        <div class="block-choices">
+          <button id="btnBlockShield" type="button">Escudo<span class="cost mono">1 maná · salvación D20</span></button>
+          <button id="btnBlockDestello" type="button">Destello<span class="cost mono">2 maná · salvación + ciega 2 turnos</span></button>
+          <button id="btnBlockNone" type="button">No bloquear<span class="cost mono">comés el golpe, 0 maná</span></button>
+        </div>
+      </div>
     </div>
 
     <div class="turn-banner">
@@ -243,8 +258,6 @@
       <button id="btnMove" type="button">Mover</button>
       <button id="btnAttack" type="button">Atacar <span class="cost mono">3x3 cuerpo a cuerpo</span></button>
       <button id="btnDescarga" type="button">Descarga <span class="cost mono">2 maná</span></button>
-      <button id="btnShield" type="button">Escudo <span class="cost mono">1 maná si bloquea</span></button>
-      <button id="btnDestello" type="button">Destello <span class="cost mono">2 maná si bloquea</span></button>
       <button id="btnRest" type="button">Descansar <span class="cost mono">+1 maná</span></button>
       <button id="btnEnd" type="button" class="end">Terminar turno</button>
     </div>
@@ -252,7 +265,8 @@
     <div class="rules-note">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa solo te levanta en el lugar, sin moverte) y un 18–20 te da un paso extra gratis.<br><br>
       <b>Moverte:</b> el botón Mover se puede usar 2 veces por turno (cada acierto crítico en una tirada de movimiento suma un uso más). La primera tirada es gratis; si tu segundo movimiento real (no de crítico) te desplaza, perdés el ataque de ese turno. Una tirada fallida igual gasta un uso. El rango es un cuadrado de 4 casillas para cada lado y se recalcula desde donde estás parado cada vez que abrís Mover, no desde donde arrancaste el turno.<br><br>
-      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales). <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Escudo:</b> lo armás gratis; si el enemigo te ataca mientras está armado, gastás 1 maná y tirás una salvación D20 (Fe baja el número pedido) — si sale, frenás el golpe entero; si no, el golpe entra igual y perdés el maná. <b>Destello:</b> igual que el Escudo pero cuesta 2 maná; si la salvación sale, además ciega al enemigo dos tiradas (+2 a lo que necesita). <b>Descansar:</b> te salteás mover y atacar este turno para recuperar 1 de maná.
+      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales) por 1D8+3. <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Descansar:</b> cerrás el turno (podés haberte movido una vez antes) y recuperás 1 de maná.<br><br>
+      <b>Bloqueo reactivo:</b> cuando el Caballero Guardián te mete un golpe efectivo y te queda maná, aparece un cartel para elegir. <b>Escudo</b> (1 maná) o <b>Destello</b> (2 maná) te hacen tirar una salvación D20 (la Fe baja el número): si sale, frenás el golpe entero; si no, el golpe entra igual y el maná se gastó. <b>Destello</b>, si frena, además ciega al Caballero Guardián: +2 a todo lo que necesita durante sus próximos 2 turnos. La tercera opción, <b>No bloquear</b>, es comerte el golpe sin gastar maná.
     </div>
   </div>
 
@@ -262,12 +276,12 @@
       <div class="hpbar"><div class="fill" id="playerHpFill"></div></div>
       <div class="hpnum mono" id="playerHpNum">38 / 38</div>
       <div class="manarow" id="playerManaRow"></div>
-      <div class="statustag mono" id="playerStatusTag" hidden>Escudo armado</div>
     </div>
     <div class="statcard enemy" id="enemyCard">
       <div class="name">Caballero Guardián <b>Bosque</b></div>
       <div class="hpbar"><div class="fill" id="enemyHpFill"></div></div>
       <div class="hpnum mono" id="enemyHpNum">45 / 45</div>
+      <div class="statustag mono blind" id="enemyStatusTag" hidden>Cegado · 2t</div>
     </div>
     <div class="log">
       <div class="eyebrow">Registro de combate</div>
@@ -371,8 +385,8 @@
     critMoves:0,    // movimientos críticos: cada uno suma +1 al presupuesto de tiradas de movimiento
     movesLanded:0,  // movimientos que de verdad te desplazaron y NO fueron críticos: al llegar a 2, perdés el ataque
     mayorAvailable:true, // turno mayor: atacar / Descarga / Descansar / 2° movimiento
-    reactiveStance:null, // null | 'escudo' | 'destello' — qué reacción está armada (dura hasta tu próximo turno)
-    enemyBlindRolls:0, // tiradas del enemigo que todavia sufren el +2 de la ceguera
+    enemyBlindTurns:0, // turnos enemigos que todavía sufren el +2 de la ceguera (Destello)
+    enemyBlindedThisTurn:false, // ¿el enemigo ya estaba cegado al empezar el turno actual? (para no descontar de más)
     anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
     aoeFlash:null, // {tiles:[{c,r}], t0, dur} — destello del area electrica
     floatingTexts:[] // [{text, x, y, color, t0, dur}] — numeros de tirada/daño sobre el tablero
@@ -450,38 +464,7 @@
   }
   function moveThreshold(unit){ return 10 - Math.min(2, Math.max(0, Math.floor(unit.destreza/5))); }
   function blindPenalty(unit){
-    if (unit===enemy && state.enemyBlindRolls>0){ state.enemyBlindRolls--; return 2; }
-    return 0;
-  }
-
-  function resolveAttack(attacker, defender, opts, onDone){
-    opts = opts || {};
-    var roll = rollD20();
-    var tier = outcomeTier(roll);
-    var threshold = attackThreshold(attacker, opts.thresholdStat) + blindPenalty(attacker);
-    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
-    var prefix = opts.abilityName ? opts.abilityName+' — ' : '';
-    var label = prefix+attacker.name+' tira D20 → '+roll+' (necesita '+threshold+'+)';
-    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
-    spawnFloatingText(attacker, 'D20 '+roll, tierColor(tier));
-
-    if (tier==='crit-fail'){
-      addLog(tier, label+'. Fallo crítico — momento de contraataque.');
-      setTimeout(function(){ resolveCounterattack(attacker, defender, onDone); }, 650);
-      return;
-    }
-    if (!success){
-      addLog(tier, label+'. No conecta.');
-      setTimeout(onDone, 500);
-      return;
-    }
-    var dmg = opts.dmgDie ? rollDie(opts.dmgDie) : rollDamage(attacker);
-    if (tier==='crit'){ dmg *= 2; addLog(tier, label+'. ¡Crítico! Daño x2 → '+dmg+'.'); }
-    else { addLog(tier, label+'. Impacta por '+dmg+'.'); }
-    applyDamage(defender, dmg);
-    spawnFloatingText(defender, '-'+dmg, T.vino);
-    if (opts.afterHit) opts.afterHit(attacker, defender);
-    setTimeout(onDone, 500);
+    return (unit===enemy && state.enemyBlindTurns>0) ? 2 : 0;
   }
 
   function flashArea(centerUnit){
@@ -618,8 +601,6 @@
   var btnMove = document.getElementById('btnMove');
   var btnAttack = document.getElementById('btnAttack');
   var btnDescarga = document.getElementById('btnDescarga');
-  var btnShield = document.getElementById('btnShield');
-  var btnDestello = document.getElementById('btnDestello');
   var btnRest = document.getElementById('btnRest');
   var btnEnd = document.getElementById('btnEnd');
   var turnWho = document.getElementById('turnWho');
@@ -642,11 +623,14 @@
     }
   }
 
-  function updateStatusUI(){
-    var tag = document.getElementById('playerStatusTag');
-    if (state.reactiveStance==='escudo'){ tag.hidden = false; tag.textContent = 'Escudo armado'; }
-    else if (state.reactiveStance==='destello'){ tag.hidden = false; tag.textContent = 'Destello armado'; }
-    else { tag.hidden = true; }
+  function updateEnemyStatus(){
+    var tag = document.getElementById('enemyStatusTag');
+    if (state.enemyBlindTurns > 0){
+      tag.hidden = false;
+      tag.textContent = 'Cegado · ' + state.enemyBlindTurns + 't';
+    } else {
+      tag.hidden = true;
+    }
   }
 
   function moveBudget(){ return 2 + state.critMoves; } // 2 usos del botón Mover + 1 por cada movimiento crítico
@@ -662,14 +646,10 @@
     btnMove.disabled = !moveIdle || !canMoveAgain();
     btnAttack.disabled = !idle || !state.mayorAvailable;
     btnDescarga.disabled = !idle || !state.mayorAvailable || player.mana<2;
-    btnShield.disabled = !idle || (player.mana<1 && state.reactiveStance!=='escudo');
-    btnDestello.disabled = !idle || (player.mana<2 && state.reactiveStance!=='destello');
     btnRest.disabled = !idle || !canRest();
     btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
     btnMove.classList.toggle('active', state.phase==='player-move');
-    btnShield.classList.toggle('active', state.reactiveStance==='escudo');
-    btnDestello.classList.toggle('active', state.reactiveStance==='destello');
-    updateStatusUI();
+    updateEnemyStatus();
   }
 
   function setHint(){
@@ -721,18 +701,6 @@
     }, { electric:true, thresholdStat:'fe', abilityName:'Descarga' });
   });
 
-  btnShield.addEventListener('click', function(){
-    if (state.reactiveStance==='escudo'){ state.reactiveStance = null; addLog(null, 'Bajás el Escudo.'); }
-    else { state.reactiveStance = 'escudo'; addLog(null, 'Armás el Escudo — 1 maná y salvación D20 si llega a bloquear.'); }
-    refreshButtons();
-  });
-
-  btnDestello.addEventListener('click', function(){
-    if (state.reactiveStance==='destello'){ state.reactiveStance = null; addLog(null, 'Bajás Destello.'); }
-    else { state.reactiveStance = 'destello'; addLog(null, 'Armás Destello — 2 maná y salvación D20; si bloquea, además ciega al enemigo.'); }
-    refreshButtons();
-  });
-
   function canRest(){
     // se puede descansar sin haberte movido o después de UN movimiento, nunca después de dos,
     // y no si ya atacaste / ya descansaste
@@ -782,36 +750,90 @@
     return false;
   }
 
-  function enemyAttacksPlayer(onDone){
-    var stance = state.reactiveStance;
-    var canPay = (stance==='escudo' && player.mana>=1) || (stance==='destello' && player.mana>=2);
-    if (stance && canPay){
-      var cost = stance==='destello' ? 2 : 1;
-      var name = stance==='destello' ? 'Destello' : 'Escudo';
+  var blockOverlay = document.getElementById('blockOverlay');
+  var btnBlockShield = document.getElementById('btnBlockShield');
+  var btnBlockDestello = document.getElementById('btnBlockDestello');
+  var btnBlockNone = document.getElementById('btnBlockNone');
+
+  // Interfaz reactiva: aparece SOLO cuando el enemigo logra un golpe efectivo y
+  // el Paladín tiene maná para hacer algo. Opciones: Escudo, Destello o no bloquear.
+  function promptBlock(dmg, tier, label, critNote, onDone){
+    document.getElementById('blockPromptText').textContent =
+      enemy.name + ' te pega por ' + dmg + (critNote ? ' (crítico)' : '') + '. ¿Reaccionás?';
+    btnBlockShield.disabled = player.mana < 1;
+    btnBlockDestello.disabled = player.mana < 2;
+    blockOverlay.classList.add('show');
+
+    function cleanup(){
+      blockOverlay.classList.remove('show');
+      btnBlockShield.onclick = btnBlockDestello.onclick = btnBlockNone.onclick = null;
+    }
+    function takeHit(prefix){
+      addLog(tier, (prefix||'') + label + '. Impacta por ' + dmg + '.' + critNote);
+      applyDamage(player, dmg);
+      spawnFloatingText(player, '-'+dmg, T.vino);
+      setTimeout(onDone, 500);
+    }
+    function trySave(kind){
+      var cost = kind==='destello' ? 2 : 1;
+      var name = kind==='destello' ? 'Destello' : 'Escudo';
       player.mana -= cost; updateManaUI();
-      state.reactiveStance = null;
       var roll = rollD20();
-      var tier = outcomeTier(roll);
-      var threshold = 10 - Math.min(2, Math.max(0, Math.floor(player.fe/5))); // tirada de salvación, baja con Fe
-      var saved = roll >= threshold;
-      spawnFloatingText(player, 'D20 '+roll, tierColor(tier));
-      showToast(saved?'hit':'crit-fail', name+' — salvación '+roll+' / '+threshold);
+      var st = outcomeTier(roll);
+      var thr = 10 - Math.min(2, Math.max(0, Math.floor(player.fe/5))); // salvación, la Fe baja el número
+      var saved = roll >= thr;
+      spawnFloatingText(player, 'D20 '+roll, tierColor(st));
+      showToast(saved?'hit':'crit-fail', name+' — salvación '+roll+' / '+thr);
       if (saved){
-        addLog('hit', name+': salvación D20 → '+roll+' (necesita '+threshold+'+). Frenás el golpe de '+enemy.name+' y gastás '+cost+' de maná.');
-        if (stance==='destello'){
-          state.enemyBlindRolls = 2;
-          addLog('small', 'Destello ciega a '+enemy.name+': +2 a lo que necesita en sus próximas 2 tiradas.');
+        addLog('hit', name+': salvación D20 → '+roll+' (necesita '+thr+'+). Frenás el golpe y gastás '+cost+' de maná.');
+        if (kind==='destello'){
+          state.enemyBlindTurns = 2;
+          updateEnemyStatus();
+          addLog('small', 'Destello ciega a '+enemy.name+': +2 a lo que necesita en sus próximos 2 turnos.');
         }
-        refreshButtons();
-        setTimeout(onDone, 700);
-        return;
+        setTimeout(onDone, 650);
+      } else {
+        addLog('crit-fail', name+': salvación D20 → '+roll+' (necesita '+thr+'+). No llega — el golpe entra igual y el maná se gastó.');
+        takeHit(name+' falla — ');
       }
-      addLog('crit-fail', name+': salvación D20 → '+roll+' (necesita '+threshold+'+). No llega — el golpe entra igual y perdés el maná.');
-      refreshButtons();
-      setTimeout(function(){ resolveAttack(enemy, player, {}, onDone); }, 550);
+    }
+    btnBlockShield.onclick = function(){ if (player.mana < 1) return; cleanup(); trySave('escudo'); };
+    btnBlockDestello.onclick = function(){ if (player.mana < 2) return; cleanup(); trySave('destello'); };
+    btnBlockNone.onclick = function(){ cleanup(); addLog(null, 'Dejás pasar el golpe (no gastás maná).'); takeHit(); };
+  }
+
+  function enemyAttacksPlayer(onDone){
+    var roll = rollD20();
+    var tier = outcomeTier(roll);
+    var threshold = attackThreshold(enemy, 'fuerza') + blindPenalty(enemy);
+    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
+    var label = enemy.name+' ataca — D20 → '+roll+' (necesita '+threshold+'+)';
+    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
+    spawnFloatingText(enemy, 'D20 '+roll, tierColor(tier));
+
+    if (tier==='crit-fail'){
+      addLog(tier, label+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolveCounterattack(enemy, player, onDone); }, 650);
       return;
     }
-    resolveAttack(enemy, player, {}, onDone);
+    if (!success){
+      addLog(tier, label+'. No conecta.');
+      setTimeout(onDone, 500);
+      return;
+    }
+    var dmg = rollDamage(enemy);
+    if (tier==='crit'){ dmg *= 2; }
+    var critNote = tier==='crit' ? ' ¡Crítico! (x2)' : '';
+
+    if (player.mana < 1){
+      // sin maná no hay nada que elegir: el golpe entra
+      addLog(tier, label+'. Impacta por '+dmg+'.'+critNote);
+      applyDamage(player, dmg);
+      spawnFloatingText(player, '-'+dmg, T.vino);
+      setTimeout(onDone, 500);
+      return;
+    }
+    setTimeout(function(){ promptBlock(dmg, tier, label, critNote, onDone); }, 350);
   }
 
   // como resolveMove, pero si la tirada es crítica encadena un paso extra gratis
@@ -834,17 +856,26 @@
     });
   }
 
+  // cierra el turno enemigo: descuenta un turno de ceguera (salvo el turno en que
+  // se aplicó) y le pasa el turno al jugador.
+  function finishEnemyTurn(){
+    if (state.enemyBlindedThisTurn && state.enemyBlindTurns > 0) state.enemyBlindTurns--;
+    updateEnemyStatus();
+    startPlayerTurn();
+  }
+
   function runEnemyTurn(){
     if (checkGameOver()) return;
+    state.enemyBlindedThisTurn = state.enemyBlindTurns > 0; // fijado al empezar, antes de que un Destello de este turno lo cambie
     if (isAdjacent(enemy, player)){
       enemyAttacksPlayer(function(){
         if (checkGameOver()) return;
-        startPlayerTurn();
+        finishEnemyTurn();
       });
       return;
     }
     var options = computeReachable(enemy).filter(function(t){ return !occupied(t.c,t.r); });
-    if (!options.length){ startPlayerTurn(); return; }
+    if (!options.length){ finishEnemyTurn(); return; }
     options.sort(function(a,b){
       var da = Math.abs(a.c-player.c)+Math.abs(a.r-player.r);
       var db = Math.abs(b.c-player.c)+Math.abs(b.r-player.r);
@@ -855,10 +886,10 @@
       if (isAdjacent(enemy, player)){
         enemyAttacksPlayer(function(){
           if (checkGameOver()) return;
-          startPlayerTurn();
+          finishEnemyTurn();
         });
       } else {
-        startPlayerTurn();
+        finishEnemyTurn();
       }
     });
   }
@@ -866,8 +897,6 @@
   function startPlayerTurn(){
     state.round += 1;
     state.moveAttempts = 0; state.critMoves = 0; state.movesLanded = 0; state.mayorAvailable = true;
-    // el Escudo/Destello armado cubre exactamente el turno enemigo que acaba de pasar y ahora expira
-    state.reactiveStance = null;
     state.reachable = computeReachable(player); // vista inicial; se recalcula al abrir "Mover"
     state.phase = 'player-idle';
     turnWho.textContent = 'Turno del Paladín'; turnWho.className = 'who mono player';
@@ -1182,14 +1211,15 @@
     state.moveAttempts=0; state.critMoves=0; state.movesLanded=0; state.mayorAvailable=true;
     player.fallen=false; enemy.fallen=false;
     player.hitFx=null; enemy.hitFx=null;
-    state.reactiveStance=null; state.enemyBlindRolls=0; state.aoeFlash=null;
+    state.enemyBlindTurns=0; state.enemyBlindedThisTurn=false; state.aoeFlash=null;
     state.floatingTexts=[];
     state.reachable=computeReachable(player); state.anim=null;
     logList.innerHTML='';
     document.getElementById('victoryOverlay').classList.remove('show');
     document.getElementById('defeatOverlay').classList.remove('show');
+    document.getElementById('blockOverlay').classList.remove('show');
     turnWho.textContent='Turno del Paladín'; turnWho.className='who mono player';
-    updateHpUI(); updateManaUI(); updateStatusUI(); refreshButtons(); setHint();
+    updateHpUI(); updateManaUI(); updateEnemyStatus(); refreshButtons(); setHint();
     addLog(null, 'Empieza el combate en el bosque.');
   }
   document.getElementById('btnRestartVictory').addEventListener('click', restart);
@@ -1200,7 +1230,7 @@
   state.reachable = computeReachable(player);
   updateHpUI();
   updateManaUI();
-  updateStatusUI();
+  updateEnemyStatus();
   refreshButtons();
   setHint();
   addLog(null, 'Empieza el combate en el bosque.');
