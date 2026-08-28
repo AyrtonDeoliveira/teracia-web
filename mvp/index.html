@@ -340,7 +340,7 @@
   /* ---------- game state ---------- */
   var player = {
     name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
-    fuerza:5, destreza:5, fe:5, dmgDie:6, alive:true, spriteSrc:'sprites/paladin.png',
+    fuerza:5, destreza:5, fe:5, dmgFormula:{count:1, sides:8, flat:3}, alive:true, spriteSrc:'sprites/paladin.png',
     spriteScaleH:0.95, spriteScaleW:1.45,
     maxMana:4, mana:4,
     fallen:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
