@@ -9,261 +9,277 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  /* ====== paleta de colores (tema claro por defecto) ====== */
   :root{
-    --bg:#e9dfc2;
-    --bg-raised:#ded0a6;
-    --surface:#d3c28e;
-    --ink:#2c2013;
-    --ink-soft:#544527;
-    --muted:#6b5a36;
-    --line:#a3854f;
-    --celeste:#0f6a5c;
-    --celeste-soft:rgba(15,106,92,0.14);
-    --vino:#7a1d2c;
-    --vino-soft:rgba(122,29,44,0.12);
-    --st-electricidad:#8c7420;
-    --ground-a:#ded0a6;
-    --ground-b:#d3c28e;
-    --tree:#8a9186;
-    --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23887a5c' stroke-width='1' opacity='0.16'%3E%3Cpath d='M32 2 L62 32 L32 62 L2 32 Z'/%3E%3Ccircle cx='32' cy='32' r='4'/%3E%3C/g%3E%3C/svg%3E");
+    --fondo:#e9dfc2;            /* fondo general de la página */
+    --fondo-alto:#ded0a6;       /* paneles y casillas del tablero */
+    --superficie:#d3c28e;       /* rellenos de barras y chips */
+    --tinta:#2c2013;            /* color de texto principal */
+    --tinta-suave:#544527;      /* texto secundario */
+    --apagado:#6b5a36;          /* texto tenue / detalles */
+    --linea:#a3854f;            /* bordes y grilla */
+    --celeste:#0f6a5c;          /* color del jugador / aciertos */
+    --celeste-suave:rgba(15,106,92,0.14);
+    --vino:#7a1d2c;             /* color del enemigo / daño */
+    --vino-suave:rgba(122,29,44,0.12);
+    --electricidad:#8c7420;     /* color de la Descarga eléctrica */
+    --suelo-a:#ded0a6;          /* casillas del tablero (color A del damero) */
+    --suelo-b:#d3c28e;          /* casillas del tablero (color B del damero) */
+    --grano-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    --motivo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23887a5c' stroke-width='1' opacity='0.16'%3E%3Cpath d='M32 2 L62 32 L32 62 L2 32 Z'/%3E%3Ccircle cx='32' cy='32' r='4'/%3E%3C/g%3E%3C/svg%3E");
   }
+  /* ====== la misma paleta pero para tema oscuro ====== */
   @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#181009;
-      --bg-raised:#21160b;
-      --surface:#2a1d0f;
-      --ink:#ecdfc0;
-      --ink-soft:#cbb98f;
-      --muted:#93815c;
-      --line:#5c4726;
+    :root:not([data-tema="claro"]){
+      --fondo:#181009;
+      --fondo-alto:#21160b;
+      --superficie:#2a1d0f;
+      --tinta:#ecdfc0;
+      --tinta-suave:#cbb98f;
+      --apagado:#93815c;
+      --linea:#5c4726;
       --celeste:#4fd9c4;
-      --celeste-soft:rgba(79,217,196,0.12);
+      --celeste-suave:rgba(79,217,196,0.12);
       --vino:#dd6b7f;
-      --vino-soft:rgba(221,107,127,0.14);
-      --st-electricidad:#d6bf55;
-      --ground-a:#21160b;
-      --ground-b:#2a1d0f;
-      --tree:#2a3628;
+      --vino-suave:rgba(221,107,127,0.14);
+      --electricidad:#d6bf55;
+      --suelo-a:#21160b;
+      --suelo-b:#2a1d0f;
     }
   }
-  :root[data-theme="dark"]{
-    --bg:#181009; --bg-raised:#21160b; --surface:#2a1d0f; --ink:#ecdfc0; --ink-soft:#cbb98f;
-    --muted:#93815c; --line:#5c4726; --celeste:#4fd9c4; --celeste-soft:rgba(79,217,196,0.12);
-    --vino:#dd6b7f; --vino-soft:rgba(221,107,127,0.14); --st-electricidad:#d6bf55;
-    --ground-a:#21160b; --ground-b:#2a1d0f; --tree:#2a3628;
+  :root[data-tema="oscuro"]{
+    --fondo:#181009; --fondo-alto:#21160b; --superficie:#2a1d0f; --tinta:#ecdfc0; --tinta-suave:#cbb98f;
+    --apagado:#93815c; --linea:#5c4726; --celeste:#4fd9c4; --celeste-suave:rgba(79,217,196,0.12);
+    --vino:#dd6b7f; --vino-suave:rgba(221,107,127,0.14); --electricidad:#d6bf55;
+    --suelo-a:#21160b; --suelo-b:#2a1d0f;
   }
 
   *,*::before,*::after{ box-sizing:border-box; }
   body{
-    margin:0; color:var(--ink);
+    margin:0; color:var(--tinta);
     background:
-      radial-gradient(ellipse 70% 50% at 18% 8%, var(--celeste-soft), transparent 55%),
-      radial-gradient(ellipse 60% 45% at 85% 6%, var(--vino-soft), transparent 55%),
-      var(--motif), var(--paper-grain), var(--bg);
+      radial-gradient(ellipse 70% 50% at 18% 8%, var(--celeste-suave), transparent 55%),
+      radial-gradient(ellipse 60% 45% at 85% 6%, var(--vino-suave), transparent 55%),
+      var(--motivo), var(--grano-papel), var(--fondo);
     background-attachment:fixed;
     font-family:"Source Serif 4", Georgia, serif; line-height:1.5;
   }
   h1,h2,h3{ font-family:"Fraunces",Georgia,serif; font-weight:600; margin:0; }
-  .mono{ font-family:"Space Mono","Courier New",monospace; font-variant-numeric:tabular-nums; }
+  .monoesp{ font-family:"Space Mono","Courier New",monospace; font-variant-numeric:tabular-nums; } /* números y datos, con ancho fijo */
   a{ color:var(--celeste); }
   :focus-visible{ outline:2px solid var(--celeste); outline-offset:3px; }
   button{ font-family:inherit; }
 
-  header.site{
+  /* ====== encabezado del sitio ====== */
+  header.sitio{
     display:flex; align-items:center; justify-content:space-between;
-    padding:0.85rem 1.5rem; border-bottom:1px solid var(--line);
+    padding:0.85rem 1.5rem; border-bottom:1px solid var(--linea);
   }
-  .brand{ font-family:"Fraunces",serif; font-weight:700; font-size:1.05rem; letter-spacing:0.04em; text-transform:uppercase; }
-  .brand span{ color:var(--celeste); }
-  header.site .back{
+  .marca{ font-family:"Fraunces",serif; font-weight:700; font-size:1.05rem; letter-spacing:0.04em; text-transform:uppercase; }
+  .marca span{ color:var(--celeste); }
+  header.sitio .volver{
     font-family:"Space Mono",monospace; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
-    text-decoration:none; color:var(--muted);
+    text-decoration:none; color:var(--apagado);
   }
-  header.site .back:hover{ color:var(--celeste); }
+  header.sitio .volver:hover{ color:var(--celeste); }
 
+  /* ====== layout: tablero a la izquierda, fichas a la derecha ====== */
   main{
     max-width:1180px; margin:0 auto; padding:1.5rem clamp(1rem,3vw,2rem) 3rem;
     display:grid; grid-template-columns:1fr 300px; gap:1.5rem;
   }
-  @media (max-width:920px){ main{ grid-template-columns:1fr; } }
+  @media (max-width:920px){ main{ grid-template-columns:1fr; } } /* en pantallas chicas se apila */
 
-  .titlebar{ grid-column:1/-1; margin-bottom:0.2rem; }
-  .eyebrow{
+  .barra-titulo{ grid-column:1/-1; margin-bottom:0.2rem; }
+  .sobretitulo{
     font-family:"Space Mono",monospace; font-weight:700; font-size:0.7rem; letter-spacing:0.14em;
     text-transform:uppercase; color:var(--celeste);
   }
-  .titlebar h1{ font-size:clamp(1.5rem,3vw,2rem); margin-top:0.3rem; }
-  .titlebar p{ color:var(--ink-soft); max-width:60ch; margin-top:0.5rem; font-size:0.95rem; }
+  .barra-titulo h1{ font-size:clamp(1.5rem,3vw,2rem); margin-top:0.3rem; }
+  .barra-titulo p{ color:var(--tinta-suave); max-width:60ch; margin-top:0.5rem; font-size:0.95rem; }
 
-  .board-col{ display:flex; flex-direction:column; gap:0.9rem; }
-  .board-frame{
-    position:relative; border:1px solid var(--line); background:var(--bg-raised);
+  /* ====== columna del tablero ====== */
+  .col-tablero{ display:flex; flex-direction:column; gap:0.9rem; }
+  .marco-tablero{
+    position:relative; border:1px solid var(--linea); background:var(--fondo-alto);
     aspect-ratio:1/1; width:100%; overflow:hidden;
   }
   canvas{ display:block; width:100%; height:100%; }
 
-  .turn-banner{
+  /* ====== banner que dice de quién es el turno ====== */
+  .banner-turno{
     display:flex; align-items:center; justify-content:space-between;
-    border:1px solid var(--line); padding:0.6rem 0.9rem; font-size:0.85rem;
+    border:1px solid var(--linea); padding:0.6rem 0.9rem; font-size:0.85rem;
   }
-  .turn-banner .who{ font-family:"Space Mono",monospace; letter-spacing:0.06em; text-transform:uppercase; }
-  .turn-banner .who.player{ color:var(--celeste); }
-  .turn-banner .who.enemy{ color:var(--vino); }
-  .turn-banner .hint{ color:var(--muted); font-size:0.82rem; }
+  .banner-turno .quien{ font-family:"Space Mono",monospace; letter-spacing:0.06em; text-transform:uppercase; }
+  .banner-turno .quien.jugador{ color:var(--celeste); }
+  .banner-turno .quien.enemigo{ color:var(--vino); }
+  .banner-turno .pista{ color:var(--apagado); font-size:0.82rem; }
 
-  .actionbar{ display:flex; gap:0.6rem; flex-wrap:wrap; }
-  .actionbar button{
-    flex:1 1 auto; border:1px solid var(--line); background:var(--bg-raised); color:var(--ink);
+  /* ====== barra de botones de acción ====== */
+  .barra-acciones{ display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .barra-acciones button{
+    flex:1 1 auto; border:1px solid var(--linea); background:var(--fondo-alto); color:var(--tinta);
     padding:0.7rem 0.9rem; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
     cursor:pointer; transition:border-color 150ms ease, color 150ms ease;
   }
-  .actionbar button:hover:not(:disabled){ border-color:var(--celeste); color:var(--celeste); }
-  .actionbar button.active{ border-color:var(--celeste); color:var(--celeste); background:var(--celeste-soft); }
-  .actionbar button:disabled{ opacity:0.4; cursor:not-allowed; }
-  .actionbar button.end{ flex:1 1 100%; border-color:var(--vino); }
-  .actionbar button.end:hover:not(:disabled){ border-color:var(--vino); color:var(--vino); }
-  .actionbar button .cost{
+  .barra-acciones button:hover:not(:disabled){ border-color:var(--celeste); color:var(--celeste); }
+  .barra-acciones button.activo{ border-color:var(--celeste); color:var(--celeste); background:var(--celeste-suave); }
+  .barra-acciones button:disabled{ opacity:0.4; cursor:not-allowed; }
+  .barra-acciones button.fin{ flex:1 1 100%; border-color:var(--vino); } /* "Terminar turno" ocupa toda la fila */
+  .barra-acciones button.fin:hover:not(:disabled){ border-color:var(--vino); color:var(--vino); }
+  .barra-acciones button .costo{
     display:block; font-size:0.62rem; letter-spacing:0.03em; text-transform:none;
-    color:var(--muted); margin-top:0.2rem;
+    color:var(--apagado); margin-top:0.2rem;
   }
 
-  .side-col{ display:flex; flex-direction:column; gap:1rem; }
-  .statcard{ border:1px solid var(--line); padding:0.9rem 1rem; }
-  .statcard .name{ font-family:"Fraunces",serif; font-weight:600; font-size:1rem; display:flex; justify-content:space-between; align-items:baseline; }
-  .statcard .name b{ font-size:0.68rem; font-family:"Space Mono",monospace; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); }
-  .hpbar{ height:8px; background:var(--surface); border:1px solid var(--line); margin-top:0.5rem; position:relative; }
-  .hpbar .fill{ height:100%; background:var(--celeste); transition:width 300ms ease; }
-  .statcard.enemy .hpbar .fill{ background:var(--vino); }
-  .hpnum{ margin-top:0.3rem; font-size:0.72rem; color:var(--muted); }
-  .manarow{ display:flex; gap:0.3rem; margin-top:0.55rem; }
-  .manarow .pip{
+  /* ====== columna lateral: fichas del Paladín y del enemigo + registro ====== */
+  .col-lateral{ display:flex; flex-direction:column; gap:1rem; }
+  .ficha{ border:1px solid var(--linea); padding:0.9rem 1rem; }
+  .ficha .nombre{ font-family:"Fraunces",serif; font-weight:600; font-size:1rem; display:flex; justify-content:space-between; align-items:baseline; }
+  .ficha .nombre b{ font-size:0.68rem; font-family:"Space Mono",monospace; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--apagado); }
+  .barra-vida{ height:8px; background:var(--superficie); border:1px solid var(--linea); margin-top:0.5rem; position:relative; }
+  .barra-vida .relleno{ height:100%; background:var(--celeste); transition:width 300ms ease; }
+  .ficha.enemigo .barra-vida .relleno{ background:var(--vino); }
+  .num-vida{ margin-top:0.3rem; font-size:0.72rem; color:var(--apagado); }
+  .fila-mana{ display:flex; gap:0.3rem; margin-top:0.55rem; }
+  .fila-mana .punto{                     /* cada punto de maná */
     width:11px; height:11px; border-radius:50%; border:1.5px solid var(--celeste);
     background:transparent;
   }
-  .manarow .pip.filled{ background:var(--celeste); }
-  .statustag{
+  .fila-mana .punto.lleno{ background:var(--celeste); } /* maná disponible */
+  .etiqueta-estado{
     display:inline-block; margin-top:0.6rem; padding:0.2rem 0.55rem;
     font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase;
     border:1px solid var(--celeste); color:var(--celeste);
   }
-  .statustag[hidden]{ display:none; } /* si no, .statustag (display:inline-block) pisa el atributo hidden */
-  .statustag.blind{ border-color:var(--ink); color:var(--ink); background:var(--surface); }
+  .etiqueta-estado[hidden]{ display:none; } /* si no, .etiqueta-estado (display:inline-block) le gana al atributo hidden */
+  .etiqueta-estado.cegado{ border-color:var(--tinta); color:var(--tinta); background:var(--superficie); }
 
-  .log{ border:1px solid var(--line); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
-  .log .eyebrow{ margin-bottom:0.5rem; }
-  .log ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column-reverse; gap:0.45rem; }
-  .log li{ color:var(--ink-soft); border-bottom:1px solid var(--line); padding-bottom:0.45rem; }
-  .log li:last-child{ border-bottom:none; padding-bottom:0; }
-  .log li .tag{ font-family:"Space Mono",monospace; font-size:0.65rem; letter-spacing:0.05em; text-transform:uppercase; margin-right:0.4em; }
-  .log li.crit-fail .tag{ color:var(--vino); }
-  .log li.fail .tag{ color:var(--muted); }
-  .log li.small .tag{ color:var(--st-electricidad); }
-  .log li.hit .tag, .log li.crit .tag{ color:var(--celeste); }
+  /* ====== registro de combate (texto de lo que va pasando) ====== */
+  .registro{ border:1px solid var(--linea); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
+  .registro .sobretitulo{ margin-bottom:0.5rem; }
+  .registro ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column-reverse; gap:0.45rem; }
+  .registro li{ color:var(--tinta-suave); border-bottom:1px solid var(--linea); padding-bottom:0.45rem; }
+  .registro li:last-child{ border-bottom:none; padding-bottom:0; }
+  .registro li .etiqueta{ font-family:"Space Mono",monospace; font-size:0.65rem; letter-spacing:0.05em; text-transform:uppercase; margin-right:0.4em; }
+  .registro li.pifia .etiqueta{ color:var(--vino); }   /* fallo crítico */
+  .registro li.fallo .etiqueta{ color:var(--apagado); }
+  .registro li.chico .etiqueta{ color:var(--electricidad); } /* acierto pequeño */
+  .registro li.acierto .etiqueta, .registro li.critico .etiqueta{ color:var(--celeste); }
 
-  .rules-note{ border:1px dashed var(--line); padding:0.8rem 0.9rem; font-size:0.78rem; color:var(--muted); }
-  .rules-note b{ color:var(--ink-soft); }
+  .nota-reglas{ border:1px dashed var(--linea); padding:0.8rem 0.9rem; font-size:0.78rem; color:var(--apagado); }
+  .nota-reglas b{ color:var(--tinta-suave); }
 
-  .overlay{
+  /* ====== carteles que tapan el tablero (victoria, derrota, bloqueo) ====== */
+  .cartel{
     position:absolute; inset:0; display:none; align-items:center; justify-content:center;
-    background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px);
+    background:color-mix(in srgb, var(--fondo) 78%, transparent); backdrop-filter:blur(3px);
     flex-direction:column; gap:1rem; text-align:center; padding:1.5rem;
   }
-  .overlay.show{ display:flex; }
-  .overlay h2{ font-size:1.8rem; }
-  .overlay.victory h2{ color:var(--celeste); }
-  .overlay.defeat h2{ color:var(--vino); }
-  .overlay.block h2{ color:var(--vino); font-size:1.4rem; }
-  .overlay p{ color:var(--ink-soft); max-width:40ch; font-size:0.92rem; }
-  .overlay button{
+  .cartel.visible{ display:flex; }
+  .cartel h2{ font-size:1.8rem; }
+  .cartel.victoria h2{ color:var(--celeste); }
+  .cartel.derrota h2{ color:var(--vino); }
+  .cartel.bloqueo h2{ color:var(--vino); font-size:1.4rem; }
+  .cartel p{ color:var(--tinta-suave); max-width:40ch; font-size:0.92rem; }
+  .cartel button{
     font-family:"Space Mono",monospace; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
     border:1px solid var(--celeste); color:var(--celeste); background:transparent; padding:0.7rem 1.3rem; cursor:pointer;
   }
-  .overlay button:hover:not(:disabled){ background:var(--celeste-soft); }
-  .block-choices{ display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; }
-  .block-choices button{ display:flex; flex-direction:column; align-items:center; gap:0.25rem; }
-  .block-choices button .cost{ text-transform:none; letter-spacing:0.02em; color:var(--muted); font-size:0.6rem; }
-  .block-choices button:disabled{ opacity:0.35; cursor:not-allowed; }
+  .cartel button:hover:not(:disabled){ background:var(--celeste-suave); }
+  .opciones-bloqueo{ display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; }
+  .opciones-bloqueo button{ display:flex; flex-direction:column; align-items:center; gap:0.25rem; }
+  .opciones-bloqueo button .costo{ text-transform:none; letter-spacing:0.02em; color:var(--apagado); font-size:0.6rem; }
+  .opciones-bloqueo button:disabled{ opacity:0.35; cursor:not-allowed; }
 
-  .toast{
+  /* ====== aviso flotante arriba del tablero (resultado de la última tirada) ====== */
+  .aviso{
     position:absolute; top:0.8rem; left:50%; transform:translateX(-50%);
-    background:var(--bg-raised); border:1px solid var(--line); padding:0.55rem 1rem;
+    background:var(--fondo-alto); border:1px solid var(--linea); padding:0.55rem 1rem;
     font-family:"Space Mono",monospace; font-size:0.78rem; letter-spacing:0.04em;
     opacity:0; transition:opacity 200ms ease; pointer-events:none; white-space:nowrap;
   }
-  .toast.show{ opacity:1; }
-  .toast.crit-fail{ border-color:var(--vino); color:var(--vino); }
-  .toast.fail{ color:var(--muted); }
-  .toast.small{ border-color:var(--st-electricidad); color:var(--st-electricidad); }
-  .toast.hit, .toast.crit{ border-color:var(--celeste); color:var(--celeste); }
+  .aviso.visible{ opacity:1; }
+  .aviso.pifia{ border-color:var(--vino); color:var(--vino); }
+  .aviso.fallo{ color:var(--apagado); }
+  .aviso.chico{ border-color:var(--electricidad); color:var(--electricidad); }
+  .aviso.acierto, .aviso.critico{ border-color:var(--celeste); color:var(--celeste); }
 
-  html.embed, html.embed body{ height:100%; }
-  html.embed body{ margin:0; }
-  html.embed header.site,
-  html.embed .titlebar,
-  html.embed .turn-banner,
-  html.embed .actionbar,
-  html.embed .rules-note,
-  html.embed .side-col{ display:none; }
-  html.embed main{ display:block; max-width:none; padding:0; height:100%; }
-  html.embed .board-col{ height:100%; gap:0; }
-  html.embed .board-frame{ border:none; aspect-ratio:auto; height:100%; }
+  /* ====== modo embebido: si se abre con ?embed=1 se ve solo el tablero ====== */
+  html.embebido, html.embebido body{ height:100%; }
+  html.embebido body{ margin:0; }
+  html.embebido header.sitio,
+  html.embebido .barra-titulo,
+  html.embebido .banner-turno,
+  html.embebido .barra-acciones,
+  html.embebido .nota-reglas,
+  html.embebido .col-lateral{ display:none; }
+  html.embebido main{ display:block; max-width:none; padding:0; height:100%; }
+  html.embebido .col-tablero{ height:100%; gap:0; }
+  html.embebido .marco-tablero{ border:none; aspect-ratio:auto; height:100%; }
 </style>
 </head>
 <body>
-<script>if (location.search.indexOf('embed=1')>-1) document.documentElement.classList.add('embed');</script>
+<script>if (location.search.indexOf('embed=1')>-1) document.documentElement.classList.add('embebido');</script>
 
-<header class="site">
-  <div class="brand">TERA<span>CIA</span></div>
-  <a class="back" href="../pagina-teracia/index.html">&larr; Volver a la página del juego</a>
+<header class="sitio">
+  <div class="marca">TERA<span>CIA</span></div>
+  <a class="volver" href="../pagina-teracia/index.html">&larr; Volver a la página del juego</a>
 </header>
 
 <main>
-  <div class="titlebar">
-    <div class="eyebrow">MVP jugable</div>
+  <div class="barra-titulo">
+    <div class="sobretitulo">MVP jugable</div>
     <h1>Encuentro I — El bosque</h1>
     <p>Primer recorte jugable del combate: tablero visto desde arriba por casilleros y las reglas de D20 documentadas, ya funcionando.</p>
   </div>
 
-  <div class="board-col">
-    <div class="board-frame" id="boardFrame">
-      <canvas id="board" aria-label="Tablero de combate"></canvas>
-      <div class="toast mono" id="toast"></div>
-      <div class="overlay victory" id="victoryOverlay">
+  <div class="col-tablero">
+    <div class="marco-tablero" id="marcoTablero">
+      <canvas id="tablero" aria-label="Tablero de combate"></canvas>
+      <div class="aviso monoesp" id="aviso"></div>
+
+      <!-- cartel de victoria -->
+      <div class="cartel victoria" id="cartelVictoria">
         <h2>Victoria</h2>
-        <p>El Caballero Guardián cae. Aprendiste cómo funciona su armadura — y ganaste monedas celestes por el camino.</p>
-        <button id="btnRestartVictory">Reiniciar combate</button>
+        <p>El Caballero Guardián cae. Combate ganado.</p>
+        <button id="btnReiniciarVictoria">Reiniciar combate</button>
       </div>
-      <div class="overlay defeat" id="defeatOverlay">
+
+      <!-- cartel de derrota -->
+      <div class="cartel derrota" id="cartelDerrota">
         <h2>Derrota</h2>
         <p>El bosque se queda en silencio. Volvé a intentarlo.</p>
-        <button id="btnRestartDefeat">Reintentar</button>
+        <button id="btnReiniciarDerrota">Reintentar</button>
       </div>
-      <div class="overlay block" id="blockOverlay">
+
+      <!-- cartel de bloqueo reactivo: aparece cuando el enemigo mete un golpe efectivo -->
+      <div class="cartel bloqueo" id="cartelBloqueo">
         <h2>¡Golpe entrante!</h2>
-        <p id="blockPromptText">El Caballero Guardián conecta. ¿Reaccionás?</p>
-        <div class="block-choices">
-          <button id="btnBlockShield" type="button">Escudo<span class="cost mono">1 maná · salvación D20</span></button>
-          <button id="btnBlockDestello" type="button">Destello<span class="cost mono">2 maná · salvación + ciega 2 turnos</span></button>
-          <button id="btnBlockNone" type="button">No bloquear<span class="cost mono">comés el golpe, 0 maná</span></button>
+        <p id="textoBloqueo">El Caballero Guardián conecta. ¿Reaccionás?</p>
+        <div class="opciones-bloqueo">
+          <button id="btnBloqEscudo" type="button">Escudo<span class="costo monoesp">1 maná · salvación D20</span></button>
+          <button id="btnBloqDestello" type="button">Destello<span class="costo monoesp">2 maná · salvación + ciega 2 turnos</span></button>
+          <button id="btnBloqNada" type="button">No bloquear<span class="costo monoesp">comés el golpe, 0 maná</span></button>
         </div>
       </div>
     </div>
 
-    <div class="turn-banner">
-      <span class="who mono" id="turnWho">Turno del Paladín</span>
-      <span class="hint" id="turnHint">Elegí Mover o Atacar</span>
+    <div class="banner-turno">
+      <span class="quien monoesp" id="turnoQuien">Turno del Paladín</span>
+      <span class="pista" id="turnoPista">Elegí Mover o Atacar</span>
     </div>
 
-    <div class="actionbar">
-      <button id="btnMove" type="button">Mover</button>
-      <button id="btnAttack" type="button">Atacar <span class="cost mono">3x3 cuerpo a cuerpo</span></button>
-      <button id="btnDescarga" type="button">Descarga <span class="cost mono">2 maná</span></button>
-      <button id="btnRest" type="button">Descansar <span class="cost mono">+1 maná</span></button>
-      <button id="btnEnd" type="button" class="end">Terminar turno</button>
+    <div class="barra-acciones">
+      <button id="btnMover" type="button">Mover</button>
+      <button id="btnAtacar" type="button">Atacar <span class="costo monoesp">3x3 cuerpo a cuerpo</span></button>
+      <button id="btnDescarga" type="button">Descarga <span class="costo monoesp">2 maná</span></button>
+      <button id="btnDescansar" type="button">Descansar <span class="costo monoesp">+1 maná</span></button>
+      <button id="btnTerminar" type="button" class="fin">Terminar turno</button>
     </div>
 
-    <div class="rules-note">
+    <div class="nota-reglas">
       <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa solo te levanta en el lugar, sin moverte) y un 18–20 te da un paso extra gratis.<br><br>
       <b>Moverte:</b> el botón Mover se puede usar 2 veces por turno (cada acierto crítico en una tirada de movimiento suma un uso más). La primera tirada es gratis; si tu segundo movimiento real (no de crítico) te desplaza, perdés el ataque de ese turno. Una tirada fallida igual gasta un uso. El rango es un cuadrado de 4 casillas para cada lado y se recalcula desde donde estás parado cada vez que abrís Mover, no desde donde arrancaste el turno.<br><br>
       <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales) por 1D8+3. <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Descansar:</b> cerrás el turno (podés haberte movido una vez antes) y recuperás 1 de maná.<br><br>
@@ -271,22 +287,22 @@
     </div>
   </div>
 
-  <div class="side-col">
-    <div class="statcard" id="playerCard">
-      <div class="name">Paladín <b>Rol de ataque</b></div>
-      <div class="hpbar"><div class="fill" id="playerHpFill"></div></div>
-      <div class="hpnum mono" id="playerHpNum">38 / 38</div>
-      <div class="manarow" id="playerManaRow"></div>
+  <div class="col-lateral">
+    <div class="ficha" id="fichaJugador">
+      <div class="nombre">Paladín <b>Rol de ataque</b></div>
+      <div class="barra-vida"><div class="relleno" id="vidaJugadorRelleno"></div></div>
+      <div class="num-vida monoesp" id="vidaJugadorNum">38 / 38</div>
+      <div class="fila-mana" id="manaJugadorFila"></div>
     </div>
-    <div class="statcard enemy" id="enemyCard">
-      <div class="name">Caballero Guardián <b>Bosque</b></div>
-      <div class="hpbar"><div class="fill" id="enemyHpFill"></div></div>
-      <div class="hpnum mono" id="enemyHpNum">45 / 45</div>
-      <div class="statustag mono blind" id="enemyStatusTag" hidden>Cegado · 2t</div>
+    <div class="ficha enemigo" id="fichaEnemigo">
+      <div class="nombre">Caballero Guardián <b>Bosque</b></div>
+      <div class="barra-vida"><div class="relleno" id="vidaEnemigoRelleno"></div></div>
+      <div class="num-vida monoesp" id="vidaEnemigoNum">45 / 45</div>
+      <div class="etiqueta-estado monoesp cegado" id="estadoEnemigo" hidden>Cegado · 2t</div>
     </div>
-    <div class="log">
-      <div class="eyebrow">Registro de combate</div>
-      <ul id="logList"></ul>
+    <div class="registro">
+      <div class="sobretitulo">Registro de combate</div>
+      <ul id="listaRegistro"></ul>
     </div>
   </div>
 </main>
@@ -295,966 +311,983 @@
 (function(){
   "use strict";
 
-  /* ---------- theme tokens ---------- */
-  function readTokens(){
-    var cs = getComputedStyle(document.documentElement);
-    var g = function(name){ return cs.getPropertyValue(name).trim(); };
+  /* ====== leo los colores del CSS para poder pintarlos en el canvas ====== */
+  function leerColores(){
+    var estilos = getComputedStyle(document.documentElement);
+    var leer = function(nombre){ return estilos.getPropertyValue(nombre).trim(); };
     return {
-      bg:g('--bg'), bgRaised:g('--bg-raised'), surface:g('--surface'), ink:g('--ink'),
-      inkSoft:g('--ink-soft'), muted:g('--muted'), line:g('--line'),
-      celeste:g('--celeste'), celesteSoft:g('--celeste-soft'), vino:g('--vino'), vinoSoft:g('--vino-soft'),
-      groundA:g('--ground-a'), groundB:g('--ground-b'), tree:g('--tree'), electricidad:g('--st-electricidad')
+      fondoAlto:leer('--fondo-alto'), superficie:leer('--superficie'), tinta:leer('--tinta'),
+      tintaSuave:leer('--tinta-suave'), apagado:leer('--apagado'), linea:leer('--linea'),
+      celeste:leer('--celeste'), celesteSuave:leer('--celeste-suave'), vino:leer('--vino'), vinoSuave:leer('--vino-suave'),
+      sueloA:leer('--suelo-a'), sueloB:leer('--suelo-b'), electricidad:leer('--electricidad')
     };
   }
-  var T = readTokens();
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ T = readTokens(); });
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var COL = leerColores(); // paleta ya resuelta a valores hex/rgba
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ COL = leerColores(); }); // si cambia el tema, re-leo
+  var menosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches; // el sistema pide menos animaciones
 
-  /* ---------- grid / top-down projection ---------- */
-  var COLS = 11, ROWS = 11;
-  var TILE = 64;
-  var obstacles = []; // tablero libre, sin árboles ni obstáculos
+  /* ====== grilla del tablero (vista desde arriba) ====== */
+  var COLUMNAS = 11, FILAS = 11;      // tablero de 11x11 casillas
+  var CASILLA = 64;                   // tamaño en píxeles de cada casilla (se recalcula al redimensionar)
+  var obstaculos = [];               // tablero libre, sin árboles ni obstáculos
 
-  function isObstacle(c,r){ return obstacles.some(function(o){ return o.c===c && o.r===r; }); }
-  function inBounds(c,r){ return c>=0 && c<COLS && r>=0 && r<ROWS; }
+  function esObstaculo(c,r){ return obstaculos.some(function(o){ return o.c===c && o.r===r; }); }
+  function dentroDelTablero(c,r){ return c>=0 && c<COLUMNAS && r>=0 && r<FILAS; }
 
-  var originX = 0, originY = 0;
-  function computeOrigin(canvasW, canvasH){
-    TILE = Math.floor(Math.min(canvasW/COLS, canvasH/ROWS));
-    originX = (canvasW - TILE*COLS)/2;
-    originY = (canvasH - TILE*ROWS)/2;
+  var origenX = 0, origenY = 0;      // esquina superior izquierda de la grilla dentro del canvas
+  function calcularOrigen(anchoCanvas, altoCanvas){
+    CASILLA = Math.floor(Math.min(anchoCanvas/COLUMNAS, altoCanvas/FILAS));
+    origenX = (anchoCanvas - CASILLA*COLUMNAS)/2;
+    origenY = (altoCanvas - CASILLA*FILAS)/2;
   }
-  function tileScreen(c,r){
-    return { x: originX + c*TILE + TILE/2, y: originY + r*TILE + TILE/2 };
+  function casillaAPixel(c,r){ // centro de la casilla (c,r) en píxeles
+    return { x: origenX + c*CASILLA + CASILLA/2, y: origenY + r*CASILLA + CASILLA/2 };
   }
-  function screenToTile(x,y){
-    return { c: Math.floor((x-originX)/TILE), r: Math.floor((y-originY)/TILE) };
-  }
-
-  /* ---------- dice ---------- */
-  function rollD20(){ return 1+Math.floor(Math.random()*20); }
-  function rollDie(n){ return 1+Math.floor(Math.random()*n); }
-  function rollDice(count,sides){ var s=0; for(var i=0;i<count;i++) s+=rollDie(sides); return s; }
-  function outcomeTier(n){
-    if (n<=5) return 'crit-fail';
-    if (n<=9) return 'fail';
-    if (n<=14) return 'small';
-    if (n<=17) return 'hit';
-    return 'crit';
-  }
-  function tierLabel(t){
-    return {'crit-fail':'Fallo crítico','fail':'Fallo','small':'Acierto pequeño','hit':'Acierto','crit':'Acierto crítico'}[t];
-  }
-  function tierColor(t){
-    if (t==='crit-fail') return T.vino;
-    if (t==='fail') return T.muted;
-    if (t==='small') return T.electricidad;
-    return T.celeste; // hit / crit
+  function pixelACasilla(x,y){ // qué casilla toqué en el canvas
+    return { c: Math.floor((x-origenX)/CASILLA), r: Math.floor((y-origenY)/CASILLA) };
   }
 
-  /* ---------- game state ---------- */
-  var player = {
-    name:'Paladín', side:'player', c:1, r:5, maxHp:38, hp:38,
-    fuerza:5, destreza:5, fe:5, dmgFormula:{count:1, sides:8, flat:3}, alive:true, spriteSrc:'sprites/paladin.png',
-    spriteScaleH:0.95, spriteScaleW:1.45,
-    maxMana:4, mana:4,
-    fallen:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
+  /* ====== dados ====== */
+  function tirarD20(){ return 1+Math.floor(Math.random()*20); }
+  function tirarDado(caras){ return 1+Math.floor(Math.random()*caras); }
+  function tirarDados(cantidad,caras){ var suma=0; for(var i=0;i<cantidad;i++) suma+=tirarDado(caras); return suma; }
+  // según el número del D20, en qué tramo cayó (reglas de dado de Teracia)
+  function tramoResultado(n){
+    if (n<=5) return 'pifia';    // 1-5  fallo crítico
+    if (n<=9) return 'fallo';    // 6-9  fallo
+    if (n<=14) return 'chico';   // 10-14 acierto pequeño
+    if (n<=17) return 'acierto'; // 15-17 acierto
+    return 'critico';            // 18-20 acierto crítico
+  }
+  function nombreTramo(t){
+    return {'pifia':'Fallo crítico','fallo':'Fallo','chico':'Acierto pequeño','acierto':'Acierto','critico':'Acierto crítico'}[t];
+  }
+  function colorTramo(t){
+    if (t==='pifia') return COL.vino;
+    if (t==='fallo') return COL.apagado;
+    if (t==='chico') return COL.electricidad;
+    return COL.celeste; // acierto / crítico
+  }
+
+  /* ====== estado del combate ====== */
+  var jugador = {
+    nombre:'Paladín', bando:'jugador', c:1, r:5, vidaMax:38, vida:38,      // c = columna, r = fila
+    fuerza:5, destreza:5, fe:5, formulaDanio:{dados:1, caras:8, fijo:3},   // el Paladín pega 1D8+3
+    vivo:true, spriteUrl:'sprites/paladin.png', escalaSpriteAlto:0.95, escalaSpriteAncho:1.45,
+    manaMax:4, mana:4,
+    caido:false // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
   };
-  var enemy = {
-    name:'Caballero Guardián', side:'enemy', c:9, r:4, maxHp:45, hp:45,
-    fuerza:7, destreza:-5, dmgFormula:{count:2, sides:4, flat:2}, alive:true, spriteSrc:'sprites/caballero-guardian.png', flipSprite:true,
-    spriteScaleH:1.4, spriteScaleW:1.4,
-    fallen:false
+  var enemigo = {
+    nombre:'Caballero Guardián', bando:'enemigo', c:9, r:4, vidaMax:45, vida:45,
+    fuerza:7, destreza:-5, formulaDanio:{dados:2, caras:4, fijo:2},        // el Caballero pega 2D4+2
+    vivo:true, spriteUrl:'sprites/caballero-guardian.png', spriteEspejado:true,
+    escalaSpriteAlto:1.4, escalaSpriteAncho:1.4,
+    caido:false
   };
 
-  /* ---------- sprites ---------- */
-  function loadSprite(unit){
+  /* ====== carga de los sprites (si no cargan, se dibujan formas simples) ====== */
+  function cargarSprite(unidad){
     var img = new Image();
-    img.onload = function(){ unit.spriteImg = img; };
-    img.onerror = function(){ unit.spriteImg = null; };
-    img.src = unit.spriteSrc;
+    img.onload = function(){ unidad.imagenSprite = img; };
+    img.onerror = function(){ unidad.imagenSprite = null; };
+    img.src = unidad.spriteUrl;
   }
-  loadSprite(player);
-  loadSprite(enemy);
+  cargarSprite(jugador);
+  cargarSprite(enemigo);
 
-  var MOVE_RANGE = 4;
-  var state = {
-    phase:'player-idle',   // player-idle | player-move | anim | enemy-turn | over
-    round:1,
-    reachable:[], // rango de movimiento visible ahora mismo (se recalcula cada vez que abrís "Mover")
-    moveAttempts:0, // tiradas de movimiento hechas este turno (éxito, fallo o tropiezo). El botón Mover se corta al llegar al presupuesto
-    critMoves:0,    // movimientos críticos: cada uno suma +1 al presupuesto de tiradas de movimiento
-    movesLanded:0,  // movimientos que de verdad te desplazaron y NO fueron críticos: al llegar a 2, perdés el ataque
-    mayorAvailable:true, // turno mayor: atacar / Descarga / Descansar / 2° movimiento
-    enemyBlindUntilRound:0, // Destello: el enemigo está cegado (+2) mientras state.round <= este número. Se auto-expira, no hace falta descontar.
-    anim:null, // {unit, from:{x,y}, to:{x,y}, t0, dur, after}
-    aoeFlash:null, // {tiles:[{c,r}], t0, dur} — destello del area electrica
-    floatingTexts:[] // [{text, x, y, color, t0, dur}] — numeros de tirada/daño sobre el tablero
+  var RANGO_MOV = 4; // el rango de movimiento es un cuadrado de 4 casillas para cada lado
+  var estado = {
+    fase:'jugador-quieto',   // jugador-quieto | jugador-mover | anim | turno-enemigo | fin
+    ronda:1,
+    alcance:[],       // casillas a las que me puedo mover ahora (se recalcula cada vez que abro "Mover")
+    intentosMov:0,    // tiradas de movimiento hechas este turno (éxito, fallo o tropiezo). El botón Mover se corta al llegar al presupuesto
+    movsCriticos:0,   // movimientos críticos: cada uno suma +1 al presupuesto de tiradas de movimiento
+    movsHechos:0,     // movimientos que de verdad me desplazaron y NO fueron críticos: al llegar a 2, pierdo el ataque
+    accionMayorLibre:true,   // acción mayor sin usar: atacar / Descarga / Descansar / 2° movimiento
+    enemigoCegadoHastaRonda:0, // Destello: el enemigo está cegado (+2) mientras estado.ronda <= este número. Se auto-expira, no hace falta descontar.
+    anim:null,        // animación de deslizamiento: {unidad, desde:{x,y}, hasta:{x,y}, t0, dur, luego}
+    areaElectrica:null,   // destello del área eléctrica de la Descarga: {casillas:[{c,r}], t0, dur}
+    textosFlotantes:[]    // números que suben sobre el tablero: [{texto, x, y, color, t0, dur}]
   };
 
-  /* ---------- rango de movimiento: cuadrado de MOVE_RANGE casillas para cada lado ---------- */
-  function computeReachable(unit){
-    var result = [];
-    for (var dc = -MOVE_RANGE; dc <= MOVE_RANGE; dc++){
-      for (var dr = -MOVE_RANGE; dr <= MOVE_RANGE; dr++){
-        if (dc === 0 && dr === 0) continue;
-        var c = unit.c + dc, r = unit.r + dr;
-        if (!inBounds(c,r) || isObstacle(c,r) || occupied(c,r)) continue;
-        result.push({ c:c, r:r, dist: Math.max(Math.abs(dc), Math.abs(dr)) });
+  /* ====== rango de movimiento: cuadrado de RANGO_MOV casillas para cada lado ====== */
+  function calcularAlcance(unidad){
+    var resultado = [];
+    for (var dc = -RANGO_MOV; dc <= RANGO_MOV; dc++){
+      for (var df = -RANGO_MOV; df <= RANGO_MOV; df++){
+        if (dc === 0 && df === 0) continue; // la casilla propia no cuenta
+        var c = unidad.c + dc, r = unidad.r + df;
+        if (!dentroDelTablero(c,r) || esObstaculo(c,r) || casillaOcupada(c,r)) continue;
+        resultado.push({ c:c, r:r, dist: Math.max(Math.abs(dc), Math.abs(df)) });
       }
     }
-    return result;
+    return resultado;
   }
-  function occupied(c,r){
-    return (player.alive && player.c===c && player.r===r) || (enemy.alive && enemy.c===c && enemy.r===r);
+  function casillaOcupada(c,r){
+    return (jugador.vivo && jugador.c===c && jugador.r===r) || (enemigo.vivo && enemigo.c===c && enemigo.r===r);
   }
-  function adjacentTiles(unit){
-    var res = [];
-    var deltas = [[1,0],[-1,0],[0,1],[0,-1]];
-    for (var i=0;i<deltas.length;i++){
-      var nc = unit.c+deltas[i][0], nr = unit.r+deltas[i][1];
-      if (inBounds(nc,nr)) res.push({c:nc,r:nr});
-    }
-    return res;
-  }
-  function isAdjacent(a,b){
+  function esAdyacente(a,b){ // pegados en cruz (sin diagonal)
     return Math.abs(a.c-b.c)+Math.abs(a.r-b.r) === 1;
   }
-  function chebyshev(a,b){
+  function distChebyshev(a,b){ // distancia contando diagonales (para el 3x3)
     return Math.max(Math.abs(a.c-b.c), Math.abs(a.r-b.r));
   }
-  function getEnemiesInMeleeRange(attacker){
-    var list = [];
-    if (enemy.alive && enemy!==attacker && chebyshev(attacker,enemy)<=1) list.push(enemy);
-    return list;
+  function enemigosEnRangoCuerpoACuerpo(atacante){ // quién está dentro del 3x3 del atacante
+    var lista = [];
+    if (enemigo.vivo && enemigo!==atacante && distChebyshev(atacante,enemigo)<=1) lista.push(enemigo);
+    return lista;
   }
 
-  /* ---------- log & toast ---------- */
-  var logList = document.getElementById('logList');
-  function addLog(tier, text){
+  /* ====== registro de combate y aviso flotante ====== */
+  var listaRegistro = document.getElementById('listaRegistro');
+  function agregarRegistro(tramo, texto){
     var li = document.createElement('li');
-    li.className = tier || '';
-    var tag = document.createElement('span');
-    tag.className = 'tag mono';
-    tag.textContent = tier ? tierLabel(tier) : '';
-    li.appendChild(tag);
-    li.appendChild(document.createTextNode(text));
-    logList.appendChild(li);
-    logList.parentElement.scrollTop = logList.parentElement.scrollHeight;
+    li.className = tramo || '';
+    var etiqueta = document.createElement('span');
+    etiqueta.className = 'etiqueta monoesp';
+    etiqueta.textContent = tramo ? nombreTramo(tramo) : '';
+    li.appendChild(etiqueta);
+    li.appendChild(document.createTextNode(texto));
+    listaRegistro.appendChild(li);
+    listaRegistro.parentElement.scrollTop = listaRegistro.parentElement.scrollHeight; // auto-scroll al último
   }
-  var toastEl = document.getElementById('toast');
-  var toastTimer = null;
-  function showToast(tier, text){
-    toastEl.className = 'toast mono show ' + tier;
-    toastEl.textContent = text;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 1400);
+  var avisoEl = document.getElementById('aviso');
+  var avisoTimer = null;
+  function mostrarAviso(tramo, texto){
+    avisoEl.className = 'aviso monoesp visible ' + tramo;
+    avisoEl.textContent = texto;
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(function(){ avisoEl.classList.remove('visible'); }, 1400);
   }
-  // numero flotante sobre una unidad (tirada de dado, daño recibido, etc.)
-  function spawnFloatingText(unit, text, color){
-    var p = tileScreen(unit.c, unit.r);
-    var jitter = state.floatingTexts.length ? (state.floatingTexts.length % 3) * 14 : 0;
-    state.floatingTexts.push({ text:text, x:p.x, y:p.y - TILE*0.9 - jitter, color:color, t0:performance.now(), dur:1100 });
+  // número flotante sobre una unidad (tirada de dado, daño recibido, etc.)
+  function textoFlotante(unidad, texto, color){
+    var p = casillaAPixel(unidad.c, unidad.r);
+    var desfase = estado.textosFlotantes.length ? (estado.textosFlotantes.length % 3) * 14 : 0; // que no se pisen si hay varios
+    estado.textosFlotantes.push({ texto:texto, x:p.x, y:p.y - CASILLA*0.9 - desfase, color:color, t0:performance.now(), dur:1100 });
   }
 
-  /* ---------- roll resolution ---------- */
-  function attackThreshold(unit, statName){
-    var stat = unit[statName||'fuerza'] || 0;
+  /* ====== resolución de tiradas ====== */
+  // número que hay que sacar para acertar un ataque (la Fuerza/Fe baja el pedido, hasta 2)
+  function umbralAtaque(unidad, statNombre){
+    var stat = unidad[statNombre||'fuerza'] || 0;
     return 15 - Math.min(2, Math.max(0, Math.floor(stat/5)));
   }
-  function moveThreshold(unit){ return 10 - Math.min(2, Math.max(0, Math.floor(unit.destreza/5))); }
-  function enemyBlinded(){ return state.round <= state.enemyBlindUntilRound; }
-  function enemyBlindLeft(){ return Math.max(0, Math.min(2, state.enemyBlindUntilRound - state.round + 1)); }
-  function blindPenalty(unit){
-    return (unit===enemy && enemyBlinded()) ? 2 : 0;
+  // número que hay que sacar para moverse (la Destreza baja el pedido, hasta 2)
+  function umbralMovimiento(unidad){ return 10 - Math.min(2, Math.max(0, Math.floor(unidad.destreza/5))); }
+  function enemigoCegado(){ return estado.ronda <= estado.enemigoCegadoHastaRonda; }
+  function turnosCegueraRestantes(){ return Math.max(0, Math.min(2, estado.enemigoCegadoHastaRonda - estado.ronda + 1)); }
+  function penalizacionCeguera(unidad){ // el enemigo cegado necesita +2 en todo
+    return (unidad===enemigo && enemigoCegado()) ? 2 : 0;
   }
 
-  function flashArea(centerUnit){
-    var tiles = [];
+  // marca las 9 casillas del 3x3 para que parpadeen (efecto visual de la Descarga)
+  function marcarAreaElectrica(unidadCentro){
+    var casillas = [];
     for (var dc=-1; dc<=1; dc++){
-      for (var dr=-1; dr<=1; dr++){
-        var c = centerUnit.c+dc, r = centerUnit.r+dr;
-        if (inBounds(c,r)) tiles.push({c:c,r:r});
+      for (var df=-1; df<=1; df++){
+        var c = unidadCentro.c+dc, r = unidadCentro.r+df;
+        if (dentroDelTablero(c,r)) casillas.push({c:c,r:r});
       }
     }
-    state.aoeFlash = { tiles:tiles, t0:performance.now(), dur:550 };
+    estado.areaElectrica = { casillas:casillas, t0:performance.now(), dur:550 };
   }
 
   // Ataque en área 3x3 del Paladín (cuerpo a cuerpo, con diagonales).
-  // opts.electric (Descarga): además del daño normal, todo el área recibe 3 de
-  // daño que ignora armadura. opts.thresholdStat cambia la habilidad de tirada
-  // (Descarga usa Fe). opts.abilityName es solo para el texto del registro.
-  function resolveMeleeAoE(attacker, defenders, onDone, opts){
+  // opts.electrico (Descarga): además del daño normal, todo el área recibe 3 de
+  // daño que ignora armadura. opts.statUmbral cambia la habilidad de tirada
+  // (Descarga usa Fe). opts.nombreHabilidad es solo para el texto del registro.
+  function resolverAtaqueArea(atacante, defensores, alTerminar, opts){
     opts = opts || {};
-    var roll = rollD20();
-    var tier = outcomeTier(roll);
-    var threshold = attackThreshold(attacker, opts.thresholdStat || 'fuerza') + blindPenalty(attacker);
-    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
-    var prefix = opts.abilityName ? opts.abilityName+' — ' : '';
-    var label = prefix+attacker.name+' ataca en área (3x3) — D20 → '+roll+' (necesita '+threshold+'+)';
-    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
-    spawnFloatingText(attacker, 'D20 '+roll, tierColor(tier));
+    var tirada = tirarD20();
+    var tramo = tramoResultado(tirada);
+    var umbral = umbralAtaque(atacante, opts.statUmbral || 'fuerza') + penalizacionCeguera(atacante);
+    var exito = (tirada>=umbral) && (tramo==='acierto' || tramo==='critico' || (tramo==='chico' && umbral<=10));
+    var prefijo = opts.nombreHabilidad ? opts.nombreHabilidad+' — ' : '';
+    var texto = prefijo+atacante.nombre+' ataca en área (3x3) — D20 → '+tirada+' (necesita '+umbral+'+)';
+    mostrarAviso(tramo, 'D20 → '+tirada+' · '+nombreTramo(tramo));
+    textoFlotante(atacante, 'D20 '+tirada, colorTramo(tramo));
 
-    if (tier==='crit-fail'){
-      addLog(tier, label+'. Fallo crítico — momento de contraataque.');
-      setTimeout(function(){ resolveCounterattack(attacker, defenders[0], onDone); }, 650);
+    if (tramo==='pifia'){
+      agregarRegistro(tramo, texto+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolverContraataque(atacante, defensores[0], alTerminar); }, 650);
       return;
     }
-    if (!success){
-      addLog(tier, label+'. No conecta.');
-      setTimeout(onDone, 500);
+    if (!exito){
+      agregarRegistro(tramo, texto+'. No conecta.');
+      setTimeout(alTerminar, 500);
       return;
     }
-    var dmg = rollDamage(attacker);
-    if (tier==='crit'){ dmg *= 2; }
-    var names = defenders.map(function(d){ return d.name; }).join(', ');
-    if (tier==='crit') addLog(tier, label+'. ¡Crítico! Golpea a '+names+' por '+dmg+' cada uno.');
-    else addLog(tier, label+'. Impacta a '+names+' por '+dmg+' cada uno.');
-    defenders.forEach(function(d){ applyDamage(d, dmg); spawnFloatingText(d, '-'+dmg, T.vino); });
-    if (opts.electric){
-      flashArea(attacker);
-      addLog('small', 'Electricidad — 3 de daño en área que ignora armadura.');
-      defenders.forEach(function(d){ applyDamage(d, 3); spawnFloatingText(d, '-3', T.electricidad); });
+    var danio = tirarDanio(atacante);
+    if (tramo==='critico'){ danio *= 2; }
+    var nombres = defensores.map(function(d){ return d.nombre; }).join(', ');
+    if (tramo==='critico') agregarRegistro(tramo, texto+'. ¡Crítico! Golpea a '+nombres+' por '+danio+' cada uno.');
+    else agregarRegistro(tramo, texto+'. Impacta a '+nombres+' por '+danio+' cada uno.');
+    defensores.forEach(function(d){ aplicarDanio(d, danio); textoFlotante(d, '-'+danio, COL.vino); });
+    if (opts.electrico){
+      marcarAreaElectrica(atacante);
+      agregarRegistro('chico', 'Electricidad — 3 de daño en área que ignora armadura.');
+      defensores.forEach(function(d){ aplicarDanio(d, 3); textoFlotante(d, '-3', COL.electricidad); });
     }
-    setTimeout(onDone, 500);
+    setTimeout(alTerminar, 500);
   }
 
-  function resolveCounterattack(attacker, defender, onDone){
-    var a = rollD20(), b = rollD20();
-    spawnFloatingText(attacker, 'D20 '+a, T.vino);
-    spawnFloatingText(defender, 'D20 '+b, T.celeste);
-    addLog(null, 'Contraataque — ambos tiran D20: '+attacker.name+' saca '+a+', '+defender.name+' saca '+b+'.');
+  // contraataque: se dispara con un fallo crítico al atacar. Ambos tiran D20 y gana el mayor.
+  function resolverContraataque(atacante, defensor, alTerminar){
+    var a = tirarD20(), b = tirarD20();
+    textoFlotante(atacante, 'D20 '+a, COL.vino);
+    textoFlotante(defensor, 'D20 '+b, COL.celeste);
+    agregarRegistro(null, 'Contraataque — ambos tiran D20: '+atacante.nombre+' saca '+a+', '+defensor.nombre+' saca '+b+'.');
     if (b>a){
-      var dmg = rollDamage(defender);
-      addLog('crit', defender.name+' gana el contraataque y golpea gratis por '+dmg+' (no gasta turno).');
-      applyDamage(attacker, dmg);
-      spawnFloatingText(attacker, '-'+dmg, T.vino);
+      var danio = tirarDanio(defensor);
+      agregarRegistro('critico', defensor.nombre+' gana el contraataque y golpea gratis por '+danio+' (no gasta turno).');
+      aplicarDanio(atacante, danio);
+      textoFlotante(atacante, '-'+danio, COL.vino);
     } else {
-      addLog('hit', attacker.name+' gana el contraataque y se salva del golpe.');
+      agregarRegistro('acierto', atacante.nombre+' gana el contraataque y se salva del golpe.');
     }
-    setTimeout(onDone, 550);
+    setTimeout(alTerminar, 550);
   }
 
-  function rollDamage(unit){
-    if (unit.dmgDie) return rollDie(unit.dmgDie);
-    if (unit.dmgFormula) return rollDice(unit.dmgFormula.count, unit.dmgFormula.sides) + unit.dmgFormula.flat;
+  function tirarDanio(unidad){
+    if (unidad.formulaDanio) return tirarDados(unidad.formulaDanio.dados, unidad.formulaDanio.caras) + unidad.formulaDanio.fijo;
     return 1;
   }
-  function applyDamage(unit, dmg){
-    unit.hp = Math.max(0, unit.hp - dmg);
-    if (dmg > 0) unit.hitFx = { t0: performance.now(), dur: 1100 }; // dispara la sacudida + tinte rojo
-    updateHpUI();
-    if (unit.hp<=0){ unit.alive = false; }
+  function aplicarDanio(unidad, danio){
+    unidad.vida = Math.max(0, unidad.vida - danio);
+    if (danio > 0) unidad.fxGolpe = { t0: performance.now(), dur: 1100 }; // dispara la sacudida + tinte rojo
+    refrescarVida();
+    if (unidad.vida<=0){ unidad.vivo = false; }
   }
 
-  // onDone recibe {success, crit, stoodUp}: success = si de verdad se movió (una
-  // falla no gasta uno de los 2 movimientos del turno); crit = un 18–20, que
-  // duplica el movimiento (un paso extra gratis); stoodUp = venía caída y esta
+  // alTerminar recibe {exito, critico, seLevanto}: exito = si de verdad se movió (una
+  // falla no gasta uno de los 2 movimientos del turno); critico = un 18–20, que
+  // duplica el movimiento (un paso extra gratis); seLevanto = venía caída y esta
   // tirada solo la puso de pie en el lugar, sin moverla. Un fallo crítico deja
   // a la unidad caída.
-  function resolveMove(unit, dest, onDone){
-    var roll = rollD20();
-    var tier = outcomeTier(roll);
-    var threshold = moveThreshold(unit) + blindPenalty(unit);
-    var success = roll>=threshold;
-    var wasFallen = unit.fallen;
-    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
-    spawnFloatingText(unit, 'D20 '+roll, tierColor(tier));
-    if (tier==='crit-fail'){
-      unit.fallen = true;
-      addLog(tier, unit.name+' tropieza al moverse (D20 → '+roll+'). Queda en el piso.');
-      setTimeout(function(){ onDone({success:false, crit:false}); }, 500);
+  function resolverMovimiento(unidad, destino, alTerminar){
+    var tirada = tirarD20();
+    var tramo = tramoResultado(tirada);
+    var umbral = umbralMovimiento(unidad) + penalizacionCeguera(unidad);
+    var exito = tirada>=umbral;
+    var veniaCaida = unidad.caido;
+    mostrarAviso(tramo, 'D20 → '+tirada+' · '+nombreTramo(tramo));
+    textoFlotante(unidad, 'D20 '+tirada, colorTramo(tramo));
+    if (tramo==='pifia'){
+      unidad.caido = true;
+      agregarRegistro(tramo, unidad.nombre+' tropieza al moverse (D20 → '+tirada+'). Queda en el piso.');
+      setTimeout(function(){ alTerminar({exito:false, critico:false}); }, 500);
       return;
     }
-    if (!success){
-      addLog(tier, wasFallen
-        ? unit.name+' sigue en el piso, no logra levantarse (D20 → '+roll+').'
-        : unit.name+' no logra moverse a tiempo (D20 → '+roll+', necesita '+threshold+'+).');
-      setTimeout(function(){ onDone({success:false, crit:false}); }, 500);
+    if (!exito){
+      agregarRegistro(tramo, veniaCaida
+        ? unidad.nombre+' sigue en el piso, no logra levantarse (D20 → '+tirada+').'
+        : unidad.nombre+' no logra moverse a tiempo (D20 → '+tirada+', necesita '+umbral+'+).');
+      setTimeout(function(){ alTerminar({exito:false, critico:false}); }, 500);
       return;
     }
-    unit.fallen = false;
-    if (wasFallen){
+    unidad.caido = false;
+    if (veniaCaida){
       // venía caída: esta tirada solo la levanta, no la mueve de la casilla
-      addLog(tier, unit.name+' se levanta (D20 → '+roll+') y queda donde está.');
-      setTimeout(function(){ onDone({success:true, crit:false, stoodUp:true}); }, 450);
+      agregarRegistro(tramo, unidad.nombre+' se levanta (D20 → '+tirada+') y queda donde está.');
+      setTimeout(function(){ alTerminar({exito:true, critico:false, seLevanto:true}); }, 450);
       return;
     }
-    addLog(tier, unit.name+' se mueve (D20 → '+roll+')'+(tier==='crit'?'. ¡Crítico!':'.'));
-    animateMove(unit, dest, function(){ onDone({success:true, crit: tier==='crit'}); });
+    agregarRegistro(tramo, unidad.nombre+' se mueve (D20 → '+tirada+')'+(tramo==='critico'?'. ¡Crítico!':'.'));
+    animarMovimiento(unidad, destino, function(){ alTerminar({exito:true, critico: tramo==='critico'}); });
   }
 
-  function animateMove(unit, dest, onDone){
-    var from = tileScreen(unit.c, unit.r);
-    var to = tileScreen(dest.c, dest.r);
-    if (reduceMotion){
-      unit.c = dest.c; unit.r = dest.r;
-      onDone();
+  // desliza la unidad de una casilla a otra (o la teletransporta si el sistema pide menos animaciones)
+  function animarMovimiento(unidad, destino, alTerminar){
+    var desde = casillaAPixel(unidad.c, unidad.r);
+    var hasta = casillaAPixel(destino.c, destino.r);
+    if (menosMovimiento){
+      unidad.c = destino.c; unidad.r = destino.r;
+      alTerminar();
       return;
     }
-    state.anim = { unit:unit, from:from, to:to, t0:performance.now(), dur:260, after:function(){
-      unit.c = dest.c; unit.r = dest.r;
-      state.anim = null;
-      onDone();
+    estado.anim = { unidad:unidad, desde:desde, hasta:hasta, t0:performance.now(), dur:260, luego:function(){
+      unidad.c = destino.c; unidad.r = destino.r;
+      estado.anim = null;
+      alTerminar();
     }};
   }
 
-  /* ---------- UI wiring ---------- */
-  var btnMove = document.getElementById('btnMove');
-  var btnAttack = document.getElementById('btnAttack');
+  /* ====== referencias a los botones y textos de la interfaz ====== */
+  var btnMover = document.getElementById('btnMover');
+  var btnAtacar = document.getElementById('btnAtacar');
   var btnDescarga = document.getElementById('btnDescarga');
-  var btnRest = document.getElementById('btnRest');
-  var btnEnd = document.getElementById('btnEnd');
-  var turnWho = document.getElementById('turnWho');
-  var turnHint = document.getElementById('turnHint');
+  var btnDescansar = document.getElementById('btnDescansar');
+  var btnTerminar = document.getElementById('btnTerminar');
+  var turnoQuien = document.getElementById('turnoQuien');
+  var turnoPista = document.getElementById('turnoPista');
 
-  function updateHpUI(){
-    document.getElementById('playerHpFill').style.width = (100*player.hp/player.maxHp)+'%';
-    document.getElementById('playerHpNum').textContent = player.hp+' / '+player.maxHp;
-    document.getElementById('enemyHpFill').style.width = (100*enemy.hp/enemy.maxHp)+'%';
-    document.getElementById('enemyHpNum').textContent = enemy.hp+' / '+enemy.maxHp;
+  function refrescarVida(){
+    document.getElementById('vidaJugadorRelleno').style.width = (100*jugador.vida/jugador.vidaMax)+'%';
+    document.getElementById('vidaJugadorNum').textContent = jugador.vida+' / '+jugador.vidaMax;
+    document.getElementById('vidaEnemigoRelleno').style.width = (100*enemigo.vida/enemigo.vidaMax)+'%';
+    document.getElementById('vidaEnemigoNum').textContent = enemigo.vida+' / '+enemigo.vidaMax;
   }
 
-  function updateManaUI(){
-    var el = document.getElementById('playerManaRow');
-    el.innerHTML = '';
-    for (var i=0;i<player.maxMana;i++){
-      var dot = document.createElement('span');
-      dot.className = 'pip' + (i<player.mana ? ' filled' : '');
-      el.appendChild(dot);
+  function refrescarMana(){
+    var fila = document.getElementById('manaJugadorFila');
+    fila.innerHTML = '';
+    for (var i=0;i<jugador.manaMax;i++){
+      var punto = document.createElement('span');
+      punto.className = 'punto' + (i<jugador.mana ? ' lleno' : '');
+      fila.appendChild(punto);
     }
   }
 
-  function updateEnemyStatus(){
-    var tag = document.getElementById('enemyStatusTag');
-    if (enemyBlinded()){
-      tag.hidden = false;
-      tag.textContent = 'Cegado · ' + enemyBlindLeft() + 't';
+  // muestra/oculta el chip "Cegado · Nt" en la ficha del enemigo
+  function refrescarEstadoEnemigo(){
+    var chip = document.getElementById('estadoEnemigo');
+    if (enemigoCegado()){
+      chip.hidden = false;
+      chip.textContent = 'Cegado · ' + turnosCegueraRestantes() + 't';
     } else {
-      tag.hidden = true;
+      chip.hidden = true;
     }
   }
 
-  function moveBudget(){ return 2 + state.critMoves; } // 2 usos del botón Mover + 1 por cada movimiento crítico
-  function canMoveAgain(){
-    if (state.moveAttempts >= moveBudget()) return false;      // botón agotado (2 tiradas + 1 por cada crítico)
-    if (!state.mayorAvailable && state.movesLanded >= 1) return false; // si ya atacaste, solo te queda el 1er movimiento
+  function presupuestoMovimiento(){ return 2 + estado.movsCriticos; } // 2 usos del botón Mover + 1 por cada movimiento crítico
+  function puedeMoverDeNuevo(){
+    if (estado.intentosMov >= presupuestoMovimiento()) return false;   // botón agotado (2 tiradas + 1 por cada crítico)
+    if (!estado.accionMayorLibre && estado.movsHechos >= 1) return false; // si ya ataqué, solo me queda el 1er movimiento
     return true;
   }
 
-  function refreshButtons(){
-    var idle = state.phase==='player-idle';
-    var moveIdle = idle || state.phase==='player-move';
-    btnMove.disabled = !moveIdle || !canMoveAgain();
-    btnAttack.disabled = !idle || !state.mayorAvailable;
-    btnDescarga.disabled = !idle || !state.mayorAvailable || player.mana<2;
-    btnRest.disabled = !idle || !canRest();
-    btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
-    btnMove.classList.toggle('active', state.phase==='player-move');
-    updateEnemyStatus();
+  // habilita/deshabilita los botones según en qué fase del turno estoy
+  function refrescarBotones(){
+    var quieto = estado.fase==='jugador-quieto';
+    var quietoOMoviendo = quieto || estado.fase==='jugador-mover';
+    btnMover.disabled = !quietoOMoviendo || !puedeMoverDeNuevo();
+    btnAtacar.disabled = !quieto || !estado.accionMayorLibre;
+    btnDescarga.disabled = !quieto || !estado.accionMayorLibre || jugador.mana<2;
+    btnDescansar.disabled = !quieto || !puedeDescansar();
+    btnTerminar.disabled = estado.fase!=='jugador-quieto' && estado.fase!=='jugador-mover';
+    btnMover.classList.toggle('activo', estado.fase==='jugador-mover');
+    refrescarEstadoEnemigo();
   }
 
-  function setHint(){
-    if (state.phase==='player-move'){
-      if (player.fallen) turnHint.textContent = 'Estás caído — elegí una casilla y tirá; si sale, te levantás en el lugar (sin moverte)';
-      else if (!state.reachable.length) turnHint.textContent = 'No hay casillas libres a las que moverte';
-      else if (state.movesLanded>=1 && state.mayorAvailable) turnHint.textContent = 'Elegí casilla — si te movés bien de nuevo, perdés tu ataque de este turno';
-      else turnHint.textContent = 'Elegí una casilla para moverte';
+  // texto de ayuda del banner de turno
+  function refrescarPista(){
+    if (estado.fase==='jugador-mover'){
+      if (jugador.caido) turnoPista.textContent = 'Estás caído — elegí una casilla y tirá; si sale, te levantás en el lugar (sin moverte)';
+      else if (!estado.alcance.length) turnoPista.textContent = 'No hay casillas libres a las que moverte';
+      else if (estado.movsHechos>=1 && estado.accionMayorLibre) turnoPista.textContent = 'Elegí casilla — si te movés bien de nuevo, perdés tu ataque de este turno';
+      else turnoPista.textContent = 'Elegí una casilla para moverte';
     }
-    else if (state.phase==='enemy-turn') turnHint.textContent = 'El Caballero Guardián actúa...';
-    else if (state.phase==='over') turnHint.textContent = 'Combate terminado';
-    else if (state.movesLanded===1 && state.mayorAvailable) turnHint.textContent = 'Movete de nuevo y perdés el ataque, o atacá ahora';
-    else turnHint.textContent = 'Elegí una acción, o terminá el turno';
+    else if (estado.fase==='turno-enemigo') turnoPista.textContent = 'El Caballero Guardián actúa...';
+    else if (estado.fase==='fin') turnoPista.textContent = 'Combate terminado';
+    else if (estado.movsHechos===1 && estado.accionMayorLibre) turnoPista.textContent = 'Movete de nuevo y perdés el ataque, o atacá ahora';
+    else turnoPista.textContent = 'Elegí una acción, o terminá el turno';
   }
 
-  btnMove.addEventListener('click', function(){
-    if (!canMoveAgain()) return;
-    if (state.phase==='player-move'){
-      state.phase = 'player-idle';
-    } else if (state.phase==='player-idle'){
-      state.phase = 'player-move';
-      state.reachable = computeReachable(player); // siempre desde la posición actual
+  // ---- botón Mover: entra/sale del modo de elegir casilla ----
+  btnMover.addEventListener('click', function(){
+    if (!puedeMoverDeNuevo()) return;
+    if (estado.fase==='jugador-mover'){
+      estado.fase = 'jugador-quieto';
+    } else if (estado.fase==='jugador-quieto'){
+      estado.fase = 'jugador-mover';
+      estado.alcance = calcularAlcance(jugador); // siempre desde la posición actual
     }
-    refreshButtons(); setHint();
+    refrescarBotones(); refrescarPista();
   });
 
-  btnAttack.addEventListener('click', function(){
-    if (!state.mayorAvailable) return;
-    var targets = getEnemiesInMeleeRange(player);
-    if (!targets.length){ addLog(null, 'Nadie está en tu área 3x3 todavía — movete más cerca.'); return; }
-    state.mayorAvailable = false; state.phase = 'anim';
-    refreshButtons();
-    resolveMeleeAoE(player, targets, function(){
-      if (checkGameOver()) return;
-      state.phase='player-idle'; refreshButtons(); setHint();
+  // ---- botón Atacar: golpe en área 3x3 ----
+  btnAtacar.addEventListener('click', function(){
+    if (!estado.accionMayorLibre) return;
+    var objetivos = enemigosEnRangoCuerpoACuerpo(jugador);
+    if (!objetivos.length){ agregarRegistro(null, 'Nadie está en tu área 3x3 todavía — movete más cerca.'); return; }
+    estado.accionMayorLibre = false; estado.fase = 'anim';
+    refrescarBotones();
+    resolverAtaqueArea(jugador, objetivos, function(){
+      if (chequearFinDelCombate()) return;
+      estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
     });
   });
 
+  // ---- botón Descarga: ataque eléctrico de un solo uso (usa Fe) ----
   btnDescarga.addEventListener('click', function(){
-    if (!state.mayorAvailable || player.mana<2) return;
-    var targets = getEnemiesInMeleeRange(player);
-    if (!targets.length){ addLog(null, 'Descarga es cuerpo a cuerpo — nadie está en tu área 3x3 todavía.'); return; }
-    player.mana -= 2; updateManaUI();
-    state.mayorAvailable = false; state.phase = 'anim';
-    refreshButtons();
-    resolveMeleeAoE(player, targets, function(){
-      if (checkGameOver()) return;
-      state.phase='player-idle'; refreshButtons(); setHint();
-    }, { electric:true, thresholdStat:'fe', abilityName:'Descarga' });
+    if (!estado.accionMayorLibre || jugador.mana<2) return;
+    var objetivos = enemigosEnRangoCuerpoACuerpo(jugador);
+    if (!objetivos.length){ agregarRegistro(null, 'Descarga es cuerpo a cuerpo — nadie está en tu área 3x3 todavía.'); return; }
+    jugador.mana -= 2; refrescarMana();
+    estado.accionMayorLibre = false; estado.fase = 'anim';
+    refrescarBotones();
+    resolverAtaqueArea(jugador, objetivos, function(){
+      if (chequearFinDelCombate()) return;
+      estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+    }, { electrico:true, statUmbral:'fe', nombreHabilidad:'Descarga' });
   });
 
-  function canRest(){
-    // se puede descansar sin haberte movido o después de UN movimiento, nunca después de dos,
-    // y no si ya atacaste / ya descansaste
-    return state.movesLanded <= 1 && state.mayorAvailable;
+  // se puede descansar sin haberme movido o después de UN movimiento, nunca después de dos,
+  // y no si ya ataqué / ya descansé
+  function puedeDescansar(){
+    return estado.movsHechos <= 1 && estado.accionMayorLibre;
   }
-  btnRest.addEventListener('click', function(){
-    if (!canRest()) return;
-    state.moveAttempts = moveBudget(); // descansar cierra el movimiento: no hay 2do movimiento después
-    state.mayorAvailable = false;      // ni ataque
-    player.mana = Math.min(player.maxMana, player.mana+1);
-    updateManaUI();
-    addLog(null, 'Descansás: cerrás el turno para acá y recuperás 1 de maná.');
-    refreshButtons(); setHint();
+  // ---- botón Descansar: cierra el turno y recupera 1 de maná ----
+  btnDescansar.addEventListener('click', function(){
+    if (!puedeDescansar()) return;
+    estado.intentosMov = presupuestoMovimiento(); // descansar cierra el movimiento: no hay 2do movimiento después
+    estado.accionMayorLibre = false;              // ni ataque
+    jugador.mana = Math.min(jugador.manaMax, jugador.mana+1);
+    refrescarMana();
+    agregarRegistro(null, 'Descansás: cerrás el turno para acá y recuperás 1 de maná.');
+    refrescarBotones(); refrescarPista();
   });
 
-  btnEnd.addEventListener('click', function(){
+  // ---- botón Terminar turno ----
+  btnTerminar.addEventListener('click', function(){
     // no se puede terminar el turno con "Mover" a medio seleccionar:
     // el primer click cancela la selección, recién el segundo termina el turno.
-    if (state.phase==='player-move'){
-      state.phase = 'player-idle';
-      state.reachable = [];
-      addLog(null, 'Cancelás el movimiento. Volvé a Terminar turno para pasar.');
-      refreshButtons(); setHint();
+    if (estado.fase==='jugador-mover'){
+      estado.fase = 'jugador-quieto';
+      estado.alcance = [];
+      agregarRegistro(null, 'Cancelás el movimiento. Volvé a Terminar turno para pasar.');
+      refrescarBotones(); refrescarPista();
       return;
     }
-    endPlayerTurn();
+    terminarTurnoJugador();
   });
 
-  function endPlayerTurn(){
-    state.phase = 'enemy-turn';
-    state.reachable = [];
-    refreshButtons(); setHint(); turnWho.textContent='Turno del Caballero Guardián'; turnWho.className='who mono enemy';
-    setTimeout(runEnemyTurn, 500);
+  function terminarTurnoJugador(){
+    estado.fase = 'turno-enemigo';
+    estado.alcance = [];
+    refrescarBotones(); refrescarPista();
+    turnoQuien.textContent='Turno del Caballero Guardián'; turnoQuien.className='quien monoesp enemigo';
+    setTimeout(ejecutarTurnoEnemigo, 500);
   }
 
-  function checkGameOver(){
-    if (!enemy.alive){
-      state.phase = 'over';
-      document.getElementById('victoryOverlay').classList.add('show');
+  // ¿alguien murió? muestra el cartel de victoria/derrota y devuelve true si el combate terminó
+  function chequearFinDelCombate(){
+    if (!enemigo.vivo){
+      estado.fase = 'fin';
+      document.getElementById('cartelVictoria').classList.add('visible');
       return true;
     }
-    if (!player.alive){
-      state.phase = 'over';
-      document.getElementById('defeatOverlay').classList.add('show');
+    if (!jugador.vivo){
+      estado.fase = 'fin';
+      document.getElementById('cartelDerrota').classList.add('visible');
       return true;
     }
     return false;
   }
 
-  var blockOverlay = document.getElementById('blockOverlay');
-  var btnBlockShield = document.getElementById('btnBlockShield');
-  var btnBlockDestello = document.getElementById('btnBlockDestello');
-  var btnBlockNone = document.getElementById('btnBlockNone');
+  /* ====== bloqueo reactivo (cartel Escudo / Destello / No bloquear) ====== */
+  var cartelBloqueo = document.getElementById('cartelBloqueo');
+  var btnBloqEscudo = document.getElementById('btnBloqEscudo');
+  var btnBloqDestello = document.getElementById('btnBloqDestello');
+  var btnBloqNada = document.getElementById('btnBloqNada');
 
-  // Interfaz reactiva: aparece SOLO cuando el enemigo logra un golpe efectivo y
-  // el Paladín tiene maná para hacer algo. Opciones: Escudo, Destello o no bloquear.
-  function promptBlock(dmg, tier, label, critNote, onDone){
-    document.getElementById('blockPromptText').textContent =
-      enemy.name + ' te pega por ' + dmg + (critNote ? ' (crítico)' : '') + '. ¿Reaccionás?';
-    btnBlockShield.disabled = player.mana < 1;
-    btnBlockDestello.disabled = player.mana < 2;
-    blockOverlay.classList.add('show');
+  // aparece SOLO cuando el enemigo logra un golpe efectivo y al Paladín le queda maná
+  function pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar){
+    document.getElementById('textoBloqueo').textContent =
+      enemigo.nombre + ' te pega por ' + danio + (notaCritico ? ' (crítico)' : '') + '. ¿Reaccionás?';
+    btnBloqEscudo.disabled = jugador.mana < 1;
+    btnBloqDestello.disabled = jugador.mana < 2;
+    cartelBloqueo.classList.add('visible');
 
-    function cleanup(){
-      blockOverlay.classList.remove('show');
-      btnBlockShield.onclick = btnBlockDestello.onclick = btnBlockNone.onclick = null;
+    function cerrar(){
+      cartelBloqueo.classList.remove('visible');
+      btnBloqEscudo.onclick = btnBloqDestello.onclick = btnBloqNada.onclick = null;
     }
-    function takeHit(prefix){
-      addLog(tier, (prefix||'') + label + '. Impacta por ' + dmg + '.' + critNote);
-      applyDamage(player, dmg);
-      spawnFloatingText(player, '-'+dmg, T.vino);
-      setTimeout(onDone, 500);
+    function comerElGolpe(prefijo){
+      agregarRegistro(tramo, (prefijo||'') + texto + '. Impacta por ' + danio + '.' + notaCritico);
+      aplicarDanio(jugador, danio);
+      textoFlotante(jugador, '-'+danio, COL.vino);
+      setTimeout(alTerminar, 500);
     }
-    function trySave(kind){
-      var cost = kind==='destello' ? 2 : 1;
-      var name = kind==='destello' ? 'Destello' : 'Escudo';
-      player.mana -= cost; updateManaUI();
-      var roll = rollD20();
-      var st = outcomeTier(roll);
-      var thr = 10 - Math.min(2, Math.max(0, Math.floor(player.fe/5))); // salvación, la Fe baja el número
-      var saved = roll >= thr;
-      spawnFloatingText(player, 'D20 '+roll, tierColor(st));
-      showToast(saved?'hit':'crit-fail', name+' — salvación '+roll+' / '+thr);
-      if (saved){
-        addLog('hit', name+': salvación D20 → '+roll+' (necesita '+thr+'+). Frenás el golpe y gastás '+cost+' de maná.');
-        if (kind==='destello'){
-          state.enemyBlindUntilRound = state.round + 2; // ciega los próximos 2 turnos enemigos
-          updateEnemyStatus();
-          addLog('small', 'Destello ciega a '+enemy.name+': +2 a lo que necesita en sus próximos 2 turnos.');
+    function intentarSalvacion(tipo){
+      var costo = tipo==='destello' ? 2 : 1;
+      var nombre = tipo==='destello' ? 'Destello' : 'Escudo';
+      jugador.mana -= costo; refrescarMana();
+      var tirada = tirarD20();
+      var tr = tramoResultado(tirada);
+      var umbral = 10 - Math.min(2, Math.max(0, Math.floor(jugador.fe/5))); // salvación, la Fe baja el número
+      var salvado = tirada >= umbral;
+      textoFlotante(jugador, 'D20 '+tirada, colorTramo(tr));
+      mostrarAviso(salvado?'acierto':'pifia', nombre+' — salvación '+tirada+' / '+umbral);
+      if (salvado){
+        agregarRegistro('acierto', nombre+': salvación D20 → '+tirada+' (necesita '+umbral+'+). Frenás el golpe y gastás '+costo+' de maná.');
+        if (tipo==='destello'){
+          estado.enemigoCegadoHastaRonda = estado.ronda + 2; // ciega los próximos 2 turnos enemigos
+          refrescarEstadoEnemigo();
+          agregarRegistro('chico', 'Destello ciega a '+enemigo.nombre+': +2 a lo que necesita en sus próximos 2 turnos.');
         }
-        setTimeout(onDone, 650);
+        setTimeout(alTerminar, 650);
       } else {
-        addLog('crit-fail', name+': salvación D20 → '+roll+' (necesita '+thr+'+). No llega — el golpe entra igual y el maná se gastó.');
-        takeHit(name+' falla — ');
+        agregarRegistro('pifia', nombre+': salvación D20 → '+tirada+' (necesita '+umbral+'+). No llega — el golpe entra igual y el maná se gastó.');
+        comerElGolpe(nombre+' falla — ');
       }
     }
-    btnBlockShield.onclick = function(){ if (player.mana < 1) return; cleanup(); trySave('escudo'); };
-    btnBlockDestello.onclick = function(){ if (player.mana < 2) return; cleanup(); trySave('destello'); };
-    btnBlockNone.onclick = function(){ cleanup(); addLog(null, 'Dejás pasar el golpe (no gastás maná).'); takeHit(); };
+    btnBloqEscudo.onclick = function(){ if (jugador.mana < 1) return; cerrar(); intentarSalvacion('escudo'); };
+    btnBloqDestello.onclick = function(){ if (jugador.mana < 2) return; cerrar(); intentarSalvacion('destello'); };
+    btnBloqNada.onclick = function(){ cerrar(); agregarRegistro(null, 'Dejás pasar el golpe (no gastás maná).'); comerElGolpe(); };
   }
 
-  function enemyAttacksPlayer(onDone){
-    var roll = rollD20();
-    var tier = outcomeTier(roll);
-    var threshold = attackThreshold(enemy, 'fuerza') + blindPenalty(enemy);
-    var success = (roll>=threshold) && (tier==='hit' || tier==='crit' || (tier==='small' && threshold<=10));
-    var label = enemy.name+' ataca — D20 → '+roll+' (necesita '+threshold+'+)';
-    showToast(tier, 'D20 → '+roll+' · '+tierLabel(tier));
-    spawnFloatingText(enemy, 'D20 '+roll, tierColor(tier));
+  // el enemigo tira su ataque contra el jugador
+  function enemigoAtacaAlJugador(alTerminar){
+    var tirada = tirarD20();
+    var tramo = tramoResultado(tirada);
+    var umbral = umbralAtaque(enemigo, 'fuerza') + penalizacionCeguera(enemigo);
+    var exito = (tirada>=umbral) && (tramo==='acierto' || tramo==='critico' || (tramo==='chico' && umbral<=10));
+    var texto = enemigo.nombre+' ataca — D20 → '+tirada+' (necesita '+umbral+'+)';
+    mostrarAviso(tramo, 'D20 → '+tirada+' · '+nombreTramo(tramo));
+    textoFlotante(enemigo, 'D20 '+tirada, colorTramo(tramo));
 
-    if (tier==='crit-fail'){
-      addLog(tier, label+'. Fallo crítico — momento de contraataque.');
-      setTimeout(function(){ resolveCounterattack(enemy, player, onDone); }, 650);
+    if (tramo==='pifia'){
+      agregarRegistro(tramo, texto+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolverContraataque(enemigo, jugador, alTerminar); }, 650);
       return;
     }
-    if (!success){
-      addLog(tier, label+'. No conecta.');
-      setTimeout(onDone, 500);
+    if (!exito){
+      agregarRegistro(tramo, texto+'. No conecta.');
+      setTimeout(alTerminar, 500);
       return;
     }
-    var dmg = rollDamage(enemy);
-    if (tier==='crit'){ dmg *= 2; }
-    var critNote = tier==='crit' ? ' ¡Crítico! (x2)' : '';
+    var danio = tirarDanio(enemigo);
+    if (tramo==='critico'){ danio *= 2; }
+    var notaCritico = tramo==='critico' ? ' ¡Crítico! (x2)' : '';
 
-    if (player.mana < 1){
+    if (jugador.mana < 1){
       // sin maná no hay nada que elegir: el golpe entra
-      addLog(tier, label+'. Impacta por '+dmg+'.'+critNote);
-      applyDamage(player, dmg);
-      spawnFloatingText(player, '-'+dmg, T.vino);
-      setTimeout(onDone, 500);
+      agregarRegistro(tramo, texto+'. Impacta por '+danio+'.'+notaCritico);
+      aplicarDanio(jugador, danio);
+      textoFlotante(jugador, '-'+danio, COL.vino);
+      setTimeout(alTerminar, 500);
       return;
     }
-    setTimeout(function(){ promptBlock(dmg, tier, label, critNote, onDone); }, 350);
+    setTimeout(function(){ pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar); }, 350);
   }
 
-  // como resolveMove, pero si la tirada es crítica encadena un paso extra gratis
+  // como resolverMovimiento, pero si la tirada es crítica encadena un paso extra gratis
   // (el mismo "el movimiento se duplica" que tiene el Paladín). Se limita la
   // cadena para no colgar el turno si salen varios críticos seguidos.
-  function enemyAttemptMove(dest, onDone, depth){
-    depth = depth || 0;
-    resolveMove(enemy, dest, function(outcome){
-      if (outcome.crit && depth < 3){
-        var opts = computeReachable(enemy).filter(function(t){ return !occupied(t.c,t.r); });
-        if (opts.length){
-          opts.sort(function(a,b){
-            return (Math.abs(a.c-player.c)+Math.abs(a.r-player.r)) - (Math.abs(b.c-player.c)+Math.abs(b.r-player.r));
+  function enemigoIntentaMover(destino, alTerminar, profundidad){
+    profundidad = profundidad || 0;
+    resolverMovimiento(enemigo, destino, function(resultado){
+      if (resultado.critico && profundidad < 3){
+        var opciones = calcularAlcance(enemigo).filter(function(t){ return !casillaOcupada(t.c,t.r); });
+        if (opciones.length){
+          opciones.sort(function(a,b){ // ordena por cuál casilla lo deja más cerca del Paladín
+            return (Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r)) - (Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r));
           });
-          enemyAttemptMove(opts[0], onDone, depth+1);
+          enemigoIntentaMover(opciones[0], alTerminar, profundidad+1);
           return;
         }
       }
-      onDone(outcome);
+      alTerminar(resultado);
     });
   }
 
   // cierra el turno enemigo y le pasa el turno al jugador. La ceguera se expira
   // sola por el número de ronda, no hace falta descontar acá.
-  function finishEnemyTurn(){
-    updateEnemyStatus();
-    startPlayerTurn();
+  function terminarTurnoEnemigo(){
+    refrescarEstadoEnemigo();
+    empezarTurnoJugador();
   }
 
-  function runEnemyTurn(){
-    if (checkGameOver()) return;
-    if (isAdjacent(enemy, player)){
-      enemyAttacksPlayer(function(){
-        if (checkGameOver()) return;
-        finishEnemyTurn();
+  // IA del enemigo: si está pegado, ataca; si no, se acerca lo más posible y ataca si llegó
+  function ejecutarTurnoEnemigo(){
+    if (chequearFinDelCombate()) return;
+    if (esAdyacente(enemigo, jugador)){
+      enemigoAtacaAlJugador(function(){
+        if (chequearFinDelCombate()) return;
+        terminarTurnoEnemigo();
       });
       return;
     }
-    var options = computeReachable(enemy).filter(function(t){ return !occupied(t.c,t.r); });
-    if (!options.length){ finishEnemyTurn(); return; }
-    options.sort(function(a,b){
-      var da = Math.abs(a.c-player.c)+Math.abs(a.r-player.r);
-      var db = Math.abs(b.c-player.c)+Math.abs(b.r-player.r);
+    var opciones = calcularAlcance(enemigo).filter(function(t){ return !casillaOcupada(t.c,t.r); });
+    if (!opciones.length){ terminarTurnoEnemigo(); return; }
+    opciones.sort(function(a,b){
+      var da = Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r);
+      var db = Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r);
       return da-db;
     });
-    var target = options[0];
-    enemyAttemptMove(target, function(){
-      if (isAdjacent(enemy, player)){
-        enemyAttacksPlayer(function(){
-          if (checkGameOver()) return;
-          finishEnemyTurn();
+    var objetivo = opciones[0];
+    enemigoIntentaMover(objetivo, function(){
+      if (esAdyacente(enemigo, jugador)){
+        enemigoAtacaAlJugador(function(){
+          if (chequearFinDelCombate()) return;
+          terminarTurnoEnemigo();
         });
       } else {
-        finishEnemyTurn();
+        terminarTurnoEnemigo();
       }
     });
   }
 
-  function startPlayerTurn(){
-    state.round += 1;
-    state.moveAttempts = 0; state.critMoves = 0; state.movesLanded = 0; state.mayorAvailable = true;
-    state.reachable = computeReachable(player); // vista inicial; se recalcula al abrir "Mover"
-    state.phase = 'player-idle';
-    turnWho.textContent = 'Turno del Paladín'; turnWho.className = 'who mono player';
-    refreshButtons(); setHint();
+  // arranca un turno nuevo del Paladín: sube la ronda y resetea los contadores del turno
+  function empezarTurnoJugador(){
+    estado.ronda += 1;
+    estado.intentosMov = 0; estado.movsCriticos = 0; estado.movsHechos = 0; estado.accionMayorLibre = true;
+    estado.alcance = calcularAlcance(jugador); // vista inicial; se recalcula al abrir "Mover"
+    estado.fase = 'jugador-quieto';
+    turnoQuien.textContent = 'Turno del Paladín'; turnoQuien.className = 'quien monoesp jugador';
+    refrescarBotones(); refrescarPista();
   }
 
-  /* ---------- canvas input ---------- */
-  var canvas = document.getElementById('board');
-  var ctx = canvas.getContext('2d');
-  var frame = document.getElementById('boardFrame');
+  /* ====== canvas y clicks en el tablero ====== */
+  var lienzo = document.getElementById('tablero');
+  var pincel = lienzo.getContext('2d');
+  var marco = document.getElementById('marcoTablero');
 
-  function resizeCanvas(){
-    var rect = frame.getBoundingClientRect();
-    if (rect.width<1 || rect.height<1) return;
-    var dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width*dpr;
-    canvas.height = rect.height*dpr;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    computeOrigin(rect.width, rect.height);
+  function redimensionarCanvas(){
+    var caja = marco.getBoundingClientRect();
+    if (caja.width<1 || caja.height<1) return;
+    var ratioPx = window.devicePixelRatio || 1; // pantallas retina: dibujo al doble de resolución
+    lienzo.width = caja.width*ratioPx;
+    lienzo.height = caja.height*ratioPx;
+    pincel.setTransform(ratioPx,0,0,ratioPx,0,0);
+    calcularOrigen(caja.width, caja.height);
   }
-  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', redimensionarCanvas);
   if (window.ResizeObserver){
-    new ResizeObserver(resizeCanvas).observe(frame);
+    new ResizeObserver(redimensionarCanvas).observe(marco);
   }
 
-  canvas.addEventListener('click', function(e){
-    var rect = canvas.getBoundingClientRect();
-    var x = e.clientX-rect.left, y = e.clientY-rect.top;
-    var tile = screenToTile(x,y);
+  lienzo.addEventListener('click', function(e){
+    var caja = lienzo.getBoundingClientRect();
+    var x = e.clientX-caja.left, y = e.clientY-caja.top;
+    var casilla = pixelACasilla(x,y);
 
-    if (state.phase==='player-move'){
-      var found = state.reachable.find(function(t){ return t.c===tile.c && t.r===tile.r; });
-      if (found && !occupied(found.c,found.r)){
-        state.phase = 'anim';
-        resolveMove(player, {c:found.c,r:found.r}, function(outcome){
-          if (outcome.stoodUp){
-            // te levantaste sin moverte: no cuenta como intento de movimiento
-            // ni gasta el ataque; podés volver a abrir Mover o hacer otra acción
-            state.reachable = [];
-            state.phase = 'player-idle';
-            refreshButtons(); setHint();
+    if (estado.fase==='jugador-mover'){
+      var elegida = estado.alcance.find(function(t){ return t.c===casilla.c && t.r===casilla.r; });
+      if (elegida && !casillaOcupada(elegida.c,elegida.r)){
+        estado.fase = 'anim';
+        resolverMovimiento(jugador, {c:elegida.c,r:elegida.r}, function(resultado){
+          if (resultado.seLevanto){
+            // me levanté sin moverme: no cuenta como intento de movimiento
+            // ni gasta el ataque; puedo volver a abrir Mover o hacer otra acción
+            estado.alcance = [];
+            estado.fase = 'jugador-quieto';
+            refrescarBotones(); refrescarPista();
             return;
           }
           // toda tirada de movimiento (éxito, fallo o tropiezo) gasta un uso del botón
-          state.moveAttempts += 1;
-          if (outcome.crit){
-            state.critMoves += 1; // el crítico suma un uso extra al botón y no cuenta para perder el ataque
-          } else if (outcome.success){
-            state.movesLanded += 1;
-            if (state.movesLanded >= 2) state.mayorAvailable = false; // el 2° movimiento real (no crítico) sacrifica el ataque
+          estado.intentosMov += 1;
+          if (resultado.critico){
+            estado.movsCriticos += 1; // el crítico suma un uso extra al botón y no cuenta para perder el ataque
+          } else if (resultado.exito){
+            estado.movsHechos += 1;
+            if (estado.movsHechos >= 2) estado.accionMayorLibre = false; // el 2° movimiento real (no crítico) sacrifica el ataque
           }
-          if (outcome.crit){
-            addLog('crit', 'Movimiento crítico: te movés otra vez gratis (y sumás un uso al botón Mover).');
-            state.phase = 'player-move';
-            state.reachable = computeReachable(player);
+          if (resultado.critico){
+            agregarRegistro('critico', 'Movimiento crítico: te movés otra vez gratis (y sumás un uso al botón Mover).');
+            estado.fase = 'jugador-mover';
+            estado.alcance = calcularAlcance(jugador);
           } else {
-            state.reachable = [];
-            state.phase = 'player-idle';
+            estado.alcance = [];
+            estado.fase = 'jugador-quieto';
           }
-          refreshButtons(); setHint();
+          refrescarBotones(); refrescarPista();
         });
       }
     }
   });
 
-  /* ---------- rendering ---------- */
-  function drawBackground(w,h){
-    ctx.fillStyle = T.bgRaised;
-    ctx.fillRect(0,0,w,h);
+  /* ====== dibujo del tablero ====== */
+  function dibujarFondo(w,h){
+    pincel.fillStyle = COL.fondoAlto;
+    pincel.fillRect(0,0,w,h);
   }
 
-  function tick(now){
-    var rect = frame.getBoundingClientRect();
-    var w = rect.width, h = rect.height;
-    ctx.clearRect(0,0,w,h);
-    drawBackground(w,h);
+  // se llama ~60 veces por segundo: limpia y vuelve a dibujar todo
+  function cuadro(ahora){
+    var caja = marco.getBoundingClientRect();
+    var w = caja.width, h = caja.height;
+    pincel.clearRect(0,0,w,h);
+    dibujarFondo(w,h);
 
-    // update animation
-    var animT = null;
-    if (state.anim){
-      var t = (now - state.anim.t0)/state.anim.dur;
-      if (t>=1){ var after = state.anim.after; if(after) after(); }
-      else animT = Math.min(1, t);
+    // avance de la animación de deslizamiento (0 = arranca, 1 = llegó)
+    var avanceAnim = null;
+    if (estado.anim){
+      var t = (ahora - estado.anim.t0)/estado.anim.dur;
+      if (t>=1){ var luego = estado.anim.luego; if(luego) luego(); }
+      else avanceAnim = Math.min(1, t);
     }
 
-    for (var c=0;c<COLS;c++){
-      for (var r=0;r<ROWS;r++){
-        drawTile(c,r);
+    for (var c=0;c<COLUMNAS;c++){
+      for (var r=0;r<FILAS;r++){
+        dibujarCasilla(c,r);
       }
     }
     // dos pasadas: primero los dos sprites, después las dos barras de vida y
     // nombres — así la barra de una unidad nunca queda tapada por el sprite de
     // la otra cuando están una encima de la otra.
-    if (player.alive) drawUnit(player, animT);
-    if (enemy.alive) drawUnit(enemy, animT);
-    if (player.alive) drawUnitLabels(player, animT);
-    if (enemy.alive) drawUnitLabels(enemy, animT);
+    if (jugador.vivo) dibujarUnidad(jugador, avanceAnim);
+    if (enemigo.vivo) dibujarUnidad(enemigo, avanceAnim);
+    if (jugador.vivo) dibujarEtiquetasUnidad(jugador, avanceAnim);
+    if (enemigo.vivo) dibujarEtiquetasUnidad(enemigo, avanceAnim);
 
-    if (state.aoeFlash){
-      var elapsed = now - state.aoeFlash.t0;
-      if (elapsed > state.aoeFlash.dur){ state.aoeFlash = null; }
+    // parpadeo del área eléctrica de la Descarga
+    if (estado.areaElectrica){
+      var pasado = ahora - estado.areaElectrica.t0;
+      if (pasado > estado.areaElectrica.dur){ estado.areaElectrica = null; }
       else {
-        var alpha = 0.4 * (1 - elapsed/state.aoeFlash.dur);
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = T.electricidad;
-        state.aoeFlash.tiles.forEach(function(tl){
-          var p = tileScreen(tl.c, tl.r);
-          ctx.fillRect(p.x-TILE/2, p.y-TILE/2, TILE, TILE);
+        var alfa = 0.4 * (1 - pasado/estado.areaElectrica.dur);
+        pincel.save();
+        pincel.globalAlpha = alfa;
+        pincel.fillStyle = COL.electricidad;
+        estado.areaElectrica.casillas.forEach(function(cas){
+          var p = casillaAPixel(cas.c, cas.r);
+          pincel.fillRect(p.x-CASILLA/2, p.y-CASILLA/2, CASILLA, CASILLA);
         });
-        ctx.restore();
+        pincel.restore();
       }
     }
 
-    if (state.floatingTexts.length){
-      ctx.save();
-      ctx.font = '700 15px "Space Mono", monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.lineWidth = 3;
-      state.floatingTexts = state.floatingTexts.filter(function(ft){
-        var e = now - ft.t0;
-        if (e > ft.dur) return false;
+    // números que suben y se desvanecen (tiradas y daño)
+    if (estado.textosFlotantes.length){
+      pincel.save();
+      pincel.font = '700 15px "Space Mono", monospace';
+      pincel.textAlign = 'center';
+      pincel.textBaseline = 'middle';
+      pincel.lineWidth = 3;
+      estado.textosFlotantes = estado.textosFlotantes.filter(function(ft){
+        var e = ahora - ft.t0;
+        if (e > ft.dur) return false; // ya terminó, lo saco de la lista
         var p = e / ft.dur;
-        ctx.globalAlpha = p < 0.15 ? p/0.15 : (1 - (p-0.15)/0.85);
-        var y = ft.y - p*28;
-        ctx.strokeStyle = T.bgRaised;
-        ctx.strokeText(ft.text, ft.x, y);
-        ctx.fillStyle = ft.color || T.ink;
-        ctx.fillText(ft.text, ft.x, y);
+        pincel.globalAlpha = p < 0.15 ? p/0.15 : (1 - (p-0.15)/0.85); // aparece rápido, se va lento
+        var y = ft.y - p*28; // sube 28px durante su vida
+        pincel.strokeStyle = COL.fondoAlto;
+        pincel.strokeText(ft.texto, ft.x, y);
+        pincel.fillStyle = ft.color || COL.tinta;
+        pincel.fillText(ft.texto, ft.x, y);
         return true;
       });
-      ctx.restore();
+      pincel.restore();
     }
   }
 
-  function tileFill(c,r){
-    var isReach = state.phase==='player-move' && state.reachable.some(function(t){ return t.c===c && t.r===r; });
-    if (isReach) return T.celesteSoft;
-    return ((c+r)%2===0) ? T.groundA : T.groundB;
+  // color de una casilla: celeste si está dentro del rango de movimiento, si no el damero
+  function colorCasilla(c,r){
+    var enRango = estado.fase==='jugador-mover' && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
+    if (enRango) return COL.celesteSuave;
+    return ((c+r)%2===0) ? COL.sueloA : COL.sueloB;
   }
 
-  function drawTile(c,r){
-    var p = tileScreen(c,r);
-    var x0 = p.x-TILE/2, y0 = p.y-TILE/2;
-    var fill = tileFill(c,r);
-    var isReach = state.phase==='player-move' && state.reachable.some(function(t){ return t.c===c && t.r===r; });
-    var stroke = isReach ? T.celeste : T.line;
+  function dibujarCasilla(c,r){
+    var p = casillaAPixel(c,r);
+    var x0 = p.x-CASILLA/2, y0 = p.y-CASILLA/2;
+    var relleno = colorCasilla(c,r);
+    var enRango = estado.fase==='jugador-mover' && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
+    var borde = enRango ? COL.celeste : COL.linea;
 
-    ctx.fillStyle = fill;
-    ctx.fillRect(x0, y0, TILE, TILE);
-    ctx.lineWidth = isReach ? 1.6 : 1;
-    ctx.strokeStyle = stroke;
-    ctx.strokeRect(x0+0.5, y0+0.5, TILE-1, TILE-1);
+    pincel.fillStyle = relleno;
+    pincel.fillRect(x0, y0, CASILLA, CASILLA);
+    pincel.lineWidth = enRango ? 1.6 : 1;
+    pincel.strokeStyle = borde;
+    pincel.strokeRect(x0+0.5, y0+0.5, CASILLA-1, CASILLA-1);
   }
 
-  function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+  function suavizadoCubico(t){ return 1-Math.pow(1-t,3); } // curva de la animación: rápido al principio, frena al final
 
-  function unitGeometry(unit, animT){
+  // calcula dónde y de qué tamaño va la unidad en pantalla (contemplando la animación de deslizamiento)
+  function geometriaUnidad(unidad, avanceAnim){
     var pos;
-    if (state.anim && state.anim.unit===unit && animT!==null){
-      var e = easeOutCubic(animT);
-      pos = { x: state.anim.from.x + (state.anim.to.x-state.anim.from.x)*e,
-              y: state.anim.from.y + (state.anim.to.y-state.anim.from.y)*e };
+    if (estado.anim && estado.anim.unidad===unidad && avanceAnim!==null){
+      var e = suavizadoCubico(avanceAnim);
+      pos = { x: estado.anim.desde.x + (estado.anim.hasta.x-estado.anim.desde.x)*e,
+              y: estado.anim.desde.y + (estado.anim.hasta.y-estado.anim.desde.y)*e };
     } else {
-      pos = tileScreen(unit.c, unit.r);
+      pos = casillaAPixel(unidad.c, unidad.r);
     }
-    var rad = TILE*0.3;
-    var g = { cx:pos.x, cy:pos.y, rad:rad, visualBottom: pos.y + rad*0.75, img:null };
-    if (unit.spriteImg){
-      var img = unit.spriteImg;
-      var aspect = img.naturalWidth / img.naturalHeight;
-      var spriteH = TILE*1.3 * (unit.spriteScaleH||1);
-      var spriteW = TILE*1.3 * aspect * (unit.spriteScaleW||1);
-      var maxW = TILE*1.8;
-      if (spriteW > maxW){ var shrink = maxW/spriteW; spriteW *= shrink; spriteH *= shrink; }
-      g.img = img; g.spriteW = spriteW; g.spriteH = spriteH;
-      g.visualTop = g.visualBottom - spriteH;
+    var radio = CASILLA*0.3;
+    var g = { cx:pos.x, cy:pos.y, radio:radio, baseVisual: pos.y + radio*0.75, img:null };
+    if (unidad.imagenSprite){
+      var img = unidad.imagenSprite;
+      var proporcion = img.naturalWidth / img.naturalHeight;
+      var spriteAlto = CASILLA*1.3 * (unidad.escalaSpriteAlto||1);
+      var spriteAncho = CASILLA*1.3 * proporcion * (unidad.escalaSpriteAncho||1);
+      var anchoMax = CASILLA*1.8;
+      if (spriteAncho > anchoMax){ var achica = anchoMax/spriteAncho; spriteAncho *= achica; spriteAlto *= achica; }
+      g.img = img; g.spriteAncho = spriteAncho; g.spriteAlto = spriteAlto;
+      g.topeVisual = g.baseVisual - spriteAlto;
     } else {
-      g.visualTop = g.cy - rad;
+      g.topeVisual = g.cy - radio;
     }
     return g;
   }
 
   // reacción al golpe: sacudida + tinte rojo que decae. Devuelve null si la
   // unidad no está recibiendo daño ahora mismo.
-  function hitReaction(unit){
-    if (!unit.hitFx) return null;
-    var el = performance.now() - unit.hitFx.t0;
-    if (el >= unit.hitFx.dur){ unit.hitFx = null; return null; }
-    var pr = el / unit.hitFx.dur;
+  function reaccionAlGolpe(unidad){
+    if (!unidad.fxGolpe) return null;
+    var transcurrido = performance.now() - unidad.fxGolpe.t0;
+    if (transcurrido >= unidad.fxGolpe.dur){ unidad.fxGolpe = null; return null; }
+    var p = transcurrido / unidad.fxGolpe.dur; // 0 → 1 a lo largo del efecto
     // la sacudida es feedback de combate (breve), va incluso con prefers-reduced-motion
     return {
-      angle: 0.34 * Math.sin(pr * Math.PI * 3) * (1 - pr),
-      red: pr < 0.45 ? 0.62 : Math.max(0, 0.62 * (1 - (pr - 0.45) / 0.55))
+      angulo: 0.34 * Math.sin(p * Math.PI * 3) * (1 - p), // oscila y se va calmando
+      rojo: p < 0.45 ? 0.62 : Math.max(0, 0.62 * (1 - (p - 0.45) / 0.55)) // rojo fuerte y después se desvanece
     };
   }
 
   // pulso blanco de la ceguera: el Caballero Guardián parpadea marcado entre su
   // sprite normal y casi blanco durante los 2 turnos que dura el Destello.
-  function blindPulse(unit){
-    if (!(unit===enemy && enemyBlinded())) return 0;
+  function pulsoCeguera(unidad){
+    if (!(unidad===enemigo && enemigoCegado())) return 0;
     return 0.22 + 0.6 * (0.5 + 0.5*Math.sin(performance.now()/70)); // ~0.22 .. ~0.82, período ~440ms
   }
 
-  var _tintCv = document.createElement('canvas');
-  var _tintCx = _tintCv.getContext('2d');
-  function drawSpriteBase(g, flip){
-    if (flip){
-      ctx.save(); ctx.translate(g.cx, 0); ctx.scale(-1, 1); ctx.translate(-g.cx, 0);
-      ctx.drawImage(g.img, g.cx-g.spriteW/2, g.visualTop, g.spriteW, g.spriteH); ctx.restore();
+  var _lienzoTinte = document.createElement('canvas'); // canvas auxiliar para tintar sprites sin manchar el fondo
+  var _pincelTinte = _lienzoTinte.getContext('2d');
+  function dibujarSprite(g, espejado){
+    if (espejado){
+      pincel.save(); pincel.translate(g.cx, 0); pincel.scale(-1, 1); pincel.translate(-g.cx, 0);
+      pincel.drawImage(g.img, g.cx-g.spriteAncho/2, g.topeVisual, g.spriteAncho, g.spriteAlto); pincel.restore();
     } else {
-      ctx.drawImage(g.img, g.cx-g.spriteW/2, g.visualTop, g.spriteW, g.spriteH);
+      pincel.drawImage(g.img, g.cx-g.spriteAncho/2, g.topeVisual, g.spriteAncho, g.spriteAlto);
     }
   }
   // lavado de color sobre el sprite (rojo al recibir daño, blanco al estar cegado),
   // vía canvas auxiliar para que tiña solo el sprite y no las casillas de atrás.
-  function drawSpriteTint(g, flip, fillStyle){
-    var tw = Math.max(1, Math.round(g.spriteW)), th = Math.max(1, Math.round(g.spriteH));
-    _tintCv.width = tw; _tintCv.height = th;
-    _tintCx.clearRect(0, 0, tw, th);
-    if (flip){
-      _tintCx.save(); _tintCx.translate(tw, 0); _tintCx.scale(-1, 1);
-      _tintCx.drawImage(g.img, 0, 0, tw, th); _tintCx.restore();
+  function dibujarSpriteTintado(g, espejado, colorRelleno){
+    var tw = Math.max(1, Math.round(g.spriteAncho)), th = Math.max(1, Math.round(g.spriteAlto));
+    _lienzoTinte.width = tw; _lienzoTinte.height = th;
+    _pincelTinte.clearRect(0, 0, tw, th);
+    if (espejado){
+      _pincelTinte.save(); _pincelTinte.translate(tw, 0); _pincelTinte.scale(-1, 1);
+      _pincelTinte.drawImage(g.img, 0, 0, tw, th); _pincelTinte.restore();
     } else {
-      _tintCx.drawImage(g.img, 0, 0, tw, th);
+      _pincelTinte.drawImage(g.img, 0, 0, tw, th);
     }
-    _tintCx.globalCompositeOperation = 'source-atop';
-    _tintCx.fillStyle = fillStyle;
-    _tintCx.fillRect(0, 0, tw, th);
-    _tintCx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(_tintCv, g.cx - g.spriteW/2, g.visualTop, g.spriteW, g.spriteH);
+    _pincelTinte.globalCompositeOperation = 'source-atop'; // solo pinta encima de lo que ya hay (el sprite)
+    _pincelTinte.fillStyle = colorRelleno;
+    _pincelTinte.fillRect(0, 0, tw, th);
+    _pincelTinte.globalCompositeOperation = 'source-over';
+    pincel.drawImage(_lienzoTinte, g.cx - g.spriteAncho/2, g.topeVisual, g.spriteAncho, g.spriteAlto);
   }
 
-  function drawUnit(unit, animT){
-    var g = unitGeometry(unit, animT);
-    var isPlayer = unit.side==='player';
-    var main = isPlayer ? T.celeste : T.vino;
-    var soft = isPlayer ? T.celesteSoft : T.vinoSoft;
-    var hit = hitReaction(unit);
-    var blind = blindPulse(unit);
+  // dibuja el sprite de una unidad (o una forma simple si el sprite no cargó) con sus efectos
+  function dibujarUnidad(unidad, avanceAnim){
+    var g = geometriaUnidad(unidad, avanceAnim);
+    var esJugador = unidad.bando==='jugador';
+    var principal = esJugador ? COL.celeste : COL.vino;
+    var suave = esJugador ? COL.celesteSuave : COL.vinoSuave;
+    var golpe = reaccionAlGolpe(unidad);
+    var ceguera = pulsoCeguera(unidad);
 
-    // ground shadow (no se sacude)
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.beginPath();
-    ctx.ellipse(g.cx, g.visualBottom, g.rad*0.8, g.rad*0.32, 0, 0, Math.PI*2);
-    ctx.fill();
+    // sombra en el piso (no se sacude)
+    pincel.fillStyle = 'rgba(0,0,0,0.18)';
+    pincel.beginPath();
+    pincel.ellipse(g.cx, g.baseVisual, g.radio*0.8, g.radio*0.32, 0, 0, Math.PI*2);
+    pincel.fill();
 
-    ctx.save();
-    if (hit && hit.angle){
-      ctx.translate(g.cx, g.cy);
-      ctx.rotate(hit.angle);
-      ctx.translate(-g.cx, -g.cy);
+    pincel.save();
+    if (golpe && golpe.angulo){ // sacudida al recibir daño: rota un poco alrededor del centro
+      pincel.translate(g.cx, g.cy);
+      pincel.rotate(golpe.angulo);
+      pincel.translate(-g.cx, -g.cy);
     }
 
     if (g.img){
-      drawSpriteBase(g, !!unit.flipSprite);
-      if (hit && hit.red > 0.02) drawSpriteTint(g, !!unit.flipSprite, 'rgba(214,26,36,' + hit.red.toFixed(3) + ')');
-      if (blind > 0) drawSpriteTint(g, !!unit.flipSprite, 'rgba(255,255,255,' + blind.toFixed(3) + ')');
+      dibujarSprite(g, !!unidad.spriteEspejado);
+      if (golpe && golpe.rojo > 0.02) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(214,26,36,' + golpe.rojo.toFixed(3) + ')');
+      if (ceguera > 0) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(255,255,255,' + ceguera.toFixed(3) + ')');
     } else {
-      var redActive = hit && hit.red > 0.02;
-      var shapeStroke = blind>0 ? 'rgba(255,255,255,0.95)' : (redActive ? '#d61a24' : main);
-      var shapeFill = blind>0 ? ('rgba(255,255,255,' + (0.2 + blind*0.5).toFixed(3) + ')') : (redActive ? 'rgba(214,26,36,0.3)' : soft);
-      ctx.fillStyle = shapeFill;
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = shapeStroke;
-      ctx.beginPath();
-      if (isPlayer){
-        // seen from above: a facing marker (triangle)
-        ctx.moveTo(g.cx, g.cy-g.rad);
-        ctx.lineTo(g.cx+g.rad*0.87, g.cy+g.rad*0.6);
-        ctx.lineTo(g.cx-g.rad*0.87, g.cy+g.rad*0.6);
-        ctx.closePath();
+      // sin sprite: formas simples (triángulo el jugador, círculo el enemigo)
+      var rojoActivo = golpe && golpe.rojo > 0.02;
+      var bordeForma = ceguera>0 ? 'rgba(255,255,255,0.95)' : (rojoActivo ? '#d61a24' : principal);
+      var rellenoForma = ceguera>0 ? ('rgba(255,255,255,' + (0.2 + ceguera*0.5).toFixed(3) + ')') : (rojoActivo ? 'rgba(214,26,36,0.3)' : suave);
+      pincel.fillStyle = rellenoForma;
+      pincel.lineWidth = 2.5;
+      pincel.strokeStyle = bordeForma;
+      pincel.beginPath();
+      if (esJugador){
+        pincel.moveTo(g.cx, g.cy-g.radio);
+        pincel.lineTo(g.cx+g.radio*0.87, g.cy+g.radio*0.6);
+        pincel.lineTo(g.cx-g.radio*0.87, g.cy+g.radio*0.6);
+        pincel.closePath();
       } else {
-        ctx.arc(g.cx, g.cy, g.rad, 0, Math.PI*2);
+        pincel.arc(g.cx, g.cy, g.radio, 0, Math.PI*2);
       }
-      ctx.fill();
-      ctx.stroke();
+      pincel.fill();
+      pincel.stroke();
     }
 
-    ctx.restore();
+    pincel.restore();
   }
 
-  function drawUnitLabels(unit, animT){
-    var g = unitGeometry(unit, animT);
-    var main = unit.side==='player' ? T.celeste : T.vino;
+  // barra de vida + nombre + cartel de ceguera de cada unidad (segunda pasada, arriba de los sprites)
+  function dibujarEtiquetasUnidad(unidad, avanceAnim){
+    var g = geometriaUnidad(unidad, avanceAnim);
+    var principal = unidad.bando==='jugador' ? COL.celeste : COL.vino;
 
-    // hp bar (con fondo oscuro para que se lea sobre cualquier sprite)
-    var hpW = TILE*0.72;
-    var hpPct = Math.max(0, unit.hp/unit.maxHp);
-    var hpX = g.cx - hpW/2, hpY = g.visualTop - 10;
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    ctx.fillRect(hpX-2, hpY-2, hpW+4, 9);
-    ctx.fillStyle = T.line;
-    ctx.fillRect(hpX, hpY, hpW, 5);
-    ctx.fillStyle = main;
-    ctx.fillRect(hpX, hpY, hpW*hpPct, 5);
+    // barra de vida (con fondo oscuro para que se lea sobre cualquier sprite)
+    var vidaAncho = CASILLA*0.72;
+    var vidaPct = Math.max(0, unidad.vida/unidad.vidaMax);
+    var vidaX = g.cx - vidaAncho/2, vidaY = g.topeVisual - 10;
+    pincel.fillStyle = 'rgba(0,0,0,0.4)';
+    pincel.fillRect(vidaX-2, vidaY-2, vidaAncho+4, 9);
+    pincel.fillStyle = COL.linea;
+    pincel.fillRect(vidaX, vidaY, vidaAncho, 5);
+    pincel.fillStyle = principal;
+    pincel.fillRect(vidaX, vidaY, vidaAncho*vidaPct, 5);
 
-    // name label (con contorno para que se lea sobre cualquier sprite)
-    ctx.font = '700 10px "Space Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-    ctx.strokeText(unit.name, g.cx, g.visualBottom+14);
-    ctx.fillStyle = T.inkSoft;
-    ctx.fillText(unit.name, g.cx, g.visualBottom+14);
+    // nombre (con contorno para que se lea sobre cualquier sprite)
+    pincel.font = '700 10px "Space Mono", monospace';
+    pincel.textAlign = 'center';
+    pincel.textBaseline = 'middle';
+    pincel.lineWidth = 3;
+    pincel.strokeStyle = 'rgba(0,0,0,0.5)';
+    pincel.strokeText(unidad.nombre, g.cx, g.baseVisual+14);
+    pincel.fillStyle = COL.tintaSuave;
+    pincel.fillText(unidad.nombre, g.cx, g.baseVisual+14);
 
     // cartel de CEGADO sobre el enemigo, en el tablero (además del chip de la ficha)
-    if (unit===enemy && enemyBlinded()){
-      var by = hpY - 12;
-      var txt = 'CEGADO ' + enemyBlindLeft() + 'T';
-      ctx.font = '700 10px "Space Mono", monospace';
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-      ctx.strokeText(txt, g.cx, by);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(txt, g.cx, by);
+    if (unidad===enemigo && enemigoCegado()){
+      var cartelY = vidaY - 12;
+      var txt = 'CEGADO ' + turnosCegueraRestantes() + 'T';
+      pincel.font = '700 10px "Space Mono", monospace';
+      pincel.lineWidth = 3;
+      pincel.strokeStyle = 'rgba(0,0,0,0.6)';
+      pincel.strokeText(txt, g.cx, cartelY);
+      pincel.fillStyle = '#ffffff';
+      pincel.fillText(txt, g.cx, cartelY);
     }
   }
 
-  function loop(now){
-    tick(now);
-    requestAnimationFrame(loop);
+  function bucle(ahora){
+    cuadro(ahora);
+    requestAnimationFrame(bucle);
   }
 
-  /* ---------- restart ---------- */
-  function restart(){
-    player.hp = player.maxHp; player.alive = true; player.c=1; player.r=5; player.mana = player.maxMana;
-    enemy.hp = enemy.maxHp; enemy.alive = true; enemy.c=9; enemy.r=4;
-    state.phase='player-idle'; state.round=1;
-    state.moveAttempts=0; state.critMoves=0; state.movesLanded=0; state.mayorAvailable=true;
-    player.fallen=false; enemy.fallen=false;
-    player.hitFx=null; enemy.hitFx=null;
-    state.enemyBlindUntilRound=0; state.aoeFlash=null;
-    state.floatingTexts=[];
-    state.reachable=computeReachable(player); state.anim=null;
-    logList.innerHTML='';
-    document.getElementById('victoryOverlay').classList.remove('show');
-    document.getElementById('defeatOverlay').classList.remove('show');
-    document.getElementById('blockOverlay').classList.remove('show');
-    turnWho.textContent='Turno del Paladín'; turnWho.className='who mono player';
-    updateHpUI(); updateManaUI(); updateEnemyStatus(); refreshButtons(); setHint();
-    addLog(null, 'Empieza el combate en el bosque.');
+  /* ====== reinicio del combate (botones de los carteles de victoria/derrota) ====== */
+  function reiniciar(){
+    jugador.vida = jugador.vidaMax; jugador.vivo = true; jugador.c=1; jugador.r=5; jugador.mana = jugador.manaMax;
+    enemigo.vida = enemigo.vidaMax; enemigo.vivo = true; enemigo.c=9; enemigo.r=4;
+    estado.fase='jugador-quieto'; estado.ronda=1;
+    estado.intentosMov=0; estado.movsCriticos=0; estado.movsHechos=0; estado.accionMayorLibre=true;
+    jugador.caido=false; enemigo.caido=false;
+    jugador.fxGolpe=null; enemigo.fxGolpe=null;
+    estado.enemigoCegadoHastaRonda=0; estado.areaElectrica=null;
+    estado.textosFlotantes=[];
+    estado.alcance=calcularAlcance(jugador); estado.anim=null;
+    listaRegistro.innerHTML='';
+    document.getElementById('cartelVictoria').classList.remove('visible');
+    document.getElementById('cartelDerrota').classList.remove('visible');
+    document.getElementById('cartelBloqueo').classList.remove('visible');
+    turnoQuien.textContent='Turno del Paladín'; turnoQuien.className='quien monoesp jugador';
+    refrescarVida(); refrescarMana(); refrescarEstadoEnemigo(); refrescarBotones(); refrescarPista();
+    agregarRegistro(null, 'Empieza el combate en el bosque.');
   }
-  document.getElementById('btnRestartVictory').addEventListener('click', restart);
-  document.getElementById('btnRestartDefeat').addEventListener('click', restart);
+  document.getElementById('btnReiniciarVictoria').addEventListener('click', reiniciar);
+  document.getElementById('btnReiniciarDerrota').addEventListener('click', reiniciar);
 
-  /* ---------- init ---------- */
-  resizeCanvas();
-  state.reachable = computeReachable(player);
-  updateHpUI();
-  updateManaUI();
-  updateEnemyStatus();
-  refreshButtons();
-  setHint();
-  addLog(null, 'Empieza el combate en el bosque.');
-  requestAnimationFrame(loop);
+  /* ====== arranque ====== */
+  redimensionarCanvas();
+  estado.alcance = calcularAlcance(jugador);
+  refrescarVida();
+  refrescarMana();
+  refrescarEstadoEnemigo();
+  refrescarBotones();
+  refrescarPista();
+  agregarRegistro(null, 'Empieza el combate en el bosque.');
+  requestAnimationFrame(bucle);
 })();
 </script>
 </body>
