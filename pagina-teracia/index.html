@@ -214,7 +214,7 @@
     color:var(--ink);
     display:flex; align-items:center; gap:0.55rem;
   }
-  .brand span span{ color:var(--celeste); }
+  .brand span{ color:var(--celeste); }
   .brand-icon{
     width:26px; height:26px; object-fit:cover; object-position:top center;
     image-rendering:pixelated;
@@ -243,9 +243,9 @@
   }
   .theme-toggle:hover{ border-color:var(--celeste); color:var(--celeste); transform:translateY(-1px); }
   .theme-toggle svg{ width:17px; height:17px; }
-  .theme-toggle .icon-skull{ display:none; }
-  :root[data-theme="dark"] .theme-toggle .icon-person{ display:none; }
-  :root[data-theme="dark"] .theme-toggle .icon-skull{ display:block; }
+  .theme-toggle .icon-moon{ display:none; }
+  :root[data-theme="dark"] .theme-toggle .icon-sun{ display:none; }
+  :root[data-theme="dark"] .theme-toggle .icon-moon{ display:block; }
 
   /* ============ BACK TO TOP ============ */
   .to-top{
@@ -313,31 +313,17 @@
   .badge.on{ border-color:var(--celeste); color:var(--celeste); }
   .badge .dot{ width:0.45em; height:0.45em; border-radius:50%; background:currentColor; }
 
-  .cta-play{
-    display:inline-flex; align-items:center; gap:0.6em;
-    font-family:"Space Mono",monospace; font-size:0.82rem; font-weight:700;
-    letter-spacing:0.08em; text-transform:uppercase; text-decoration:none;
-    background:var(--celeste); color:var(--bg-raised);
-    border:2px solid var(--celeste);
-    padding:0.75rem 1.3rem;
-    margin-top:1.4rem;
-    box-shadow:var(--shadow);
-    transition:transform 150ms ease, box-shadow 150ms ease;
-  }
-  .cta-play:hover{ transform:translateY(-2px); }
-  .cta-play svg{ width:16px; height:16px; }
-  @media (prefers-reduced-motion: reduce){ .cta-play{ transition:none; } }
-
-  /* live board preview, embeds the MVP */
-  .board-embed{
+  /* battle grid diagram — mismo tablero (grilla + fichas) que el MVP real */
+  .board{
     aspect-ratio:1/1;
-    background:var(--bg-raised);
+    position:relative;
+    background:var(--line);
     border:6px solid var(--bg-raised);
     outline:2px solid var(--line);
+    padding:3px;
     box-shadow:var(--shadow);
-    overflow:hidden;
   }
-  .board-embed iframe{ width:100%; height:100%; border:0; display:block; }
+  .board canvas{ display:block; width:100%; height:100%; }
   .board-cap{
     margin-top:0.7rem; font-family:"Space Mono",monospace; font-size:0.68rem;
     letter-spacing:0.06em; color:var(--muted); text-transform:uppercase; text-align:center;
@@ -606,7 +592,7 @@
 
 <header class="site">
   <div class="navrow">
-    <div class="brand"><img class="brand-icon" src="Sprites/char-d.png" alt="" aria-hidden="true"><span>TERA<span>CIA</span></span></div>
+    <div class="brand"><img class="brand-icon" src="Sprites/char-d.png" alt="" aria-hidden="true">TERA<span>CIA</span></div>
     <div class="nav-right">
       <nav class="links" aria-label="Navegación principal">
         <a href="#mundo">El mundo</a>
@@ -617,8 +603,8 @@
         <a href="#steam">Steam</a>
       </nav>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">
-        <svg class="icon-person" viewBox="0 0 256 256" fill="currentColor"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
-        <svg class="icon-skull" viewBox="0 0 256 256" fill="currentColor"><path d="M92,104a28,28,0,1,0,28,28A28,28,0,0,0,92,104Zm0,40a12,12,0,1,1,12-12A12,12,0,0,1,92,144Zm72-40a28,28,0,1,0,28,28A28,28,0,0,0,164,104Zm0,40a12,12,0,1,1,12-12A12,12,0,0,1,164,144ZM128,16C70.65,16,24,60.86,24,116c0,34.1,18.27,66,48,84.28V216a16,16,0,0,0,16,16h80a16,16,0,0,0,16-16V200.28C213.73,182,232,150.1,232,116,232,60.86,185.35,16,128,16Zm44.12,172.69a8,8,0,0,0-4.12,7V216H152V192a8,8,0,0,0-16,0v24H120V192a8,8,0,0,0-16,0v24H88V195.69a8,8,0,0,0-4.12-7C56.81,173.69,40,145.84,40,116c0-46.32,39.48-84,88-84s88,37.68,88,84C216,145.83,199.19,173.69,172.12,188.69Z"></path></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"></path></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path></svg>
       </button>
     </div>
   </div>
@@ -638,16 +624,13 @@
         <span class="badge">Un personaje, una aventura</span>
         <span class="badge">Sprites en producción</span>
       </div>
-      <a class="cta-play" href="../mvp/index.html">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7Z"></path></svg>
-        Jugar MVP
-      </a>
     </div>
     <div>
-      <div class="board-embed">
-        <iframe src="../mvp/index.html?embed=1" title="Vista previa en vivo del tablero de combate" loading="lazy"></iframe>
+      <div class="board" aria-hidden="true">
+        <!-- mismo tablero (grilla, paleta y sprites) que mvp/index.html, en una escena fija -->
+        <canvas id="heroTablero"></canvas>
       </div>
-      <div class="board-cap">tablero real del MVP · movimiento por casillas</div>
+      <div class="board-cap">tablero visto desde arriba · movimiento por casillas</div>
     </div>
   </div>
 </section>
@@ -659,7 +642,7 @@
       <h2 id="mundo-h">Una fantasía lúgubre, sin ser abrumadora</h2>
     </div>
     <div class="lead-copy">
-      <p class="dropcap">Teracia no es un mundo cómodo. Los reinos están golpeados, la magia tiene un precio elemental y hay tiendas que solo reaccionan a monedas que ya no deberían brillar. Pero es una fantasía <strong>seria, no asfixiante</strong>: hay lugar para el humor pequeño, el alivio de subir de nivel y la satisfacción de un plan de combate que sale bien.</p>
+      <p class="dropcap">Teracia solía ser un mundo de civilizaciones muy conectadas con los dioses, tanto que estos anualmente podían invocar un guerrero aleatorio y tiendas que solo reaccionaban a las monedas de los dioses. Pero por culpa de un nigromante ególatra que se hace llamar un dios el mundo ha estado en un gran peligro, ciudades destrozadas y reinos bajo sus pies, pero debido a un descuido de siglos atrás, las personas tienen una última esperanza, tú, el ultimo héroe de esas leyendas.</p>
       <p class="dropcap">Este proyecto tiene dos etapas. La primera es esta demo web: un personaje, una aventura corta, jugable gratis desde el navegador. La segunda es el juego completo en Steam, con <strong>varias aventuras independientes</strong>, ambientadas en épocas distintas, cada una con sus propios enemigos y mecánicas nuevas construidas sobre las mismas reglas base.</p>
     </div>
   </div>
@@ -684,7 +667,7 @@
       <figure class="charframe"><img src="Sprites/char-f.png" alt=""></figure>
       <figure class="charframe"><img src="Sprites/char-g.png" alt=""></figure>
     </div>
-    <div class="chargallery-cap mono">algunas combinaciones posibles de piel, ojos y pelo</div>
+    <div class="chargallery-cap mono">Las razas que van a estar disponibles en el juego</div>
   </div>
 </section>
 
@@ -1221,26 +1204,28 @@
     </div>
     <div class="enemygrid">
       <div class="enemycard">
-        <img class="enemyart" src="Sprites/guardian.png" alt="" aria-hidden="true">
-        <div class="tag">Encuentro I · Bosque</div>
-        <h3>Caballero Guardián</h3>
-        <p>Se refugia detrás de su propia armadura mientras un aliado lo cubre.</p>
-        <div class="lesson"><b>Enseña</b>Cómo funciona la armadura y a priorizar objetivos.</div>
-      </div>
-      <div class="enemycard">
-        <div class="tag">Encuentro II · Fortaleza</div>
+        <img class="enemyart" src="" alt="" aria-hidden="true">
+        <div class="tag">Encuentro I · Fortaleza</div>
         <h3>Mago Cazador</h3>
         <p>No golpea fuerte — te enferma, te duerme y te desgasta poco a poco, rodeado de aliados menores.</p>
         <div class="lesson"><b>Enseña</b>Efectos de estado, resistencias y vulnerabilidades.</div>
       </div>
       <div class="enemycard">
-        <img class="enemyart" src="Sprites/skeleton-glow.png" alt="" aria-hidden="true">
+        <img class="enemyart" src="Sprites/guardian.png" alt="" aria-hidden="true">
+        <div class="tag">Encuentro II · Bosque</div>
+        <h3>Caballero Guardián</h3>
+        <p>Se refugia detrás de su propia armadura mientras un aliado lo cubre.</p>
+        <div class="lesson"><b>Enseña</b>Cómo funciona la armadura y a priorizar objetivos.</div>
+      </div>
+      <div class="enemycard">
+        <img class="enemyart" src="" alt="" aria-hidden="true">
         <div class="tag">Encuentro III · Llanura</div>
         <h3>Monstruo Esquelético</h3>
         <p>Salta, golpea en área y sangra a quien se acerca demasiado. El más resistente de los tres.</p>
         <div class="lesson"><b>Enseña</b>Tiradas de salvación y cuándo replegarse.</div>
       </div>
       <div class="enemycard final">
+        <img class="enemyart" src="" alt="" aria-hidden="true">
         <div class="tag">Encuentro final</div>
         <h3>Demonio de Luna</h3>
         <p>Pelea solo, cambia de comportamiento a medida que pierde vida, y no repite el mismo error dos veces.</p>
@@ -1299,7 +1284,7 @@
 
 <footer>
   <div class="wrap footrow">
-    <div class="brand"><span>TERA<span style="color:var(--celeste);">CIA</span></span></div>
+    <div class="brand">TERA<span style="color:var(--celeste);">CIA</span></div>
     <div class="status">Estado: <b>en desarrollo</b> — demo y sprites en producción</div>
   </div>
 </footer>
@@ -1309,6 +1294,126 @@
 </button>
 
 <script>
+  // Tablero del hero: la misma grilla, paleta y sprites que mvp/index.html,
+  // pero como una escena fija (sin lógica de turnos) a modo de vidriera.
+  (function(){
+    var canvas = document.getElementById('heroTablero');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var COLUMNAS = 7, FILAS = 7;
+    var escena = {
+      camino: [[2,1],[2,2],[2,3]],
+      actor: { c:1, r:2 },
+      enemigo: { c:3, r:4 },
+      golpe: { c:3, r:3 }
+    };
+
+    function leerColor(nombre){
+      return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim();
+    }
+    function estaEn(lista, c, r){
+      return lista.some(function(p){ return p[0]===c && p[1]===r; });
+    }
+
+    var sprites = {};
+    var pendientes = 2;
+    function alListo(){ pendientes--; if (pendientes<=0) dibujar(); }
+    function cargarSprite(clave, src){
+      var img = new Image();
+      img.onload = alListo;
+      img.onerror = alListo;
+      img.src = src;
+      sprites[clave] = img;
+    }
+    cargarSprite('actor', '../mvp/sprites/paladin.png');
+    cargarSprite('enemigo', '../mvp/sprites/caballero-guardian.png');
+
+    function dibujarFicha(pos, img){
+      var casilla = window._heroCasilla, origenX = window._heroOrigenX, origenY = window._heroOrigenY;
+      var cx = origenX + pos.c*casilla + casilla/2;
+      var cy = origenY + pos.r*casilla + casilla/2;
+      var radio = casilla*0.3;
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + radio*0.75, radio*0.8, radio*0.32, 0, 0, Math.PI*2);
+      ctx.fill();
+      if (img && img.complete && img.naturalWidth){
+        var proporcion = img.naturalWidth / img.naturalHeight;
+        var alto = casilla*1.3, ancho = alto*proporcion;
+        var anchoMax = casilla*1.8;
+        if (ancho > anchoMax){ var f = anchoMax/ancho; ancho *= f; alto *= f; }
+        ctx.drawImage(img, cx-ancho/2, cy+radio*0.75-alto, ancho, alto);
+      }
+    }
+
+    function dibujar(){
+      var caja = canvas.getBoundingClientRect();
+      if (!caja.width || !caja.height) return;
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(caja.width * dpr);
+      canvas.height = Math.round(caja.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var w = caja.width, h = caja.height;
+      var casilla = Math.min(w/COLUMNAS, h/FILAS);
+      var origenX = (w - casilla*COLUMNAS)/2, origenY = (h - casilla*FILAS)/2;
+      window._heroCasilla = casilla; window._heroOrigenX = origenX; window._heroOrigenY = origenY;
+
+      var sueloA = leerColor('--bg-raised'), sueloB = leerColor('--surface');
+      var linea = leerColor('--line'), celesteSuave = leerColor('--celeste-soft');
+      var vinoSuave = leerColor('--vino-soft'), celeste = leerColor('--celeste'), vino = leerColor('--vino');
+
+      ctx.clearRect(0, 0, w, h);
+
+      for (var c=0;c<COLUMNAS;c++){
+        for (var r=0;r<FILAS;r++){
+          var x = origenX + c*casilla, y = origenY + r*casilla;
+          var relleno = ((c+r)%2===0) ? sueloA : sueloB;
+          if (estaEn(escena.camino,c,r) || (escena.actor.c===c && escena.actor.r===r)) relleno = celesteSuave;
+          if ((escena.golpe.c===c && escena.golpe.r===r) || (escena.enemigo.c===c && escena.enemigo.r===r)) relleno = vinoSuave;
+          ctx.fillStyle = relleno;
+          ctx.fillRect(x, y, casilla, casilla);
+          ctx.strokeStyle = linea;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x+0.5, y+0.5, casilla-1, casilla-1);
+        }
+      }
+
+      escena.camino.forEach(function(p){
+        var cx = origenX + p[0]*casilla + casilla/2, cy = origenY + p[1]*casilla + casilla/2;
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = celeste;
+        ctx.beginPath(); ctx.arc(cx, cy, casilla*0.09, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      dibujarFicha(escena.actor, sprites.actor);
+      dibujarFicha(escena.enemigo, sprites.enemigo);
+
+      // la marca de golpe se dibuja al final, encima de todo, para que un
+      // sprite alto (más grande que una casilla) nunca la tape.
+      var hx = origenX + escena.golpe.c*casilla + casilla/2, hy = origenY + escena.golpe.r*casilla + casilla/2;
+      ctx.font = '700 ' + Math.round(casilla*0.4) + 'px "Space Mono", monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = Math.max(2, casilla*0.06);
+      ctx.strokeStyle = sueloA;
+      ctx.strokeText('×', hx, hy);
+      ctx.fillStyle = vino;
+      ctx.fillText('×', hx, hy);
+    }
+
+    var reintento;
+    window.addEventListener('resize', function(){
+      clearTimeout(reintento);
+      reintento = setTimeout(dibujar, 120);
+    });
+    if (window.matchMedia){
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dibujar);
+    }
+    var temaBtn = document.getElementById('themeToggle');
+    if (temaBtn) temaBtn.addEventListener('click', function(){ setTimeout(dibujar, 0); });
+  })();
+
   var reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && reveals.length){
     var io = new IntersectionObserver(function(entries){
