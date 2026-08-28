@@ -299,6 +299,20 @@
   }
   .hero p.lede{ max-width:46ch; color:var(--ink-soft); margin:0 0 1.5rem; }
 
+  .cta-mvp{
+    display:inline-flex; align-items:center; gap:0.6em;
+    font-family:"Space Mono",monospace; font-weight:700; font-size:0.82rem;
+    letter-spacing:0.08em; text-transform:uppercase; text-decoration:none;
+    background:var(--celeste); color:var(--bg);
+    border:2px solid var(--celeste);
+    padding:0.75rem 1.3rem;
+    box-shadow:var(--shadow);
+    margin:0 0 1.2rem;
+    transition:transform 150ms ease, box-shadow 150ms ease;
+  }
+  .cta-mvp:hover{ transform:translateY(-2px); }
+  .cta-mvp svg{ width:0.9em; height:0.9em; flex:none; }
+
   .badgerow{ display:flex; flex-wrap:wrap; gap:0.7rem; }
   .badge{
     font-family:"Space Mono",monospace; font-size:0.7rem;
@@ -619,6 +633,10 @@
       <h1>Teracia</h1>
       <p class="tagline">Un pueblo deshecho no le quedó tiempo para entrenarte. Solo le quedó invocarte.</p>
       <p class="lede dropcap">Teracia es un RPG táctico por turnos y casilleros: creás tu personaje, elegís su clase y lo mandás a detener a algo que no debería existir. Esta página presenta la demo web gratuita — una aventura corta — y el camino que va a llevar al juego completo a Steam.</p>
+      <a class="cta-mvp" href="../mvp/index.html">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+        Jugar MVP
+      </a>
       <div class="badgerow">
         <span class="badge on"><span class="dot"></span>Demo web gratuita</span>
         <span class="badge">Un personaje, una aventura</span>
