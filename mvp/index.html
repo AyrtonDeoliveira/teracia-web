@@ -1095,11 +1095,26 @@
     };
   }
 
-  // dibuja el sprite con un lavado rojo encima, usando un canvas auxiliar para
-  // que el rojo tiña solo el sprite y no las casillas de atrás.
+  // pulso blanco de la ceguera: alterna entre el sprite y blanco durante los 2
+  // turnos que el Caballero Guardián está cegado (Destello).
+  function blindPulse(unit){
+    if (!(unit===enemy && state.enemyBlindTurns>0)) return 0;
+    return 0.12 + 0.42 * (0.5 + 0.5*Math.sin(performance.now()/110));
+  }
+
   var _tintCv = document.createElement('canvas');
   var _tintCx = _tintCv.getContext('2d');
-  function drawTintedSprite(g, flip, redAlpha){
+  function drawSpriteBase(g, flip){
+    if (flip){
+      ctx.save(); ctx.translate(g.cx, 0); ctx.scale(-1, 1); ctx.translate(-g.cx, 0);
+      ctx.drawImage(g.img, g.cx-g.spriteW/2, g.visualTop, g.spriteW, g.spriteH); ctx.restore();
+    } else {
+      ctx.drawImage(g.img, g.cx-g.spriteW/2, g.visualTop, g.spriteW, g.spriteH);
+    }
+  }
+  // lavado de color sobre el sprite (rojo al recibir daño, blanco al estar cegado),
+  // vía canvas auxiliar para que tiña solo el sprite y no las casillas de atrás.
+  function drawSpriteTint(g, flip, fillStyle){
     var tw = Math.max(1, Math.round(g.spriteW)), th = Math.max(1, Math.round(g.spriteH));
     _tintCv.width = tw; _tintCv.height = th;
     _tintCx.clearRect(0, 0, tw, th);
@@ -1110,7 +1125,7 @@
       _tintCx.drawImage(g.img, 0, 0, tw, th);
     }
     _tintCx.globalCompositeOperation = 'source-atop';
-    _tintCx.fillStyle = 'rgba(214,26,36,' + redAlpha.toFixed(3) + ')';
+    _tintCx.fillStyle = fillStyle;
     _tintCx.fillRect(0, 0, tw, th);
     _tintCx.globalCompositeOperation = 'source-over';
     ctx.drawImage(_tintCv, g.cx - g.spriteW/2, g.visualTop, g.spriteW, g.spriteH);
@@ -1122,6 +1137,7 @@
     var main = isPlayer ? T.celeste : T.vino;
     var soft = isPlayer ? T.celesteSoft : T.vinoSoft;
     var hit = hitReaction(unit);
+    var blind = blindPulse(unit);
 
     // ground shadow (no se sacude)
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
@@ -1137,21 +1153,13 @@
     }
 
     if (g.img){
-      if (hit && hit.red > 0.02){
-        drawTintedSprite(g, !!unit.flipSprite, hit.red);
-      } else if (unit.flipSprite){
-        ctx.save();
-        ctx.translate(g.cx, 0);
-        ctx.scale(-1, 1);
-        ctx.translate(-g.cx, 0);
-        ctx.drawImage(g.img, g.cx-g.spriteW/2, g.visualTop, g.spriteW, g.spriteH);
-        ctx.restore();
-      } else {
-        ctx.drawImage(g.img, g.cx-g.spriteW/2, g.visualTop, g.spriteW, g.spriteH);
-      }
+      drawSpriteBase(g, !!unit.flipSprite);
+      if (hit && hit.red > 0.02) drawSpriteTint(g, !!unit.flipSprite, 'rgba(214,26,36,' + hit.red.toFixed(3) + ')');
+      if (blind > 0) drawSpriteTint(g, !!unit.flipSprite, 'rgba(255,255,255,' + blind.toFixed(3) + ')');
     } else {
-      var shapeStroke = (hit && hit.red > 0.02) ? '#d61a24' : main;
-      var shapeFill = (hit && hit.red > 0.02) ? 'rgba(214,26,36,0.3)' : soft;
+      var redActive = hit && hit.red > 0.02;
+      var shapeStroke = blind>0 ? 'rgba(255,255,255,0.95)' : (redActive ? '#d61a24' : main);
+      var shapeFill = blind>0 ? ('rgba(255,255,255,' + (0.2 + blind*0.5).toFixed(3) + ')') : (redActive ? 'rgba(214,26,36,0.3)' : soft);
       ctx.fillStyle = shapeFill;
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = shapeStroke;
