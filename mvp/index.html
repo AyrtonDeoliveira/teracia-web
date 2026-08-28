@@ -664,7 +664,7 @@
     btnDescarga.disabled = !idle || !state.mayorAvailable || player.mana<2;
     btnShield.disabled = !idle || (player.mana<1 && state.reactiveStance!=='escudo');
     btnDestello.disabled = !idle || (player.mana<2 && state.reactiveStance!=='destello');
-    btnRest.disabled = !idle || state.moveAttempts>0 || !state.mayorAvailable;
+    btnRest.disabled = !idle || !canRest();
     btnEnd.disabled = state.phase!=='player-idle' && state.phase!=='player-move';
     btnMove.classList.toggle('active', state.phase==='player-move');
     btnShield.classList.toggle('active', state.reactiveStance==='escudo');
@@ -733,12 +733,18 @@
     refreshButtons();
   });
 
+  function canRest(){
+    // se puede descansar sin haberte movido o después de UN movimiento, nunca después de dos,
+    // y no si ya atacaste / ya descansaste
+    return state.movesLanded <= 1 && state.mayorAvailable;
+  }
   btnRest.addEventListener('click', function(){
-    if (state.moveAttempts>0 || !state.mayorAvailable) return;
-    state.moveAttempts = moveBudget(); state.movesLanded = 2; state.mayorAvailable = false;
+    if (!canRest()) return;
+    state.moveAttempts = moveBudget(); // descansar cierra el movimiento: no hay 2do movimiento después
+    state.mayorAvailable = false;      // ni ataque
     player.mana = Math.min(player.maxMana, player.mana+1);
     updateManaUI();
-    addLog(null, 'Descansás este turno: no te movés ni atacás, pero recuperás 1 de maná.');
+    addLog(null, 'Descansás: cerrás el turno para acá y recuperás 1 de maná.');
     refreshButtons(); setHint();
   });
 
