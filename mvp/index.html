@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Teracia — MVP de combate</title>
+<meta name="description" content="Prototipo jugable del combate táctico de Teracia: tablero visto desde arriba por casilleros y reglas de D20 reales.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ====== paleta de colores (tema claro por defecto) ====== */
+  :root{
+    --fondo:#e9dfc2;            /* fondo general de la página */
+    --fondo-alto:#ded0a6;       /* paneles y casillas del tablero */
+    --superficie:#d3c28e;       /* rellenos de barras y chips */
+    --tinta:#2c2013;            /* color de texto principal */
+    --tinta-suave:#544527;      /* texto secundario */
+    --apagado:#6b5a36;          /* texto tenue / detalles */
+    --linea:#a3854f;            /* bordes y grilla */
+    --celeste:#0f6a5c;          /* color del jugador / aciertos */
+    --celeste-suave:rgba(15,106,92,0.14);
+    --vino:#7a1d2c;             /* color del enemigo / daño */
+    --vino-suave:rgba(122,29,44,0.12);
+    --electricidad:#8c7420;     /* color de la Descarga eléctrica */
+    --suelo-a:#ded0a6;          /* casillas del tablero (color A del damero) */
+    --suelo-b:#d3c28e;          /* casillas del tablero (color B del damero) */
+    --grano-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    --motivo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23887a5c' stroke-width='1' opacity='0.16'%3E%3Cpath d='M32 2 L62 32 L32 62 L2 32 Z'/%3E%3Ccircle cx='32' cy='32' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  /* ====== la misma paleta pero para tema oscuro ====== */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-tema="claro"]){
+      --fondo:#181009;
+      --fondo-alto:#21160b;
+      --superficie:#2a1d0f;
+      --tinta:#ecdfc0;
+      --tinta-suave:#cbb98f;
+      --apagado:#93815c;
+      --linea:#5c4726;
+      --celeste:#4fd9c4;
+      --celeste-suave:rgba(79,217,196,0.12);
+      --vino:#dd6b7f;
+      --vino-suave:rgba(221,107,127,0.14);
+      --electricidad:#d6bf55;
+      --suelo-a:#21160b;
+      --suelo-b:#2a1d0f;
+    }
+  }
+  :root[data-tema="oscuro"]{
+    --fondo:#181009; --fondo-alto:#21160b; --superficie:#2a1d0f; --tinta:#ecdfc0; --tinta-suave:#cbb98f;
+    --apagado:#93815c; --linea:#5c4726; --celeste:#4fd9c4; --celeste-suave:rgba(79,217,196,0.12);
+    --vino:#dd6b7f; --vino-suave:rgba(221,107,127,0.14); --electricidad:#d6bf55;
+    --suelo-a:#21160b; --suelo-b:#2a1d0f;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{
+    margin:0; color:var(--tinta);
+    background:
+      radial-gradient(ellipse 70% 50% at 18% 8%, var(--celeste-suave), transparent 55%),
+      radial-gradient(ellipse 60% 45% at 85% 6%, var(--vino-suave), transparent 55%),
+      var(--motivo), var(--grano-papel), var(--fondo);
+    background-attachment:fixed;
+    font-family:"Source Serif 4", Georgia, serif; line-height:1.5;
+  }
+  h1,h2,h3{ font-family:"Fraunces",Georgia,serif; font-weight:600; margin:0; }
+  .monoesp{ font-family:"Space Mono","Courier New",monospace; font-variant-numeric:tabular-nums; } /* números y datos, con ancho fijo */
+  a{ color:var(--celeste); }
+  :focus-visible{ outline:2px solid var(--celeste); outline-offset:3px; }
+  button{ font-family:inherit; }
+
+  /* ====== encabezado del sitio ====== */
+  header.sitio{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.85rem 1.5rem; border-bottom:1px solid var(--linea);
+  }
+  .marca{ font-family:"Fraunces",serif; font-weight:700; font-size:1.05rem; letter-spacing:0.04em; text-transform:uppercase; }
+  .marca span{ color:var(--celeste); }
+  header.sitio .volver{
+    font-family:"Space Mono",monospace; font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
+    text-decoration:none; color:var(--apagado);
+  }
+  header.sitio .volver:hover{ color:var(--celeste); }
+
+  /* ====== layout: tablero a la izquierda, fichas a la derecha ====== */
+  main{
+    max-width:1180px; margin:0 auto; padding:1.5rem clamp(1rem,3vw,2rem) 3rem;
+    display:grid; grid-template-columns:1fr 300px; gap:1.5rem;
+  }
+  @media (max-width:920px){ main{ grid-template-columns:1fr; } } /* en pantallas chicas se apila */
+
+  .barra-titulo{ grid-column:1/-1; margin-bottom:0.2rem; }
+  .sobretitulo{
+    font-family:"Space Mono",monospace; font-weight:700; font-size:0.7rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--celeste);
+  }
+  .barra-titulo h1{ font-size:clamp(1.5rem,3vw,2rem); margin-top:0.3rem; }
+  .barra-titulo p{ color:var(--tinta-suave); max-width:60ch; margin-top:0.5rem; font-size:0.95rem; }
+
+  /* ====== columna del tablero ====== */
+  .col-tablero{ display:flex; flex-direction:column; gap:0.9rem; }
+  .marco-tablero{
+    position:relative; border:1px solid var(--linea); background:var(--fondo-alto);
+    aspect-ratio:1/1; width:100%; overflow:hidden;
+  }
+  canvas{ display:block; width:100%; height:100%; }
+
+  /* ====== banner que dice de quién es el turno ====== */
+  .banner-turno{
+    display:flex; align-items:center; justify-content:space-between;
+    border:1px solid var(--linea); padding:0.6rem 0.9rem; font-size:0.85rem;
+  }
+  .banner-turno .quien{ font-family:"Space Mono",monospace; letter-spacing:0.06em; text-transform:uppercase; }
+  .banner-turno .quien.jugador{ color:var(--celeste); }
+  .banner-turno .quien.enemigo{ color:var(--vino); }
+  .banner-turno .pista{ color:var(--apagado); font-size:0.82rem; }
+
+  /* ====== barra de botones de acción ====== */
+  .barra-acciones{ display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .barra-acciones button{
+    flex:1 1 auto; border:1px solid var(--linea); background:var(--fondo-alto); color:var(--tinta);
+    padding:0.7rem 0.9rem; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
+    cursor:pointer; transition:border-color 150ms ease, color 150ms ease;
+  }
+  .barra-acciones button:hover:not(:disabled){ border-color:var(--celeste); color:var(--celeste); }
+  .barra-acciones button.activo{ border-color:var(--celeste); color:var(--celeste); background:var(--celeste-suave); }
+  .barra-acciones button:disabled{ opacity:0.4; cursor:not-allowed; }
+  .barra-acciones button.fin{ flex:1 1 100%; border-color:var(--vino); } /* "Terminar turno" ocupa toda la fila */
+  .barra-acciones button.fin:hover:not(:disabled){ border-color:var(--vino); color:var(--vino); }
+  .barra-acciones button .costo{
+    display:block; font-size:0.62rem; letter-spacing:0.03em; text-transform:none;
+    color:var(--apagado); margin-top:0.2rem;
+  }
+
+  /* ====== columna lateral: fichas del Paladín y del enemigo + registro ====== */
+  .col-lateral{ display:flex; flex-direction:column; gap:1rem; }
+  .ficha{ border:1px solid var(--linea); padding:0.9rem 1rem; }
+  .ficha .nombre{ font-family:"Fraunces",serif; font-weight:600; font-size:1rem; display:flex; justify-content:space-between; align-items:baseline; }
+  .ficha .nombre b{ font-size:0.68rem; font-family:"Space Mono",monospace; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--apagado); }
+  .barra-vida{ height:8px; background:var(--superficie); border:1px solid var(--linea); margin-top:0.5rem; position:relative; }
+  .barra-vida .relleno{ height:100%; background:var(--celeste); transition:width 300ms ease; }
+  .ficha.enemigo .barra-vida .relleno{ background:var(--vino); }
+  .num-vida{ margin-top:0.3rem; font-size:0.72rem; color:var(--apagado); }
+  .fila-mana{ display:flex; gap:0.3rem; margin-top:0.55rem; }
+  .fila-mana .punto{                     /* cada punto de maná */
+    width:11px; height:11px; border-radius:50%; border:1.5px solid var(--celeste);
+    background:transparent;
+  }
+  .fila-mana .punto.lleno{ background:var(--celeste); } /* maná disponible */
+  .etiqueta-estado{
+    display:inline-block; margin-top:0.6rem; padding:0.2rem 0.55rem;
+    font-size:0.62rem; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--celeste); color:var(--celeste);
+  }
+  .etiqueta-estado[hidden]{ display:none; } /* si no, .etiqueta-estado (display:inline-block) le gana al atributo hidden */
+  .etiqueta-estado.cegado{ border-color:var(--tinta); color:var(--tinta); background:var(--superficie); }
+
+  /* ====== registro de combate (texto de lo que va pasando) ====== */
+  .registro{ border:1px solid var(--linea); padding:0.8rem 0.9rem; height:220px; overflow-y:auto; font-size:0.8rem; }
+  .registro .sobretitulo{ margin-bottom:0.5rem; }
+  .registro ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column-reverse; gap:0.45rem; }
+  .registro li{ color:var(--tinta-suave); border-bottom:1px solid var(--linea); padding-bottom:0.45rem; }
+  .registro li:last-child{ border-bottom:none; padding-bottom:0; }
+  .registro li .etiqueta{ font-family:"Space Mono",monospace; font-size:0.65rem; letter-spacing:0.05em; text-transform:uppercase; margin-right:0.4em; }
+  .registro li.pifia .etiqueta{ color:var(--vino); }   /* fallo crítico */
+  .registro li.fallo .etiqueta{ color:var(--apagado); }
+  .registro li.chico .etiqueta{ color:var(--electricidad); } /* acierto pequeño */
+  .registro li.acierto .etiqueta, .registro li.critico .etiqueta{ color:var(--celeste); }
+
+  .nota-reglas{ border:1px dashed var(--linea); padding:0.8rem 0.9rem; font-size:0.78rem; color:var(--apagado); }
+  .nota-reglas b{ color:var(--tinta-suave); }
+
+  /* ====== carteles que tapan el tablero (victoria, derrota, bloqueo) ====== */
+  .cartel{
+    position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    background:color-mix(in srgb, var(--fondo) 78%, transparent); backdrop-filter:blur(3px);
+    flex-direction:column; gap:1rem; text-align:center; padding:1.5rem;
+  }
+  .cartel.visible{ display:flex; }
+  .cartel h2{ font-size:1.8rem; }
+  .cartel.victoria h2{ color:var(--celeste); }
+  .cartel.derrota h2{ color:var(--vino); }
+  .cartel.bloqueo h2{ color:var(--vino); font-size:1.4rem; }
+  .cartel p{ color:var(--tinta-suave); max-width:40ch; font-size:0.92rem; }
+  .cartel button{
+    font-family:"Space Mono",monospace; font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--celeste); color:var(--celeste); background:transparent; padding:0.7rem 1.3rem; cursor:pointer;
+  }
+  .cartel button:hover:not(:disabled){ background:var(--celeste-suave); }
+  .opciones-bloqueo{ display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; }
+  .opciones-bloqueo button{ display:flex; flex-direction:column; align-items:center; gap:0.25rem; }
+  .opciones-bloqueo button .costo{ text-transform:none; letter-spacing:0.02em; color:var(--apagado); font-size:0.6rem; }
+  .opciones-bloqueo button:disabled{ opacity:0.35; cursor:not-allowed; }
+
+  /* ====== cartel de tirada de muerte: D20 celeste que hay que tirar a mano ====== */
+  .cartel.tirada-muerte{ cursor:pointer; }
+  .cartel.tirada-muerte h2{ color:var(--vino); font-size:1.4rem; }
+  .zona-dado{ display:flex; align-items:center; gap:1.8rem; flex-wrap:wrap; justify-content:center; }
+  .dado-d20-wrap{ position:relative; width:112px; height:112px; display:flex; align-items:center; justify-content:center; }
+  .dado-d20{
+    width:88px; height:88px;
+    clip-path:polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    background:linear-gradient(160deg, var(--celeste), color-mix(in srgb, var(--celeste) 45%, black));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 22px 5px var(--celeste-suave), inset 0 0 0 2px color-mix(in srgb, var(--celeste) 65%, white);
+    transition:transform 150ms ease;
+  }
+  .dado-d20-wrap:hover .dado-d20{ transform:scale(1.06); }
+  .dado-d20 span{
+    font-family:"Space Mono",monospace; font-weight:700; font-size:1.8rem;
+    color:var(--fondo); text-shadow:0 1px 0 rgba(255,255,255,0.35);
+  }
+  .dado-d20-wrap.girando .dado-d20{ animation:girar-dado 650ms cubic-bezier(.22,.85,.3,1); }
+  @keyframes girar-dado{
+    0%{ transform:rotate(0deg) scale(1); }
+    40%{ transform:rotate(280deg) scale(1.18); }
+    70%{ transform:rotate(400deg) scale(0.94); }
+    100%{ transform:rotate(360deg) scale(1); }
+  }
+  .brillo{
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:var(--celeste); box-shadow:0 0 7px 2px var(--celeste); pointer-events:none;
+    animation:brillar 1.7s ease-in-out infinite;
+  }
+  .brillo-1{ top:0; left:22px; animation-delay:0s; }
+  .brillo-2{ top:24px; right:2px; animation-delay:0.45s; }
+  .brillo-3{ bottom:14px; left:2px; animation-delay:0.9s; }
+  .brillo-4{ bottom:2px; right:26px; animation-delay:1.3s; }
+  .brillo-5{ top:50%; left:-4px; animation-delay:0.65s; }
+  @keyframes brillar{ 0%,100%{ opacity:0.15; transform:scale(0.5); } 50%{ opacity:1; transform:scale(1.2); } }
+  .historial-dados{
+    display:flex; flex-direction:column; gap:0.35rem; max-height:190px; overflow-y:auto;
+    min-width:60px; padding-right:2px;
+  }
+  .historial-dados .tirada{
+    font-family:"Space Mono",monospace; font-weight:700; font-size:0.95rem;
+    border:1px solid var(--linea); padding:0.25rem 0.6rem; text-align:center; background:var(--fondo-alto);
+  }
+  .historial-dados .tirada.buena{ color:var(--celeste); border-color:var(--celeste); }
+  .historial-dados .tirada.mala{ color:var(--vino); border-color:var(--vino); }
+  @media (prefers-reduced-motion: reduce){
+    .dado-d20-wrap.girando .dado-d20{ animation:none; }
+    .brillo{ animation:none; opacity:0.7; }
+  }
+
+  /* ====== aviso flotante arriba del tablero (resultado de la última tirada) ====== */
+  .aviso{
+    position:absolute; top:0.8rem; left:50%; transform:translateX(-50%);
+    background:var(--fondo-alto); border:1px solid var(--linea); padding:0.55rem 1rem;
+    font-family:"Space Mono",monospace; font-size:0.78rem; letter-spacing:0.04em;
+    opacity:0; transition:opacity 200ms ease; pointer-events:none; white-space:nowrap;
+  }
+  .aviso.visible{ opacity:1; }
+  .aviso.pifia{ border-color:var(--vino); color:var(--vino); }
+  .aviso.fallo{ color:var(--apagado); }
+  .aviso.chico{ border-color:var(--electricidad); color:var(--electricidad); }
+  .aviso.acierto, .aviso.critico{ border-color:var(--celeste); color:var(--celeste); }
+
+  /* ====== modo embebido: si se abre con ?embed=1 se ve solo el tablero ====== */
+  html.embebido, html.embebido body{ height:100%; }
+  html.embebido body{ margin:0; }
+  html.embebido header.sitio,
+  html.embebido .barra-titulo,
+  html.embebido .banner-turno,
+  html.embebido .barra-acciones,
+  html.embebido .nota-reglas,
+  html.embebido .col-lateral{ display:none; }
+  html.embebido main{ display:block; max-width:none; padding:0; height:100%; }
+  html.embebido .col-tablero{ height:100%; gap:0; }
+  html.embebido .marco-tablero{ border:none; aspect-ratio:auto; height:100%; }
+</style>
+</head>
+<body>
+<script>if (location.search.indexOf('embed=1')>-1) document.documentElement.classList.add('embebido');</script>
+
+<header class="sitio">
+  <div class="marca">TERA<span>CIA</span></div>
+  <a class="volver" href="../index.html">&larr; Volver a la página del juego</a>
+</header>
+
+<main>
+  <div class="barra-titulo">
+    <div class="sobretitulo">MVP jugable</div>
+    <h1>Encuentro I — El bosque</h1>
+    <p>Primer recorte jugable del combate: tablero visto desde arriba por casilleros y las reglas de D20 documentadas, ya funcionando.</p>
+  </div>
+
+  <div class="col-tablero">
+    <div class="marco-tablero" id="marcoTablero">
+      <canvas id="tablero" aria-label="Tablero de combate"></canvas>
+      <div class="aviso monoesp" id="aviso"></div>
+
+      <!-- cartel de victoria -->
+      <div class="cartel victoria" id="cartelVictoria">
+        <h2>Victoria</h2>
+        <p>El Caballero Guardián cae. Combate ganado.</p>
+        <button id="btnReiniciarVictoria">Reiniciar combate</button>
+      </div>
+
+      <!-- cartel de derrota -->
+      <div class="cartel derrota" id="cartelDerrota">
+        <h2>Derrota</h2>
+        <p>El bosque se queda en silencio. Volvé a intentarlo.</p>
+        <button id="btnReiniciarDerrota">Reintentar</button>
+      </div>
+
+      <!-- cartel de tirada de muerte: aparece al caer a 0 de vida, hay que tirar a mano -->
+      <div class="cartel tirada-muerte" id="cartelTiradaMuerte">
+        <h2>¡Al borde de la muerte!</h2>
+        <p id="textoTiradaMuerte">Necesita 11+ para salvarse. Click o espacio para tirar.</p>
+        <div class="zona-dado">
+          <div class="dado-d20-wrap" id="dadoD20Wrap">
+            <span class="brillo brillo-1"></span>
+            <span class="brillo brillo-2"></span>
+            <span class="brillo brillo-3"></span>
+            <span class="brillo brillo-4"></span>
+            <span class="brillo brillo-5"></span>
+            <div class="dado-d20"><span id="dadoD20Numero">20</span></div>
+          </div>
+          <div class="historial-dados" id="historialDados"></div>
+        </div>
+      </div>
+
+      <!-- cartel de bloqueo reactivo: aparece cuando el enemigo mete un golpe efectivo -->
+      <div class="cartel bloqueo" id="cartelBloqueo">
+        <h2>¡Golpe entrante!</h2>
+        <p id="textoBloqueo">El Caballero Guardián conecta. ¿Reaccionás?</p>
+        <div class="opciones-bloqueo">
+          <button id="btnBloqEscudo" type="button">Escudo<span class="costo monoesp">1 maná · salvación D20</span></button>
+          <button id="btnBloqDestello" type="button">Destello<span class="costo monoesp">2 maná · salvación + ciega 2 turnos</span></button>
+          <button id="btnBloqNada" type="button">No bloquear<span class="costo monoesp">comés el golpe, 0 maná</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner-turno">
+      <span class="quien monoesp" id="turnoQuien">Turno del Paladín</span>
+      <span class="pista" id="turnoPista">Elegí Mover o Atacar</span>
+    </div>
+
+    <div class="barra-acciones">
+      <button id="btnMover" type="button">Mover</button>
+      <button id="btnAtacar" type="button">Atacar <span class="costo monoesp">3x3 cuerpo a cuerpo</span></button>
+      <button id="btnDescarga" type="button">Descarga <span class="costo monoesp">2 maná</span></button>
+      <button id="btnDescansar" type="button">Descansar <span class="costo monoesp">+1 maná</span></button>
+      <button id="btnTerminar" type="button" class="fin">Terminar turno</button>
+    </div>
+
+    <div class="nota-reglas">
+      <b>Cómo se resuelve:</b> cada acción tira 1D20. Mover necesita 10+ (Destreza baja el número pedido). Atacar necesita 15+ (Fuerza baja el número pedido). Un 1–5 en un ataque es fallo crítico y dispara un contraataque: ambos tiran D20 y gana el mayor. En movimiento, un 1–5 te deja caído (no te movés hasta que una tirada te salga bien, y esa solo te levanta en el lugar, sin moverte) y un 18–20 te da un paso extra gratis.<br><br>
+      <b>Moverte:</b> el botón Mover se puede usar 2 veces por turno (cada acierto crítico en una tirada de movimiento suma un uso más). La primera tirada es gratis; si tu segundo movimiento real (no de crítico) te desplaza, perdés el ataque de ese turno. Una tirada fallida igual gasta un uso. El rango es un cuadrado de 4 casillas para cada lado y se recalcula desde donde estás parado cada vez que abrís Mover, no desde donde arrancaste el turno.<br><br>
+      <b>Atacar:</b> el Paladín golpea en un área 3x3 alrededor suyo (cuerpo a cuerpo, con diagonales) por 1D8+3. <b>Descarga:</b> golpe cuerpo a cuerpo eléctrico de un solo uso (usa Fe para acertar). El objetivo recibe tu daño normal y, además, todo el área 3x3 recibe 3 de daño que ignora armadura. <b>Descansar:</b> cerrás el turno (podés haberte movido una vez antes) y recuperás 1 de maná.<br><br>
+      <b>Bloqueo reactivo:</b> cuando el Caballero Guardián te mete un golpe efectivo y te queda maná, aparece un cartel para elegir. <b>Escudo</b> (1 maná) o <b>Destello</b> (2 maná) te hacen tirar una salvación D20 (la Fe baja el número): si sale, frenás el golpe entero; si no, el golpe entra igual y el maná se gastó. <b>Destello</b>, si frena, además ciega al Caballero Guardián: +2 a todo lo que necesita durante sus próximos 2 turnos. La tercera opción, <b>No bloquear</b>, es comerte el golpe sin gastar maná.
+    </div>
+  </div>
+
+  <div class="col-lateral">
+    <div class="ficha" id="fichaJugador">
+      <div class="nombre">Paladín <b>Rol de ataque</b></div>
+      <div class="barra-vida"><div class="relleno" id="vidaJugadorRelleno"></div></div>
+      <div class="num-vida monoesp" id="vidaJugadorNum">38 / 38</div>
+      <div class="fila-mana" id="manaJugadorFila"></div>
+    </div>
+    <div class="ficha enemigo" id="fichaEnemigo">
+      <div class="nombre">Caballero Guardián <b>Bosque</b></div>
+      <div class="barra-vida"><div class="relleno" id="vidaEnemigoRelleno"></div></div>
+      <div class="num-vida monoesp" id="vidaEnemigoNum">45 / 45</div>
+      <div class="etiqueta-estado monoesp cegado" id="estadoEnemigo" hidden>Cegado · 2t</div>
+    </div>
+    <div class="registro">
+      <div class="sobretitulo">Registro de combate</div>
+      <ul id="listaRegistro"></ul>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ====== leo los colores del CSS para poder pintarlos en el canvas ====== */
+  function leerColores(){
+    var estilos = getComputedStyle(document.documentElement);
+    var leer = function(nombre){ return estilos.getPropertyValue(nombre).trim(); };
+    return {
+      fondoAlto:leer('--fondo-alto'), superficie:leer('--superficie'), tinta:leer('--tinta'),
+      tintaSuave:leer('--tinta-suave'), apagado:leer('--apagado'), linea:leer('--linea'),
+      celeste:leer('--celeste'), celesteSuave:leer('--celeste-suave'), vino:leer('--vino'), vinoSuave:leer('--vino-suave'),
+      sueloA:leer('--suelo-a'), sueloB:leer('--suelo-b'), electricidad:leer('--electricidad')
+    };
+  }
+  var COL = leerColores(); // paleta ya resuelta a valores hex/rgba
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ COL = leerColores(); }); // si cambia el tema, re-leo
+  var menosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches; // el sistema pide menos animaciones
+
+  /* ====== grilla del tablero (vista desde arriba) ====== */
+  var COLUMNAS = 11, FILAS = 11;      // tablero de 11x11 casillas
+  var CASILLA = 64;                   // tamaño en píxeles de cada casilla (se recalcula al redimensionar)
+  var obstaculos = [];               // tablero libre, sin árboles ni obstáculos
+
+  function esObstaculo(c,r){ return obstaculos.some(function(o){ return o.c===c && o.r===r; }); }
+  function dentroDelTablero(c,r){ return c>=0 && c<COLUMNAS && r>=0 && r<FILAS; }
+
+  var origenX = 0, origenY = 0;      // esquina superior izquierda de la grilla dentro del canvas
+  function calcularOrigen(anchoCanvas, altoCanvas){
+    CASILLA = Math.floor(Math.min(anchoCanvas/COLUMNAS, altoCanvas/FILAS));
+    origenX = (anchoCanvas - CASILLA*COLUMNAS)/2;
+    origenY = (altoCanvas - CASILLA*FILAS)/2;
+  }
+  function casillaAPixel(c,r){ // centro de la casilla (c,r) en píxeles
+    return { x: origenX + c*CASILLA + CASILLA/2, y: origenY + r*CASILLA + CASILLA/2 };
+  }
+  function pixelACasilla(x,y){ // qué casilla toqué en el canvas
+    return { c: Math.floor((x-origenX)/CASILLA), r: Math.floor((y-origenY)/CASILLA) };
+  }
+
+  /* ====== dados ====== */
+  function tirarD20(){ return 1+Math.floor(Math.random()*20); }
+  function tirarDado(caras){ return 1+Math.floor(Math.random()*caras); }
+  function tirarDados(cantidad,caras){ var suma=0; for(var i=0;i<cantidad;i++) suma+=tirarDado(caras); return suma; }
+  // según el número del D20, en qué tramo cayó (reglas de dado de Teracia)
+  function tramoResultado(n){
+    if (n<=5) return 'pifia';    // 1-5  fallo crítico
+    if (n<=9) return 'fallo';    // 6-9  fallo
+    if (n<=14) return 'chico';   // 10-14 acierto pequeño
+    if (n<=17) return 'acierto'; // 15-17 acierto
+    return 'critico';            // 18-20 acierto crítico
+  }
+  function nombreTramo(t){
+    return {'pifia':'Fallo crítico','fallo':'Fallo','chico':'Acierto pequeño','acierto':'Acierto','critico':'Acierto crítico'}[t];
+  }
+  function colorTramo(t){
+    if (t==='pifia') return COL.vino;
+    if (t==='fallo') return COL.apagado;
+    if (t==='chico') return COL.electricidad;
+    return COL.celeste; // acierto / crítico
+  }
+
+  /* ====== estado del combate ====== */
+  var jugador = {
+    nombre:'Paladín', bando:'jugador', c:1, r:5, vidaMax:38, vida:38,      // c = columna, r = fila
+    fuerza:5, destreza:5, fe:5, formulaDanio:{dados:1, caras:8, fijo:3},   // el Paladín pega 1D8+3
+    vivo:true, spriteUrl:'sprites/paladin.png', escalaSpriteAlto:0.95, escalaSpriteAncho:1.45,
+    manaMax:4, mana:4,
+    caido:false, // fallo crítico de movimiento: no se mueve hasta que una tirada le salga bien
+    moribundo:false, tiradaDeMuertePendiente:false // ver tiradas de muerte, más abajo
+  };
+  var enemigo = {
+    nombre:'Caballero Guardián', bando:'enemigo', c:9, r:4, vidaMax:45, vida:45,
+    fuerza:7, destreza:-5, formulaDanio:{dados:2, caras:4, fijo:2},        // el Caballero pega 2D4+2
+    vivo:true, spriteUrl:'sprites/caballero-guardian.png', spriteEspejado:true,
+    escalaSpriteAlto:1.4, escalaSpriteAncho:1.4,
+    caido:false,
+    moribundo:false, tiradaDeMuertePendiente:false
+  };
+
+  /* ====== carga de los sprites (si no cargan, se dibujan formas simples) ====== */
+  function cargarSprite(unidad){
+    var img = new Image();
+    img.onload = function(){ unidad.imagenSprite = img; };
+    img.onerror = function(){ unidad.imagenSprite = null; };
+    img.src = unidad.spriteUrl;
+  }
+  cargarSprite(jugador);
+  cargarSprite(enemigo);
+
+  var RANGO_MOV = 4; // el rango de movimiento es un cuadrado de 4 casillas para cada lado
+  var estado = {
+    fase:'jugador-quieto',   // jugador-quieto | jugador-mover | anim | turno-enemigo | fin
+    ronda:1,
+    alcance:[],       // casillas a las que me puedo mover ahora (se recalcula cada vez que abro "Mover")
+    intentosMov:0,    // tiradas de movimiento hechas este turno (éxito, fallo o tropiezo). El botón Mover se corta al llegar al presupuesto
+    movsCriticos:0,   // movimientos críticos: cada uno suma +1 al presupuesto de tiradas de movimiento
+    movsHechos:0,     // movimientos que de verdad me desplazaron y NO fueron críticos: al llegar a 2, pierdo el ataque
+    accionMayorLibre:true,   // acción mayor sin usar: atacar / Descarga / Descansar / 2° movimiento
+    enemigoCegadoHastaRonda:0, // Destello: el enemigo está cegado (+2) mientras estado.ronda <= este número. Se auto-expira, no hace falta descontar.
+    anim:null,        // animación de deslizamiento: {unidad, desde:{x,y}, hasta:{x,y}, t0, dur, luego}
+    areaElectrica:null,   // destello del área eléctrica de la Descarga: {casillas:[{c,r}], t0, dur}
+    textosFlotantes:[]    // números que suben sobre el tablero: [{texto, x, y, color, t0, dur}]
+  };
+
+  /* ====== rango de movimiento: cuadrado de RANGO_MOV casillas para cada lado ====== */
+  function calcularAlcance(unidad){
+    var resultado = [];
+    for (var dc = -RANGO_MOV; dc <= RANGO_MOV; dc++){
+      for (var df = -RANGO_MOV; df <= RANGO_MOV; df++){
+        if (dc === 0 && df === 0) continue; // la casilla propia no cuenta
+        var c = unidad.c + dc, r = unidad.r + df;
+        if (!dentroDelTablero(c,r) || esObstaculo(c,r) || casillaOcupada(c,r)) continue;
+        resultado.push({ c:c, r:r, dist: Math.max(Math.abs(dc), Math.abs(df)) });
+      }
+    }
+    return resultado;
+  }
+  function casillaOcupada(c,r){
+    return (jugador.vivo && jugador.c===c && jugador.r===r) || (enemigo.vivo && enemigo.c===c && enemigo.r===r);
+  }
+  function esAdyacente(a,b){ // pegados en cruz (sin diagonal)
+    return Math.abs(a.c-b.c)+Math.abs(a.r-b.r) === 1;
+  }
+  function distChebyshev(a,b){ // distancia contando diagonales (para el 3x3)
+    return Math.max(Math.abs(a.c-b.c), Math.abs(a.r-b.r));
+  }
+  function enemigosEnRangoCuerpoACuerpo(atacante){ // quién está dentro del 3x3 del atacante
+    var lista = [];
+    if (enemigo.vivo && enemigo!==atacante && distChebyshev(atacante,enemigo)<=1) lista.push(enemigo);
+    return lista;
+  }
+
+  /* ====== registro de combate y aviso flotante ====== */
+  var listaRegistro = document.getElementById('listaRegistro');
+  function agregarRegistro(tramo, texto){
+    var li = document.createElement('li');
+    li.className = tramo || '';
+    var etiqueta = document.createElement('span');
+    etiqueta.className = 'etiqueta monoesp';
+    etiqueta.textContent = tramo ? nombreTramo(tramo) : '';
+    li.appendChild(etiqueta);
+    li.appendChild(document.createTextNode(texto));
+    listaRegistro.appendChild(li);
+    listaRegistro.parentElement.scrollTop = listaRegistro.parentElement.scrollHeight; // auto-scroll al último
+  }
+  var avisoEl = document.getElementById('aviso');
+  var avisoTimer = null;
+  function mostrarAviso(tramo, texto){
+    avisoEl.className = 'aviso monoesp visible ' + tramo;
+    avisoEl.textContent = texto;
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(function(){ avisoEl.classList.remove('visible'); }, 1400);
+  }
+  // número flotante sobre una unidad (tirada de dado, daño recibido, etc.)
+  function textoFlotante(unidad, texto, color){
+    var p = casillaAPixel(unidad.c, unidad.r);
+    var desfase = estado.textosFlotantes.length ? (estado.textosFlotantes.length % 3) * 14 : 0; // que no se pisen si hay varios
+    estado.textosFlotantes.push({ texto:texto, x:p.x, y:p.y - CASILLA*0.9 - desfase, color:color, t0:performance.now(), dur:1100 });
+  }
+
+  /* ====== resolución de tiradas ====== */
+  // número que hay que sacar para acertar un ataque (la Fuerza/Fe baja el pedido, hasta 2)
+  function umbralAtaque(unidad, statNombre){
+    var stat = unidad[statNombre||'fuerza'] || 0;
+    return 15 - Math.min(2, Math.max(0, Math.floor(stat/5)));
+  }
+  // número que hay que sacar para moverse (la Destreza baja el pedido, hasta 2)
+  function umbralMovimiento(unidad){ return 10 - Math.min(2, Math.max(0, Math.floor(unidad.destreza/5))); }
+  function enemigoCegado(){ return estado.ronda <= estado.enemigoCegadoHastaRonda; }
+  function turnosCegueraRestantes(){ return Math.max(0, Math.min(2, estado.enemigoCegadoHastaRonda - estado.ronda + 1)); }
+  function penalizacionCeguera(unidad){ // el enemigo cegado necesita +2 en todo
+    return (unidad===enemigo && enemigoCegado()) ? 2 : 0;
+  }
+
+  // marca las 9 casillas del 3x3 para que parpadeen (efecto visual de la Descarga)
+  function marcarAreaElectrica(unidadCentro){
+    var casillas = [];
+    for (var dc=-1; dc<=1; dc++){
+      for (var df=-1; df<=1; df++){
+        var c = unidadCentro.c+dc, r = unidadCentro.r+df;
+        if (dentroDelTablero(c,r)) casillas.push({c:c,r:r});
+      }
+    }
+    estado.areaElectrica = { casillas:casillas, t0:performance.now(), dur:550 };
+  }
+
+  // Ataque en área 3x3 del Paladín (cuerpo a cuerpo, con diagonales).
+  // opts.electrico (Descarga): además del daño normal, todo el área recibe 3 de
+  // daño que ignora armadura. opts.statUmbral cambia la habilidad de tirada
+  // (Descarga usa Fe). opts.nombreHabilidad es solo para el texto del registro.
+  function resolverAtaqueArea(atacante, defensores, alTerminar, opts){
+    opts = opts || {};
+    var tirada = tirarD20();
+    var tramo = tramoResultado(tirada);
+    var umbral = umbralAtaque(atacante, opts.statUmbral || 'fuerza') + penalizacionCeguera(atacante);
+    var exito = (tirada>=umbral) && (tramo==='acierto' || tramo==='critico' || (tramo==='chico' && umbral<=10));
+    var prefijo = opts.nombreHabilidad ? opts.nombreHabilidad+' — ' : '';
+    var texto = prefijo+atacante.nombre+' ataca en área (3x3) — D20 → '+tirada+' (necesita '+umbral+'+)';
+    mostrarAviso(tramo, 'D20 → '+tirada+' · '+nombreTramo(tramo));
+    textoFlotante(atacante, 'D20 '+tirada, colorTramo(tramo));
+
+    if (tramo==='pifia'){
+      agregarRegistro(tramo, texto+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolverContraataque(atacante, defensores[0], alTerminar); }, 650);
+      return;
+    }
+    if (!exito){
+      agregarRegistro(tramo, texto+'. No conecta.');
+      setTimeout(alTerminar, 500);
+      return;
+    }
+    var danio = tirarDanio(atacante);
+    if (tramo==='critico'){ danio *= 2; }
+    var nombres = defensores.map(function(d){ return d.nombre; }).join(', ');
+    if (tramo==='critico') agregarRegistro(tramo, texto+'. ¡Crítico! Golpea a '+nombres+' por '+danio+' cada uno.');
+    else agregarRegistro(tramo, texto+'. Impacta a '+nombres+' por '+danio+' cada uno.');
+    defensores.forEach(function(d){ aplicarDanio(d, danio); textoFlotante(d, '-'+danio, COL.vino); });
+    if (opts.electrico){
+      marcarAreaElectrica(atacante);
+      agregarRegistro('chico', 'Electricidad — 3 de daño en área que ignora armadura.');
+      defensores.forEach(function(d){ aplicarDanio(d, 3); textoFlotante(d, '-3', COL.electricidad); });
+    }
+    setTimeout(alTerminar, 500);
+  }
+
+  // contraataque: se dispara con un fallo crítico al atacar. Ambos tiran D20 y gana el mayor.
+  function resolverContraataque(atacante, defensor, alTerminar){
+    var a = tirarD20(), b = tirarD20();
+    textoFlotante(atacante, 'D20 '+a, COL.vino);
+    textoFlotante(defensor, 'D20 '+b, COL.celeste);
+    agregarRegistro(null, 'Contraataque — ambos tiran D20: '+atacante.nombre+' saca '+a+', '+defensor.nombre+' saca '+b+'.');
+    if (b>a){
+      var danio = tirarDanio(defensor);
+      agregarRegistro('critico', defensor.nombre+' gana el contraataque y golpea gratis por '+danio+' (no gasta turno).');
+      aplicarDanio(atacante, danio);
+      textoFlotante(atacante, '-'+danio, COL.vino);
+    } else {
+      agregarRegistro('acierto', atacante.nombre+' gana el contraataque y se salva del golpe.');
+    }
+    setTimeout(alTerminar, 550);
+  }
+
+  function tirarDanio(unidad){
+    if (unidad.formulaDanio) return tirarDados(unidad.formulaDanio.dados, unidad.formulaDanio.caras) + unidad.formulaDanio.fijo;
+    return 1;
+  }
+  function aplicarDanio(unidad, danio){
+    unidad.vida = Math.max(0, unidad.vida - danio);
+    if (danio > 0) unidad.fxGolpe = { t0: performance.now(), dur: 1100 }; // dispara la sacudida + tinte rojo
+    refrescarVida();
+    // al llegar a 0 no muere todavía: queda pendiente una tirada de muerte
+    // (se resuelve en chequearFinDelCombate, antes de mostrar victoria/derrota)
+    if (unidad.vida<=0 && unidad.vivo && !unidad.moribundo){
+      unidad.tiradaDeMuertePendiente = true;
+    }
+  }
+
+  // ====== tiradas de muerte ======
+  // al caer a 0 de vida, la unidad no muere directo: tira D20 hasta 3 veces,
+  // pero ahora cada tirada la hace la persona: aparece un D20 celeste y hay
+  // que clickear en cualquier parte del cartel (o tocar espacio) para girarlo.
+  // 11-17 es una tirada buena (1), 6-10 es mala (1). 18-20 es acierto crítico
+  // y cuenta como 2 buenas de una; 1-5 es fallo crítico y cuenta como 2 malas
+  // de una. 3 buenas la estabilizan (revive con 1 de vida); 3 malas, muere.
+  var elCartelTiradaMuerte = document.getElementById('cartelTiradaMuerte');
+  var elDadoD20Wrap = document.getElementById('dadoD20Wrap');
+  var elDadoD20Numero = document.getElementById('dadoD20Numero');
+  var elTextoTiradaMuerte = document.getElementById('textoTiradaMuerte');
+  var elHistorialDados = document.getElementById('historialDados');
+
+  function resolverTiradasDeMuerte(unidad, alTerminar){
+    unidad.moribundo = true;
+    var buenas = 0, malas = 0;
+    var girando = false;
+    agregarRegistro(null, unidad.nombre + ' cae a 0 de vida y empieza a tirar para salvarse (necesita 11+).');
+
+    elHistorialDados.innerHTML = '';
+    elDadoD20Numero.textContent = '?';
+    elTextoTiradaMuerte.textContent = unidad.nombre+' necesita 11+ para salvarse. Click o espacio para tirar.';
+    elCartelTiradaMuerte.classList.add('visible');
+
+    function terminarYCerrar(){
+      elCartelTiradaMuerte.classList.remove('visible');
+      elCartelTiradaMuerte.removeEventListener('click', alClick);
+      document.removeEventListener('keydown', alTeclado);
+      setTimeout(alTerminar, 350);
+    }
+
+    function revelar(tirada, buena, tramo, etiqueta){
+      elDadoD20Numero.textContent = tirada;
+      elDadoD20Wrap.classList.remove('girando');
+
+      var chip = document.createElement('div');
+      chip.className = 'tirada ' + (buena ? 'buena' : 'mala');
+      chip.textContent = tirada;
+      elHistorialDados.appendChild(chip);
+      elHistorialDados.scrollTop = elHistorialDados.scrollHeight;
+
+      textoFlotante(unidad, 'D20 '+tirada, buena ? COL.celeste : COL.vino);
+      mostrarAviso(tramo, unidad.nombre+' tira para salvarse — D20 → '+tirada+' ('+etiqueta+')');
+      agregarRegistro(tramo,
+        unidad.nombre+' tira para salvarse — D20 → '+tirada+' ('+etiqueta+'). '+buenas+' buena(s) / '+malas+' mala(s).');
+
+      if (buenas>=3){
+        unidad.moribundo = false;
+        unidad.vida = 1;
+        refrescarVida();
+        agregarRegistro('acierto', unidad.nombre+' se estabiliza y revive con 1 de vida.');
+        elTextoTiradaMuerte.textContent = unidad.nombre+' se estabiliza y revive con 1 de vida.';
+        terminarYCerrar();
+        return;
+      }
+      if (malas>=3){
+        unidad.moribundo = false;
+        unidad.vivo = false;
+        agregarRegistro('pifia', unidad.nombre+' no logra salvarse y muere.');
+        elTextoTiradaMuerte.textContent = unidad.nombre+' no logra salvarse y muere.';
+        terminarYCerrar();
+        return;
+      }
+      elTextoTiradaMuerte.textContent = unidad.nombre+' necesita 11+ para salvarse ('+buenas+' buena(s) / '+malas+' mala(s)). Click o espacio para tirar.';
+      girando = false;
+    }
+
+    function tirarUna(){
+      if (girando) return;
+      girando = true;
+      var tirada = tirarD20();
+      var buena = tirada >= 11;
+      var doble = (tirada<=5 || tirada>=18); // 1–5 fallo crítico, 18–20 acierto crítico: cuentan doble
+      if (buena) buenas += doble?2:1; else malas += doble?2:1;
+      var etiqueta = tirada>=18 ? 'acierto crítico (cuenta doble)' : tirada<=5 ? 'fallo crítico (cuenta doble)' : (buena?'buena':'mala');
+      var tramo = tirada>=18 ? 'critico' : tirada<=5 ? 'pifia' : (buena ? 'acierto' : 'fallo');
+
+      if (menosMovimiento){
+        revelar(tirada, buena, tramo, etiqueta);
+        return;
+      }
+      elDadoD20Wrap.classList.add('girando');
+      var parpadeo = setInterval(function(){
+        elDadoD20Numero.textContent = 1+Math.floor(Math.random()*20);
+      }, 55);
+      setTimeout(function(){
+        clearInterval(parpadeo);
+        revelar(tirada, buena, tramo, etiqueta);
+      }, 650);
+    }
+
+    function alClick(){ tirarUna(); }
+    function alTeclado(e){
+      if (e.code==='Space' || e.key===' '){ e.preventDefault(); tirarUna(); }
+    }
+    elCartelTiradaMuerte.addEventListener('click', alClick);
+    document.addEventListener('keydown', alTeclado);
+  }
+
+  // alTerminar recibe {exito, critico, seLevanto}: exito = si de verdad se movió (una
+  // falla no gasta uno de los 2 movimientos del turno); critico = un 18–20, que
+  // duplica el movimiento (un paso extra gratis); seLevanto = venía caída y esta
+  // tirada solo la puso de pie en el lugar, sin moverla. Un fallo crítico deja
+  // a la unidad caída.
+  function resolverMovimiento(unidad, destino, alTerminar){
+    var tirada = tirarD20();
+    var tramo = tramoResultado(tirada);
+    var umbral = umbralMovimiento(unidad) + penalizacionCeguera(unidad);
+    var exito = tirada>=umbral;
+    var veniaCaida = unidad.caido;
+    mostrarAviso(tramo, 'D20 → '+tirada+' · '+nombreTramo(tramo));
+    textoFlotante(unidad, 'D20 '+tirada, colorTramo(tramo));
+    if (tramo==='pifia'){
+      unidad.caido = true;
+      agregarRegistro(tramo, unidad.nombre+' tropieza al moverse (D20 → '+tirada+'). Queda en el piso.');
+      setTimeout(function(){ alTerminar({exito:false, critico:false}); }, 500);
+      return;
+    }
+    if (!exito){
+      agregarRegistro(tramo, veniaCaida
+        ? unidad.nombre+' sigue en el piso, no logra levantarse (D20 → '+tirada+').'
+        : unidad.nombre+' no logra moverse a tiempo (D20 → '+tirada+', necesita '+umbral+'+).');
+      setTimeout(function(){ alTerminar({exito:false, critico:false}); }, 500);
+      return;
+    }
+    unidad.caido = false;
+    if (veniaCaida){
+      // venía caída: esta tirada solo la levanta, no la mueve de la casilla
+      agregarRegistro(tramo, unidad.nombre+' se levanta (D20 → '+tirada+') y queda donde está.');
+      setTimeout(function(){ alTerminar({exito:true, critico:false, seLevanto:true}); }, 450);
+      return;
+    }
+    agregarRegistro(tramo, unidad.nombre+' se mueve (D20 → '+tirada+')'+(tramo==='critico'?'. ¡Crítico!':'.'));
+    animarMovimiento(unidad, destino, function(){ alTerminar({exito:true, critico: tramo==='critico'}); });
+  }
+
+  // desliza la unidad de una casilla a otra (o la teletransporta si el sistema pide menos animaciones)
+  function animarMovimiento(unidad, destino, alTerminar){
+    var desde = casillaAPixel(unidad.c, unidad.r);
+    var hasta = casillaAPixel(destino.c, destino.r);
+    if (menosMovimiento){
+      unidad.c = destino.c; unidad.r = destino.r;
+      alTerminar();
+      return;
+    }
+    estado.anim = { unidad:unidad, desde:desde, hasta:hasta, t0:performance.now(), dur:260, luego:function(){
+      unidad.c = destino.c; unidad.r = destino.r;
+      estado.anim = null;
+      alTerminar();
+    }};
+  }
+
+  /* ====== referencias a los botones y textos de la interfaz ====== */
+  var btnMover = document.getElementById('btnMover');
+  var btnAtacar = document.getElementById('btnAtacar');
+  var btnDescarga = document.getElementById('btnDescarga');
+  var btnDescansar = document.getElementById('btnDescansar');
+  var btnTerminar = document.getElementById('btnTerminar');
+  var turnoQuien = document.getElementById('turnoQuien');
+  var turnoPista = document.getElementById('turnoPista');
+
+  function refrescarVida(){
+    document.getElementById('vidaJugadorRelleno').style.width = (100*jugador.vida/jugador.vidaMax)+'%';
+    document.getElementById('vidaJugadorNum').textContent = jugador.vida+' / '+jugador.vidaMax;
+    document.getElementById('vidaEnemigoRelleno').style.width = (100*enemigo.vida/enemigo.vidaMax)+'%';
+    document.getElementById('vidaEnemigoNum').textContent = enemigo.vida+' / '+enemigo.vidaMax;
+  }
+
+  function refrescarMana(){
+    var fila = document.getElementById('manaJugadorFila');
+    fila.innerHTML = '';
+    for (var i=0;i<jugador.manaMax;i++){
+      var punto = document.createElement('span');
+      punto.className = 'punto' + (i<jugador.mana ? ' lleno' : '');
+      fila.appendChild(punto);
+    }
+  }
+
+  // muestra/oculta el chip "Cegado · Nt" en la ficha del enemigo
+  function refrescarEstadoEnemigo(){
+    var chip = document.getElementById('estadoEnemigo');
+    if (enemigoCegado()){
+      chip.hidden = false;
+      chip.textContent = 'Cegado · ' + turnosCegueraRestantes() + 't';
+    } else {
+      chip.hidden = true;
+    }
+  }
+
+  function presupuestoMovimiento(){ return 2 + estado.movsCriticos; } // 2 usos del botón Mover + 1 por cada movimiento crítico
+  function puedeMoverDeNuevo(){
+    if (estado.intentosMov >= presupuestoMovimiento()) return false;   // botón agotado (2 tiradas + 1 por cada crítico)
+    if (!estado.accionMayorLibre && estado.movsHechos >= 1) return false; // si ya ataqué, solo me queda el 1er movimiento
+    return true;
+  }
+
+  // habilita/deshabilita los botones según en qué fase del turno estoy
+  function refrescarBotones(){
+    var quieto = estado.fase==='jugador-quieto';
+    var quietoOMoviendo = quieto || estado.fase==='jugador-mover';
+    btnMover.disabled = !quietoOMoviendo || !puedeMoverDeNuevo();
+    btnAtacar.disabled = !quieto || !estado.accionMayorLibre;
+    btnDescarga.disabled = !quieto || !estado.accionMayorLibre || jugador.mana<2;
+    btnDescansar.disabled = !quieto || !puedeDescansar();
+    btnTerminar.disabled = estado.fase!=='jugador-quieto' && estado.fase!=='jugador-mover';
+    btnMover.classList.toggle('activo', estado.fase==='jugador-mover');
+    refrescarEstadoEnemigo();
+  }
+
+  // texto de ayuda del banner de turno
+  function refrescarPista(){
+    if (estado.fase==='jugador-mover'){
+      if (jugador.caido) turnoPista.textContent = 'Estás caído — elegí una casilla y tirá; si sale, te levantás en el lugar (sin moverte)';
+      else if (!estado.alcance.length) turnoPista.textContent = 'No hay casillas libres a las que moverte';
+      else if (estado.movsHechos>=1 && estado.accionMayorLibre) turnoPista.textContent = 'Elegí casilla — si te movés bien de nuevo, perdés tu ataque de este turno';
+      else turnoPista.textContent = 'Elegí una casilla para moverte';
+    }
+    else if (estado.fase==='turno-enemigo') turnoPista.textContent = 'El Caballero Guardián actúa...';
+    else if (estado.fase==='fin') turnoPista.textContent = 'Combate terminado';
+    else if (estado.movsHechos===1 && estado.accionMayorLibre) turnoPista.textContent = 'Movete de nuevo y perdés el ataque, o atacá ahora';
+    else turnoPista.textContent = 'Elegí una acción, o terminá el turno';
+  }
+
+  // ---- botón Mover: entra/sale del modo de elegir casilla ----
+  btnMover.addEventListener('click', function(){
+    if (!puedeMoverDeNuevo()) return;
+    if (estado.fase==='jugador-mover'){
+      estado.fase = 'jugador-quieto';
+    } else if (estado.fase==='jugador-quieto'){
+      estado.fase = 'jugador-mover';
+      estado.alcance = calcularAlcance(jugador); // siempre desde la posición actual
+    }
+    refrescarBotones(); refrescarPista();
+  });
+
+  // ---- botón Atacar: golpe en área 3x3 ----
+  btnAtacar.addEventListener('click', function(){
+    if (!estado.accionMayorLibre) return;
+    var objetivos = enemigosEnRangoCuerpoACuerpo(jugador);
+    if (!objetivos.length){ agregarRegistro(null, 'Nadie está en tu área 3x3 todavía — movete más cerca.'); return; }
+    estado.accionMayorLibre = false; estado.fase = 'anim';
+    refrescarBotones();
+    resolverAtaqueArea(jugador, objetivos, function(){
+      chequearFinDelCombate(function(terminado){
+        if (terminado) return;
+        estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+      });
+    });
+  });
+
+  // ---- botón Descarga: ataque eléctrico de un solo uso (usa Fe) ----
+  btnDescarga.addEventListener('click', function(){
+    if (!estado.accionMayorLibre || jugador.mana<2) return;
+    var objetivos = enemigosEnRangoCuerpoACuerpo(jugador);
+    if (!objetivos.length){ agregarRegistro(null, 'Descarga es cuerpo a cuerpo — nadie está en tu área 3x3 todavía.'); return; }
+    jugador.mana -= 2; refrescarMana();
+    estado.accionMayorLibre = false; estado.fase = 'anim';
+    refrescarBotones();
+    resolverAtaqueArea(jugador, objetivos, function(){
+      chequearFinDelCombate(function(terminado){
+        if (terminado) return;
+        estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
+      });
+    }, { electrico:true, statUmbral:'fe', nombreHabilidad:'Descarga' });
+  });
+
+  // se puede descansar sin haberme movido o después de UN movimiento, nunca después de dos,
+  // y no si ya ataqué / ya descansé
+  function puedeDescansar(){
+    return estado.movsHechos <= 1 && estado.accionMayorLibre;
+  }
+  // ---- botón Descansar: cierra el turno y recupera 1 de maná ----
+  btnDescansar.addEventListener('click', function(){
+    if (!puedeDescansar()) return;
+    estado.intentosMov = presupuestoMovimiento(); // descansar cierra el movimiento: no hay 2do movimiento después
+    estado.accionMayorLibre = false;              // ni ataque
+    jugador.mana = Math.min(jugador.manaMax, jugador.mana+1);
+    refrescarMana();
+    agregarRegistro(null, 'Descansás: cerrás el turno para acá y recuperás 1 de maná.');
+    refrescarBotones(); refrescarPista();
+  });
+
+  // ---- botón Terminar turno ----
+  btnTerminar.addEventListener('click', function(){
+    // no se puede terminar el turno con "Mover" a medio seleccionar:
+    // el primer click cancela la selección, recién el segundo termina el turno.
+    if (estado.fase==='jugador-mover'){
+      estado.fase = 'jugador-quieto';
+      estado.alcance = [];
+      agregarRegistro(null, 'Cancelás el movimiento. Volvé a Terminar turno para pasar.');
+      refrescarBotones(); refrescarPista();
+      return;
+    }
+    terminarTurnoJugador();
+  });
+
+  function terminarTurnoJugador(){
+    estado.fase = 'turno-enemigo';
+    estado.alcance = [];
+    refrescarBotones(); refrescarPista();
+    turnoQuien.textContent='Turno del Caballero Guardián'; turnoQuien.className='quien monoesp enemigo';
+    setTimeout(ejecutarTurnoEnemigo, 500);
+  }
+
+  // ¿alguien murió? Si alguien quedó con una tirada de muerte pendiente, la
+  // resuelve primero (puede tardar unos segundos). Al terminar, muestra el
+  // cartel de victoria/derrota si corresponde y le avisa a `callback` si el
+  // combate terminó (true) o sigue (false).
+  function chequearFinDelCombate(callback){
+    var pendiente = jugador.tiradaDeMuertePendiente ? jugador : (enemigo.tiradaDeMuertePendiente ? enemigo : null);
+    if (pendiente){
+      pendiente.tiradaDeMuertePendiente = false;
+      resolverTiradasDeMuerte(pendiente, function(){ chequearFinDelCombate(callback); });
+      return;
+    }
+    if (!enemigo.vivo){
+      estado.fase = 'fin';
+      document.getElementById('cartelVictoria').classList.add('visible');
+      callback(true);
+      return;
+    }
+    if (!jugador.vivo){
+      estado.fase = 'fin';
+      document.getElementById('cartelDerrota').classList.add('visible');
+      callback(true);
+      return;
+    }
+    callback(false);
+  }
+
+  /* ====== bloqueo reactivo (cartel Escudo / Destello / No bloquear) ====== */
+  var cartelBloqueo = document.getElementById('cartelBloqueo');
+  var btnBloqEscudo = document.getElementById('btnBloqEscudo');
+  var btnBloqDestello = document.getElementById('btnBloqDestello');
+  var btnBloqNada = document.getElementById('btnBloqNada');
+
+  // aparece SOLO cuando el enemigo logra un golpe efectivo y al Paladín le queda maná
+  function pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar){
+    document.getElementById('textoBloqueo').textContent =
+      enemigo.nombre + ' te pega por ' + danio + (notaCritico ? ' (crítico)' : '') + '. ¿Reaccionás?';
+    btnBloqEscudo.disabled = jugador.mana < 1;
+    btnBloqDestello.disabled = jugador.mana < 2;
+    cartelBloqueo.classList.add('visible');
+
+    function cerrar(){
+      cartelBloqueo.classList.remove('visible');
+      btnBloqEscudo.onclick = btnBloqDestello.onclick = btnBloqNada.onclick = null;
+    }
+    function comerElGolpe(prefijo){
+      agregarRegistro(tramo, (prefijo||'') + texto + '. Impacta por ' + danio + '.' + notaCritico);
+      aplicarDanio(jugador, danio);
+      textoFlotante(jugador, '-'+danio, COL.vino);
+      setTimeout(alTerminar, 500);
+    }
+    function intentarSalvacion(tipo){
+      var costo = tipo==='destello' ? 2 : 1;
+      var nombre = tipo==='destello' ? 'Destello' : 'Escudo';
+      jugador.mana -= costo; refrescarMana();
+      var tirada = tirarD20();
+      var tr = tramoResultado(tirada);
+      var umbral = 10 - Math.min(2, Math.max(0, Math.floor(jugador.fe/5))); // salvación, la Fe baja el número
+      var salvado = tirada >= umbral;
+      textoFlotante(jugador, 'D20 '+tirada, colorTramo(tr));
+      mostrarAviso(salvado?'acierto':'pifia', nombre+' — salvación '+tirada+' / '+umbral);
+      if (salvado){
+        agregarRegistro('acierto', nombre+': salvación D20 → '+tirada+' (necesita '+umbral+'+). Frenás el golpe y gastás '+costo+' de maná.');
+        if (tipo==='destello'){
+          estado.enemigoCegadoHastaRonda = estado.ronda + 2; // ciega los próximos 2 turnos enemigos
+          refrescarEstadoEnemigo();
+          agregarRegistro('chico', 'Destello ciega a '+enemigo.nombre+': +2 a lo que necesita en sus próximos 2 turnos.');
+        }
+        setTimeout(alTerminar, 650);
+      } else {
+        agregarRegistro('pifia', nombre+': salvación D20 → '+tirada+' (necesita '+umbral+'+). No llega — el golpe entra igual y el maná se gastó.');
+        comerElGolpe(nombre+' falla — ');
+      }
+    }
+    btnBloqEscudo.onclick = function(){ if (jugador.mana < 1) return; cerrar(); intentarSalvacion('escudo'); };
+    btnBloqDestello.onclick = function(){ if (jugador.mana < 2) return; cerrar(); intentarSalvacion('destello'); };
+    btnBloqNada.onclick = function(){ cerrar(); agregarRegistro(null, 'Dejás pasar el golpe (no gastás maná).'); comerElGolpe(); };
+  }
+
+  // el enemigo tira su ataque contra el jugador
+  function enemigoAtacaAlJugador(alTerminar){
+    var tirada = tirarD20();
+    var tramo = tramoResultado(tirada);
+    var umbral = umbralAtaque(enemigo, 'fuerza') + penalizacionCeguera(enemigo);
+    var exito = (tirada>=umbral) && (tramo==='acierto' || tramo==='critico' || (tramo==='chico' && umbral<=10));
+    var texto = enemigo.nombre+' ataca — D20 → '+tirada+' (necesita '+umbral+'+)';
+    mostrarAviso(tramo, 'D20 → '+tirada+' · '+nombreTramo(tramo));
+    textoFlotante(enemigo, 'D20 '+tirada, colorTramo(tramo));
+
+    if (tramo==='pifia'){
+      agregarRegistro(tramo, texto+'. Fallo crítico — momento de contraataque.');
+      setTimeout(function(){ resolverContraataque(enemigo, jugador, alTerminar); }, 650);
+      return;
+    }
+    if (!exito){
+      agregarRegistro(tramo, texto+'. No conecta.');
+      setTimeout(alTerminar, 500);
+      return;
+    }
+    var danio = tirarDanio(enemigo);
+    if (tramo==='critico'){ danio *= 2; }
+    var notaCritico = tramo==='critico' ? ' ¡Crítico! (x2)' : '';
+
+    if (jugador.mana < 1){
+      // sin maná no hay nada que elegir: el golpe entra
+      agregarRegistro(tramo, texto+'. Impacta por '+danio+'.'+notaCritico);
+      aplicarDanio(jugador, danio);
+      textoFlotante(jugador, '-'+danio, COL.vino);
+      setTimeout(alTerminar, 500);
+      return;
+    }
+    setTimeout(function(){ pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar); }, 350);
+  }
+
+  // como resolverMovimiento, pero si la tirada es crítica encadena un paso extra gratis
+  // (el mismo "el movimiento se duplica" que tiene el Paladín). Se limita la
+  // cadena para no colgar el turno si salen varios críticos seguidos.
+  function enemigoIntentaMover(destino, alTerminar, profundidad){
+    profundidad = profundidad || 0;
+    resolverMovimiento(enemigo, destino, function(resultado){
+      if (resultado.critico && profundidad < 3){
+        var opciones = calcularAlcance(enemigo).filter(function(t){ return !casillaOcupada(t.c,t.r); });
+        if (opciones.length){
+          opciones.sort(function(a,b){ // ordena por cuál casilla lo deja más cerca del Paladín
+            return (Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r)) - (Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r));
+          });
+          enemigoIntentaMover(opciones[0], alTerminar, profundidad+1);
+          return;
+        }
+      }
+      alTerminar(resultado);
+    });
+  }
+
+  // cierra el turno enemigo y le pasa el turno al jugador. La ceguera se expira
+  // sola por el número de ronda, no hace falta descontar acá.
+  function terminarTurnoEnemigo(){
+    refrescarEstadoEnemigo();
+    empezarTurnoJugador();
+  }
+
+  // IA del enemigo: si está pegado, ataca; si no, se acerca lo más posible y ataca si llegó
+  function ejecutarTurnoEnemigo(){
+    chequearFinDelCombate(function(terminado){
+      if (terminado) return;
+      if (esAdyacente(enemigo, jugador)){
+        enemigoAtacaAlJugador(function(){
+          chequearFinDelCombate(function(terminado){
+            if (terminado) return;
+            terminarTurnoEnemigo();
+          });
+        });
+        return;
+      }
+      var opciones = calcularAlcance(enemigo).filter(function(t){ return !casillaOcupada(t.c,t.r); });
+      if (!opciones.length){ terminarTurnoEnemigo(); return; }
+      opciones.sort(function(a,b){
+        var da = Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r);
+        var db = Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r);
+        return da-db;
+      });
+      var objetivo = opciones[0];
+      enemigoIntentaMover(objetivo, function(){
+        if (esAdyacente(enemigo, jugador)){
+          enemigoAtacaAlJugador(function(){
+            chequearFinDelCombate(function(terminado){
+              if (terminado) return;
+              terminarTurnoEnemigo();
+            });
+          });
+        } else {
+          terminarTurnoEnemigo();
+        }
+      });
+    });
+  }
+
+  // arranca un turno nuevo del Paladín: sube la ronda y resetea los contadores del turno
+  function empezarTurnoJugador(){
+    estado.ronda += 1;
+    estado.intentosMov = 0; estado.movsCriticos = 0; estado.movsHechos = 0; estado.accionMayorLibre = true;
+    estado.alcance = calcularAlcance(jugador); // vista inicial; se recalcula al abrir "Mover"
+    estado.fase = 'jugador-quieto';
+    turnoQuien.textContent = 'Turno del Paladín'; turnoQuien.className = 'quien monoesp jugador';
+    refrescarBotones(); refrescarPista();
+  }
+
+  /* ====== canvas y clicks en el tablero ====== */
+  var lienzo = document.getElementById('tablero');
+  var pincel = lienzo.getContext('2d');
+  var marco = document.getElementById('marcoTablero');
+
+  function redimensionarCanvas(){
+    var caja = marco.getBoundingClientRect();
+    if (caja.width<1 || caja.height<1) return;
+    var ratioPx = window.devicePixelRatio || 1; // pantallas retina: dibujo al doble de resolución
+    lienzo.width = caja.width*ratioPx;
+    lienzo.height = caja.height*ratioPx;
+    pincel.setTransform(ratioPx,0,0,ratioPx,0,0);
+    calcularOrigen(caja.width, caja.height);
+  }
+  window.addEventListener('resize', redimensionarCanvas);
+  if (window.ResizeObserver){
+    new ResizeObserver(redimensionarCanvas).observe(marco);
+  }
+
+  lienzo.addEventListener('click', function(e){
+    var caja = lienzo.getBoundingClientRect();
+    var x = e.clientX-caja.left, y = e.clientY-caja.top;
+    var casilla = pixelACasilla(x,y);
+
+    if (estado.fase==='jugador-mover'){
+      var elegida = estado.alcance.find(function(t){ return t.c===casilla.c && t.r===casilla.r; });
+      if (elegida && !casillaOcupada(elegida.c,elegida.r)){
+        estado.fase = 'anim';
+        resolverMovimiento(jugador, {c:elegida.c,r:elegida.r}, function(resultado){
+          if (resultado.seLevanto){
+            // me levanté sin moverme: no cuenta como intento de movimiento
+            // ni gasta el ataque; puedo volver a abrir Mover o hacer otra acción
+            estado.alcance = [];
+            estado.fase = 'jugador-quieto';
+            refrescarBotones(); refrescarPista();
+            return;
+          }
+          // toda tirada de movimiento (éxito, fallo o tropiezo) gasta un uso del botón
+          estado.intentosMov += 1;
+          if (resultado.critico){
+            estado.movsCriticos += 1; // el crítico suma un uso extra al botón y no cuenta para perder el ataque
+          } else if (resultado.exito){
+            estado.movsHechos += 1;
+            if (estado.movsHechos >= 2) estado.accionMayorLibre = false; // el 2° movimiento real (no crítico) sacrifica el ataque
+          }
+          if (resultado.critico){
+            agregarRegistro('critico', 'Movimiento crítico: te movés otra vez gratis (y sumás un uso al botón Mover).');
+            estado.fase = 'jugador-mover';
+            estado.alcance = calcularAlcance(jugador);
+          } else {
+            estado.alcance = [];
+            estado.fase = 'jugador-quieto';
+          }
+          refrescarBotones(); refrescarPista();
+        });
+      }
+    }
+  });
+
+  /* ====== dibujo del tablero ====== */
+  function dibujarFondo(w,h){
+    pincel.fillStyle = COL.fondoAlto;
+    pincel.fillRect(0,0,w,h);
+  }
+
+  // se llama ~60 veces por segundo: limpia y vuelve a dibujar todo
+  function cuadro(ahora){
+    var caja = marco.getBoundingClientRect();
+    var w = caja.width, h = caja.height;
+    pincel.clearRect(0,0,w,h);
+    dibujarFondo(w,h);
+
+    // avance de la animación de deslizamiento (0 = arranca, 1 = llegó)
+    var avanceAnim = null;
+    if (estado.anim){
+      var t = (ahora - estado.anim.t0)/estado.anim.dur;
+      if (t>=1){ var luego = estado.anim.luego; if(luego) luego(); }
+      else avanceAnim = Math.min(1, t);
+    }
+
+    for (var c=0;c<COLUMNAS;c++){
+      for (var r=0;r<FILAS;r++){
+        dibujarCasilla(c,r);
+      }
+    }
+    // dos pasadas: primero los dos sprites, después las dos barras de vida y
+    // nombres — así la barra de una unidad nunca queda tapada por el sprite de
+    // la otra cuando están una encima de la otra.
+    if (jugador.vivo) dibujarUnidad(jugador, avanceAnim);
+    if (enemigo.vivo) dibujarUnidad(enemigo, avanceAnim);
+    if (jugador.vivo) dibujarEtiquetasUnidad(jugador, avanceAnim);
+    if (enemigo.vivo) dibujarEtiquetasUnidad(enemigo, avanceAnim);
+
+    // parpadeo del área eléctrica de la Descarga
+    if (estado.areaElectrica){
+      var pasado = ahora - estado.areaElectrica.t0;
+      if (pasado > estado.areaElectrica.dur){ estado.areaElectrica = null; }
+      else {
+        var alfa = 0.4 * (1 - pasado/estado.areaElectrica.dur);
+        pincel.save();
+        pincel.globalAlpha = alfa;
+        pincel.fillStyle = COL.electricidad;
+        estado.areaElectrica.casillas.forEach(function(cas){
+          var p = casillaAPixel(cas.c, cas.r);
+          pincel.fillRect(p.x-CASILLA/2, p.y-CASILLA/2, CASILLA, CASILLA);
+        });
+        pincel.restore();
+      }
+    }
+
+    // números que suben y se desvanecen (tiradas y daño)
+    if (estado.textosFlotantes.length){
+      pincel.save();
+      pincel.font = '700 15px "Space Mono", monospace';
+      pincel.textAlign = 'center';
+      pincel.textBaseline = 'middle';
+      pincel.lineWidth = 3;
+      estado.textosFlotantes = estado.textosFlotantes.filter(function(ft){
+        var e = ahora - ft.t0;
+        if (e > ft.dur) return false; // ya terminó, lo saco de la lista
+        var p = e / ft.dur;
+        pincel.globalAlpha = p < 0.15 ? p/0.15 : (1 - (p-0.15)/0.85); // aparece rápido, se va lento
+        var y = ft.y - p*28; // sube 28px durante su vida
+        pincel.strokeStyle = COL.fondoAlto;
+        pincel.strokeText(ft.texto, ft.x, y);
+        pincel.fillStyle = ft.color || COL.tinta;
+        pincel.fillText(ft.texto, ft.x, y);
+        return true;
+      });
+      pincel.restore();
+    }
+  }
+
+  // color de una casilla: celeste si está dentro del rango de movimiento, si no el damero
+  function colorCasilla(c,r){
+    var enRango = estado.fase==='jugador-mover' && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
+    if (enRango) return COL.celesteSuave;
+    return ((c+r)%2===0) ? COL.sueloA : COL.sueloB;
+  }
+
+  function dibujarCasilla(c,r){
+    var p = casillaAPixel(c,r);
+    var x0 = p.x-CASILLA/2, y0 = p.y-CASILLA/2;
+    var relleno = colorCasilla(c,r);
+    var enRango = estado.fase==='jugador-mover' && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
+    var borde = enRango ? COL.celeste : COL.linea;
+
+    pincel.fillStyle = relleno;
+    pincel.fillRect(x0, y0, CASILLA, CASILLA);
+    pincel.lineWidth = enRango ? 1.6 : 1;
+    pincel.strokeStyle = borde;
+    pincel.strokeRect(x0+0.5, y0+0.5, CASILLA-1, CASILLA-1);
+  }
+
+  function suavizadoCubico(t){ return 1-Math.pow(1-t,3); } // curva de la animación: rápido al principio, frena al final
+
+  // calcula dónde y de qué tamaño va la unidad en pantalla (contemplando la animación de deslizamiento)
+  function geometriaUnidad(unidad, avanceAnim){
+    var pos;
+    if (estado.anim && estado.anim.unidad===unidad && avanceAnim!==null){
+      var e = suavizadoCubico(avanceAnim);
+      pos = { x: estado.anim.desde.x + (estado.anim.hasta.x-estado.anim.desde.x)*e,
+              y: estado.anim.desde.y + (estado.anim.hasta.y-estado.anim.desde.y)*e };
+    } else {
+      pos = casillaAPixel(unidad.c, unidad.r);
+    }
+    var radio = CASILLA*0.3;
+    var g = { cx:pos.x, cy:pos.y, radio:radio, baseVisual: pos.y + radio*0.75, img:null };
+    if (unidad.imagenSprite){
+      var img = unidad.imagenSprite;
+      var proporcion = img.naturalWidth / img.naturalHeight;
+      var spriteAlto = CASILLA*1.3 * (unidad.escalaSpriteAlto||1);
+      var spriteAncho = CASILLA*1.3 * proporcion * (unidad.escalaSpriteAncho||1);
+      var anchoMax = CASILLA*1.8;
+      if (spriteAncho > anchoMax){ var achica = anchoMax/spriteAncho; spriteAncho *= achica; spriteAlto *= achica; }
+      g.img = img; g.spriteAncho = spriteAncho; g.spriteAlto = spriteAlto;
+      g.topeVisual = g.baseVisual - spriteAlto;
+    } else {
+      g.topeVisual = g.cy - radio;
+    }
+    return g;
+  }
+
+  // reacción al golpe: sacudida + tinte rojo que decae. Devuelve null si la
+  // unidad no está recibiendo daño ahora mismo.
+  function reaccionAlGolpe(unidad){
+    if (!unidad.fxGolpe) return null;
+    var transcurrido = performance.now() - unidad.fxGolpe.t0;
+    if (transcurrido >= unidad.fxGolpe.dur){ unidad.fxGolpe = null; return null; }
+    var p = transcurrido / unidad.fxGolpe.dur; // 0 → 1 a lo largo del efecto
+    // la sacudida es feedback de combate (breve), va incluso con prefers-reduced-motion
+    return {
+      angulo: 0.34 * Math.sin(p * Math.PI * 3) * (1 - p), // oscila y se va calmando
+      rojo: p < 0.45 ? 0.62 : Math.max(0, 0.62 * (1 - (p - 0.45) / 0.55)) // rojo fuerte y después se desvanece
+    };
+  }
+
+  // pulso blanco de la ceguera: el Caballero Guardián parpadea marcado entre su
+  // sprite normal y casi blanco durante los 2 turnos que dura el Destello.
+  function pulsoCeguera(unidad){
+    if (!(unidad===enemigo && enemigoCegado())) return 0;
+    return 0.22 + 0.6 * (0.5 + 0.5*Math.sin(performance.now()/70)); // ~0.22 .. ~0.82, período ~440ms
+  }
+
+  var _lienzoTinte = document.createElement('canvas'); // canvas auxiliar para tintar sprites sin manchar el fondo
+  var _pincelTinte = _lienzoTinte.getContext('2d');
+  function dibujarSprite(g, espejado){
+    if (espejado){
+      pincel.save(); pincel.translate(g.cx, 0); pincel.scale(-1, 1); pincel.translate(-g.cx, 0);
+      pincel.drawImage(g.img, g.cx-g.spriteAncho/2, g.topeVisual, g.spriteAncho, g.spriteAlto); pincel.restore();
+    } else {
+      pincel.drawImage(g.img, g.cx-g.spriteAncho/2, g.topeVisual, g.spriteAncho, g.spriteAlto);
+    }
+  }
+  // lavado de color sobre el sprite (rojo al recibir daño, blanco al estar cegado),
+  // vía canvas auxiliar para que tiña solo el sprite y no las casillas de atrás.
+  function dibujarSpriteTintado(g, espejado, colorRelleno){
+    var tw = Math.max(1, Math.round(g.spriteAncho)), th = Math.max(1, Math.round(g.spriteAlto));
+    _lienzoTinte.width = tw; _lienzoTinte.height = th;
+    _pincelTinte.clearRect(0, 0, tw, th);
+    if (espejado){
+      _pincelTinte.save(); _pincelTinte.translate(tw, 0); _pincelTinte.scale(-1, 1);
+      _pincelTinte.drawImage(g.img, 0, 0, tw, th); _pincelTinte.restore();
+    } else {
+      _pincelTinte.drawImage(g.img, 0, 0, tw, th);
+    }
+    _pincelTinte.globalCompositeOperation = 'source-atop'; // solo pinta encima de lo que ya hay (el sprite)
+    _pincelTinte.fillStyle = colorRelleno;
+    _pincelTinte.fillRect(0, 0, tw, th);
+    _pincelTinte.globalCompositeOperation = 'source-over';
+    pincel.drawImage(_lienzoTinte, g.cx - g.spriteAncho/2, g.topeVisual, g.spriteAncho, g.spriteAlto);
+  }
+
+  // dibuja el sprite de una unidad (o una forma simple si el sprite no cargó) con sus efectos
+  function dibujarUnidad(unidad, avanceAnim){
+    var g = geometriaUnidad(unidad, avanceAnim);
+    var esJugador = unidad.bando==='jugador';
+    var principal = esJugador ? COL.celeste : COL.vino;
+    var suave = esJugador ? COL.celesteSuave : COL.vinoSuave;
+    var golpe = reaccionAlGolpe(unidad);
+    var ceguera = pulsoCeguera(unidad);
+
+    // sombra en el piso (no se sacude)
+    pincel.fillStyle = 'rgba(0,0,0,0.18)';
+    pincel.beginPath();
+    pincel.ellipse(g.cx, g.baseVisual, g.radio*0.8, g.radio*0.32, 0, 0, Math.PI*2);
+    pincel.fill();
+
+    pincel.save();
+    if (golpe && golpe.angulo){ // sacudida al recibir daño: rota un poco alrededor del centro
+      pincel.translate(g.cx, g.cy);
+      pincel.rotate(golpe.angulo);
+      pincel.translate(-g.cx, -g.cy);
+    }
+
+    if (g.img){
+      dibujarSprite(g, !!unidad.spriteEspejado);
+      if (golpe && golpe.rojo > 0.02) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(214,26,36,' + golpe.rojo.toFixed(3) + ')');
+      if (ceguera > 0) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(255,255,255,' + ceguera.toFixed(3) + ')');
+      if (unidad.moribundo) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(20,20,20,0.55)'); // caído, tirando para salvarse
+    } else {
+      // sin sprite: formas simples (triángulo el jugador, círculo el enemigo)
+      var rojoActivo = golpe && golpe.rojo > 0.02;
+      var bordeForma = unidad.moribundo ? 'rgba(20,20,20,0.85)' : ceguera>0 ? 'rgba(255,255,255,0.95)' : (rojoActivo ? '#d61a24' : principal);
+      var rellenoForma = unidad.moribundo ? 'rgba(20,20,20,0.55)' : ceguera>0 ? ('rgba(255,255,255,' + (0.2 + ceguera*0.5).toFixed(3) + ')') : (rojoActivo ? 'rgba(214,26,36,0.3)' : suave);
+      pincel.fillStyle = rellenoForma;
+      pincel.lineWidth = 2.5;
+      pincel.strokeStyle = bordeForma;
+      pincel.beginPath();
+      if (esJugador){
+        pincel.moveTo(g.cx, g.cy-g.radio);
+        pincel.lineTo(g.cx+g.radio*0.87, g.cy+g.radio*0.6);
+        pincel.lineTo(g.cx-g.radio*0.87, g.cy+g.radio*0.6);
+        pincel.closePath();
+      } else {
+        pincel.arc(g.cx, g.cy, g.radio, 0, Math.PI*2);
+      }
+      pincel.fill();
+      pincel.stroke();
+    }
+
+    pincel.restore();
+  }
+
+  // barra de vida + nombre + cartel de ceguera de cada unidad (segunda pasada, arriba de los sprites)
+  function dibujarEtiquetasUnidad(unidad, avanceAnim){
+    var g = geometriaUnidad(unidad, avanceAnim);
+    var principal = unidad.bando==='jugador' ? COL.celeste : COL.vino;
+
+    // barra de vida (con fondo oscuro para que se lea sobre cualquier sprite)
+    var vidaAncho = CASILLA*0.72;
+    var vidaPct = Math.max(0, unidad.vida/unidad.vidaMax);
+    var vidaX = g.cx - vidaAncho/2, vidaY = g.topeVisual - 10;
+    pincel.fillStyle = 'rgba(0,0,0,0.4)';
+    pincel.fillRect(vidaX-2, vidaY-2, vidaAncho+4, 9);
+    pincel.fillStyle = COL.linea;
+    pincel.fillRect(vidaX, vidaY, vidaAncho, 5);
+    pincel.fillStyle = principal;
+    pincel.fillRect(vidaX, vidaY, vidaAncho*vidaPct, 5);
+
+    // nombre (con contorno para que se lea sobre cualquier sprite)
+    pincel.font = '700 10px "Space Mono", monospace';
+    pincel.textAlign = 'center';
+    pincel.textBaseline = 'middle';
+    pincel.lineWidth = 3;
+    pincel.strokeStyle = 'rgba(0,0,0,0.5)';
+    pincel.strokeText(unidad.nombre, g.cx, g.baseVisual+14);
+    pincel.fillStyle = COL.tintaSuave;
+    pincel.fillText(unidad.nombre, g.cx, g.baseVisual+14);
+
+    // cartel de CEGADO sobre el enemigo, en el tablero (además del chip de la ficha)
+    if (unidad===enemigo && enemigoCegado()){
+      var cartelY = vidaY - 12;
+      var txt = 'CEGADO ' + turnosCegueraRestantes() + 'T';
+      pincel.font = '700 10px "Space Mono", monospace';
+      pincel.lineWidth = 3;
+      pincel.strokeStyle = 'rgba(0,0,0,0.6)';
+      pincel.strokeText(txt, g.cx, cartelY);
+      pincel.fillStyle = '#ffffff';
+      pincel.fillText(txt, g.cx, cartelY);
+    }
+  }
+
+  function bucle(ahora){
+    cuadro(ahora);
+    requestAnimationFrame(bucle);
+  }
+
+  /* ====== reinicio del combate (botones de los carteles de victoria/derrota) ====== */
+  function reiniciar(){
+    jugador.vida = jugador.vidaMax; jugador.vivo = true; jugador.c=1; jugador.r=5; jugador.mana = jugador.manaMax;
+    enemigo.vida = enemigo.vidaMax; enemigo.vivo = true; enemigo.c=9; enemigo.r=4;
+    estado.fase='jugador-quieto'; estado.ronda=1;
+    estado.intentosMov=0; estado.movsCriticos=0; estado.movsHechos=0; estado.accionMayorLibre=true;
+    jugador.caido=false; enemigo.caido=false;
+    jugador.moribundo=false; enemigo.moribundo=false;
+    jugador.tiradaDeMuertePendiente=false; enemigo.tiradaDeMuertePendiente=false;
+    jugador.fxGolpe=null; enemigo.fxGolpe=null;
+    estado.enemigoCegadoHastaRonda=0; estado.areaElectrica=null;
+    estado.textosFlotantes=[];
+    estado.alcance=calcularAlcance(jugador); estado.anim=null;
+    listaRegistro.innerHTML='';
+    document.getElementById('cartelVictoria').classList.remove('visible');
+    document.getElementById('cartelDerrota').classList.remove('visible');
+    document.getElementById('cartelBloqueo').classList.remove('visible');
+    turnoQuien.textContent='Turno del Paladín'; turnoQuien.className='quien monoesp jugador';
+    refrescarVida(); refrescarMana(); refrescarEstadoEnemigo(); refrescarBotones(); refrescarPista();
+    agregarRegistro(null, 'Empieza el combate en el bosque.');
+  }
+  document.getElementById('btnReiniciarVictoria').addEventListener('click', reiniciar);
+  document.getElementById('btnReiniciarDerrota').addEventListener('click', reiniciar);
+
+  /* ====== arranque ====== */
+  redimensionarCanvas();
+  estado.alcance = calcularAlcance(jugador);
+  refrescarVida();
+  refrescarMana();
+  refrescarEstadoEnemigo();
+  refrescarBotones();
+  refrescarPista();
+  agregarRegistro(null, 'Empieza el combate en el bosque.');
+  requestAnimationFrame(bucle);
+})();
+</script>
+</body>
+</html>
