@@ -23,6 +23,7 @@
     --vino:#7a1d2c;             /* color del enemigo / daño */
     --vino-suave:rgba(122,29,44,0.12);
     --electricidad:#8c7420;     /* color de la Descarga eléctrica */
+    --verde:#3f7a28;            /* color del acierto (15-17), distinto del crítico */
     --suelo-a:#ded0a6;          /* casillas del tablero (color A del damero) */
     --suelo-b:#d3c28e;          /* casillas del tablero (color B del damero) */
     --grano-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
@@ -43,6 +44,7 @@
       --vino:#dd6b7f;
       --vino-suave:rgba(221,107,127,0.14);
       --electricidad:#d6bf55;
+      --verde:#7ed957;
       --suelo-a:#21160b;
       --suelo-b:#2a1d0f;
     }
@@ -50,7 +52,7 @@
   :root[data-tema="oscuro"]{
     --fondo:#181009; --fondo-alto:#21160b; --superficie:#2a1d0f; --tinta:#ecdfc0; --tinta-suave:#cbb98f;
     --apagado:#93815c; --linea:#5c4726; --celeste:#4fd9c4; --celeste-suave:rgba(79,217,196,0.12);
-    --vino:#dd6b7f; --vino-suave:rgba(221,107,127,0.14); --electricidad:#d6bf55;
+    --vino:#dd6b7f; --vino-suave:rgba(221,107,127,0.14); --electricidad:#d6bf55; --verde:#7ed957;
     --suelo-a:#21160b; --suelo-b:#2a1d0f;
   }
 
@@ -166,7 +168,8 @@
   .registro li.pifia .etiqueta{ color:var(--vino); }   /* fallo crítico */
   .registro li.fallo .etiqueta{ color:var(--apagado); }
   .registro li.chico .etiqueta{ color:var(--electricidad); } /* acierto pequeño */
-  .registro li.acierto .etiqueta, .registro li.critico .etiqueta{ color:var(--celeste); }
+  .registro li.acierto .etiqueta{ color:var(--verde); }
+  .registro li.critico .etiqueta{ color:var(--celeste); }
 
   .nota-reglas{ border:1px dashed var(--linea); padding:0.8rem 0.9rem; font-size:0.78rem; color:var(--apagado); }
   .nota-reglas b{ color:var(--tinta-suave); }
@@ -255,7 +258,8 @@
   .aviso.pifia{ border-color:var(--vino); color:var(--vino); }
   .aviso.fallo{ color:var(--apagado); }
   .aviso.chico{ border-color:var(--electricidad); color:var(--electricidad); }
-  .aviso.acierto, .aviso.critico{ border-color:var(--celeste); color:var(--celeste); }
+  .aviso.acierto{ border-color:var(--verde); color:var(--verde); }
+  .aviso.critico{ border-color:var(--celeste); color:var(--celeste); }
 
   /* ====== modo embebido: si se abre con ?embed=1 se ve solo el tablero ====== */
   html.embebido, html.embebido body{ height:100%; }
@@ -387,7 +391,7 @@
       fondoAlto:leer('--fondo-alto'), superficie:leer('--superficie'), tinta:leer('--tinta'),
       tintaSuave:leer('--tinta-suave'), apagado:leer('--apagado'), linea:leer('--linea'),
       celeste:leer('--celeste'), celesteSuave:leer('--celeste-suave'), vino:leer('--vino'), vinoSuave:leer('--vino-suave'),
-      sueloA:leer('--suelo-a'), sueloB:leer('--suelo-b'), electricidad:leer('--electricidad')
+      sueloA:leer('--suelo-a'), sueloB:leer('--suelo-b'), electricidad:leer('--electricidad'), verde:leer('--verde')
     };
   }
   var COL = leerColores(); // paleta ya resuelta a valores hex/rgba
@@ -434,7 +438,8 @@
     if (t==='pifia') return COL.vino;
     if (t==='fallo') return COL.apagado;
     if (t==='chico') return COL.electricidad;
-    return COL.celeste; // acierto / crítico
+    if (t==='acierto') return COL.verde;
+    return COL.celeste; // crítico
   }
 
   /* ====== estado del combate ====== */
