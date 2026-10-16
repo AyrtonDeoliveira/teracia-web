@@ -1,0 +1,38 @@
+.tienda-overlay[hidden]{display:none!important}
+.tienda-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:clamp(10px,3vw,34px);background:radial-gradient(ellipse at 50% 30%,#352719dd,#090b0af2 78%);backdrop-filter:blur(5px);color:#f3e5c2}
+.tienda-marco{position:relative;width:min(1120px,100%);height:min(92vh,900px);max-height:96vh;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;overflow:hidden;padding:clamp(16px,2.5vw,30px);border:5px solid #292a25;outline:1px solid #b39761;background:linear-gradient(160deg,#503622,#2c1d13 55%,#1c1711);box-shadow:0 0 0 8px #100e0b,0 24px 90px #000c,inset 0 0 0 2px #bca57555}
+.tienda-marco:before{content:"";position:absolute;inset:8px;pointer-events:none;border:1px solid #c9a86a55;background:repeating-linear-gradient(0deg,transparent 0 17px,#d8b2780b 18px 19px)}
+.tienda-cabecera,.tienda-contenido,.tienda-detalle,.tienda-salir{position:relative;z-index:1}
+.tienda-cabecera{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 4px 16px;border-bottom:1px solid #c3a16a66}
+.tienda-ceja{font:700 10px 'Space Mono',monospace;letter-spacing:.2em;color:#75e0d1}
+.tienda-cabecera h2{margin:5px 0 0;font:600 clamp(25px,4vw,38px) 'Fraunces',serif;color:#f2dba8}
+.tienda-cabecera p{margin:4px 0 0;color:#c6b18b;font-size:14px}
+.tienda-monedas{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tienda-monedas span{padding:9px 13px;border:1px solid #c7a465;background:#1a1711;color:#7be3dc;font:700 14px 'Space Mono',monospace;white-space:nowrap}
+.tienda-monedas span+span{color:#d6a7af;border-color:#9d6b57}
+.tienda-contenido{display:grid;grid-template-columns:minmax(190px,.7fr) minmax(0,1.7fr);gap:18px;height:100%;min-height:0;overflow:hidden;padding:12px 0}
+.tienda-vendedor{display:flex;flex-direction:column;justify-content:flex-start;align-self:start;min-width:0}
+.vendedor-fondo{height:clamp(120px,23vh,220px);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at bottom,#a18158 0,#59452e 42%,#171813 43%,#11140f 100%);border:3px solid #92754b;box-shadow:inset 0 0 24px #000a}
+.vendedor-fondo img{height:96%;max-width:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 6px 5px #0009)}
+.vendedor-dialogo{position:relative;margin:9px 2px 0;padding:9px 12px;max-height:8em;overflow-y:auto;overscroll-behavior:contain;background:#fffdf3;border:2px solid #684522;border-radius:5px;color:#33291b;font:14px/1.4 'Source Serif 4',serif;box-shadow:3px 4px 0 #130d08}
+.vendedor-dialogo:before{content:"";position:absolute;top:-9px;left:28px;width:14px;height:14px;transform:rotate(45deg);background:#fffdf3;border-left:2px solid #684522;border-top:2px solid #684522}
+.tienda-catalogo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(137px,auto);gap:10px;align-content:start;height:100%;min-height:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding:2px 8px 2px 2px;scrollbar-color:#a88752 #1d1711;scrollbar-width:thin}
+.tienda-carta{position:relative;min-width:0;min-height:137px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 8px;border:2px solid #79603b;background:linear-gradient(145deg,#422f1e,#241a12);color:#ebd7ac;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.tienda-carta:hover,.tienda-carta.seleccionado{transform:translateY(-2px);border-color:#6ce0d2;box-shadow:0 0 0 2px #52cfc144,inset 0 0 20px #d5b87714}
+.tienda-carta img{width:62px;height:62px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 3px #0008)}
+.tienda-carta strong{font:600 14px/1.2 'Fraunces',serif}
+.tienda-carta small{color:#d5b66f;font:10px 'Space Mono',monospace}
+.tienda-carta.comprado{opacity:.55;cursor:default;filter:grayscale(.7)}
+.tienda-detalle{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:9px 12px;background:#171710;border:1px solid #b4975c77;min-height:76px;max-height:116px;overflow:hidden}
+.tienda-objeto-seleccionado{display:flex;align-items:center;gap:13px;min-width:0}
+.tienda-objeto-seleccionado img{width:58px;height:58px;object-fit:contain;image-rendering:pixelated}
+.tienda-objeto-seleccionado h3{margin:0 0 4px;color:#f2dba8;font:600 19px 'Fraunces',serif}
+.tienda-objeto-seleccionado p{margin:0;max-height:4.2em;overflow-y:auto;overscroll-behavior:contain;color:#c9b995;font-size:13px;line-height:1.4;scrollbar-color:#a88752 #1d1711;scrollbar-width:thin}
+.tienda-compra{display:flex;align-items:center;gap:12px;flex:none}
+.tienda-compra span{color:#83e2d4;font:700 12px 'Space Mono',monospace;white-space:nowrap}
+.tienda-compra button,.tienda-salir{padding:10px 18px;border:2px solid #57cdbf;background:#15201c;color:#8de7d9;font:700 12px 'Space Mono',monospace;letter-spacing:.06em;cursor:pointer}
+.tienda-compra button:hover:not(:disabled),.tienda-salir:hover{background:#19453e;color:#fff}
+.tienda-compra button:disabled{opacity:.45;cursor:not-allowed}
+.tienda-salir{display:block;margin:14px auto 0;border-color:#8b714a;color:#d7c49d;background:#261c12}
+@media(max-width:700px){.tienda-overlay{padding:8px}.tienda-marco{height:96vh;max-height:96vh;padding:15px}.tienda-contenido{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:12px}.tienda-vendedor{display:grid;grid-template-columns:minmax(100px,.55fr) minmax(0,1fr);align-items:center;gap:12px}.vendedor-fondo{height:100px}.vendedor-dialogo{margin:0;max-height:6.4em;font-size:13px}.vendedor-dialogo:before{top:18px;left:-9px;transform:rotate(-45deg)}.tienda-catalogo{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(112px,auto);gap:6px}.tienda-carta{min-height:112px;padding:6px}.tienda-carta img{width:48px;height:48px}.tienda-carta strong{font-size:12px}.tienda-carta small{font-size:9px}.tienda-detalle{align-items:flex-start;flex-direction:column;max-height:135px}.tienda-objeto-seleccionado p{max-height:3.6em}.tienda-compra{width:100%;justify-content:space-between}.tienda-cabecera p{font-size:12px}}
+@media(max-width:420px){.tienda-catalogo{grid-template-columns:repeat(2,minmax(0,1fr))}.tienda-monedas{gap:4px}.tienda-monedas span{padding:7px;font-size:11px}.tienda-cabecera h2{font-size:25px}}

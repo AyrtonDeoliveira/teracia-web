@@ -1,0 +1,3 @@
+Glosario proporcionado:
+
+Explosion: el daño de explosión por cercania es el que sale de un D8, no se aplica para el que recibió el ataque.

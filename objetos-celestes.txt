@@ -1,0 +1,9 @@
+Pluma de Fénix: Revive a un aliado o si mismo de manera garantizada
+
+Poción celeste: Recupera 3 de maná sin gastar turno
+
+Lupa celeste: El siguiente turno tiene +3 a favor en sus tiradas
+
+Llave celeste: Sin tirar dado permite moverse a cualquier parte del tablero
+
+Vino celeste: El daño recibido durante los próximos 2 turnos lo curarán

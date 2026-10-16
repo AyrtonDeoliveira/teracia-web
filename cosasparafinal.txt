@@ -1,0 +1,34 @@
+¿pueden haber mas de un personaje de la misma raza o clase en el equipo?
+
+misma clase no, misma raza si
+
+¿como se decide quien arranca el primer turno (ya sea si arranca uno del equipo enemigo o uno del equipo tuyo)?
+
+es una tirada inicial entre todos, la tirada mas alta empieza, va en orden por lo tanto si yo saco 20 y el enemigo 19 yo voy primero y el segundo
+
+¿cada clase tiene un rango de movimiento o de ataca diferente?
+
+si (rango de ataque diferente: mago y rango, rango tiene rango infinito y mago tiene rango a 3 casillas alrededor. movimiento: el enano tiene un rango de movimiento a la mitad)
+
+¿vamos a añadir lo de poder personalizar tu personaje?
+
+no
+
+¿la habilidad de subida del dado de daño de un aliado del bardo, tiene un rango de uso o puede usarlo sin importar donde estan los demas?
+
+tiene un rango de 3 casillas
+
+¿el alma menor que genera el nigromante, su turno es despues de el del nigromante o se pone al final del turno?
+
+despues del nigromante
+
+¿la flecha que golpea a 3 enemigos a la vez, como funciona?
+
+no puede pegarle mas de una vez al mismo enemigo, es en eje
+
+¿de que area es el area de la flecha bomba?
+
+3x3
+
+el escudo del escudero cubre 3 casillas para alfrente, lo podes apuntar a donde quieras sin gastar un turno, el sacarlo te cuesta un turno y guardarlo tambien cuesta otro turno
+
