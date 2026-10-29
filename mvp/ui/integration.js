@@ -61,6 +61,10 @@
       abilityList?.remove();
       const actionBar = controls.querySelector('.barra-acciones');
       if (actionBar) abilities.append(actionBar);
+      // Estos controles también pertenecen al juego. Deben seguir en el DOM
+      // cuando se elimina el contenedor antiguo, incluso si el alma está oculta.
+      const soulControls = controls.querySelector('#turnoAlma');
+      if (soulControls) abilities.append(soulControls);
 
       const roster = document.getElementById('combat-roster');
       const playerCard = details?.querySelector('#fichaJugador');

@@ -114,7 +114,7 @@
   #errorCreacion{color:#ff8792;font-size:.82rem}
   @media(max-width:560px){.creacion-panel{grid-template-columns:1fr}.creacion-retrato{min-height:140px}.creacion-retrato img{max-height:145px}}
   @media(max-height:760px){.creacion-panel{gap:.8rem;padding:1rem}.creacion-form{gap:.6rem}.creacion-retrato{min-height:150px}.creacion-retrato img{max-height:160px}}
-  #btnHabilidadClase[hidden],#btnHabilidadClase2[hidden],#btnAlientoFuego[hidden],#btnComerCaido[hidden]{ display:none; }
+  #btnHabilidadClase[hidden],#btnHabilidadClase2[hidden],#btnDescarga[hidden],#btnDescansar[hidden],#btnConfirmarTripleFlecha[hidden],#btnAlientoFuego[hidden],#btnComerCaido[hidden]{ display:none; }
 
   .barra-titulo{ grid-column:1/-1; margin-bottom:0.2rem; }
   .sobretitulo{
@@ -263,6 +263,14 @@
   .brillo-1{ top:0; left:22px; animation-delay:0s; }
   .brillo-2{ top:24px; right:2px; animation-delay:0.45s; }
   .brillo-3{ bottom:14px; left:2px; animation-delay:0.9s; }
+  .dado-roll-toast{position:fixed;z-index:120;left:50%;bottom:1.1rem;transform:translate(-50%,1rem);display:flex;align-items:center;gap:.8rem;padding:.55rem .9rem;border:1px solid var(--bronce);background:rgba(22,19,15,.94);color:var(--texto);box-shadow:0 8px 28px rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease}
+  .dado-roll-toast[hidden]{display:none}
+  .dado-roll-toast.visible{opacity:1;transform:translate(-50%,0)}
+  .dado-roll-toast .dado-mini{width:48px;height:48px;display:grid;place-items:center;clip-path:polygon(50% 0%,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);background:linear-gradient(150deg,var(--celeste),color-mix(in srgb,var(--celeste) 42%,black));color:var(--fondo);font:700 1.15rem "Space Mono",monospace;box-shadow:0 0 15px var(--celeste-suave)}
+  .dado-roll-toast.visible .dado-mini{animation:girar-dado .62s cubic-bezier(.22,.85,.3,1)}
+  .dado-roll-toast[data-tramo="pifia"],.dado-roll-toast[data-tramo="fallo"]{border-color:var(--vino)}
+  .dado-roll-toast[data-tramo="acierto"],.dado-roll-toast[data-tramo="critico"]{border-color:var(--celeste)}
+  @media (prefers-reduced-motion:reduce){.dado-roll-toast.visible .dado-mini{animation:none}}
   .brillo-4{ bottom:2px; right:26px; animation-delay:1.3s; }
   .brillo-5{ top:50%; left:-4px; animation-delay:0.65s; }
   @keyframes brillar{ 0%,100%{ opacity:0.15; transform:scale(0.5); } 50%{ opacity:1; transform:scale(1.2); } }
@@ -324,6 +332,21 @@
   .dialogo-controles{display:flex;justify-content:flex-end}
   .dialogo-controles button{padding:.6rem 1rem;border:1px solid #79502e;border-radius:4px;background:#f4e7cf;color:#3a2716;font:700 .72rem "Space Mono",monospace;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
   .dialogo-controles button:hover,.dialogo-controles button:focus-visible{background:#e8d0a8;outline:2px solid #159b9d;outline-offset:2px}
+  #progresoCampania[hidden]{display:none}
+  #habilidadInicialWrap[hidden]{display:none}
+  #progresoCampania{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:1rem;background:rgba(10,8,6,.88);backdrop-filter:blur(3px)}
+  .progreso-panel{width:min(100%,760px);max-height:min(92vh,900px);overflow:auto;padding:1.25rem;border:2px solid var(--linea);background:var(--fondo-alto);color:var(--tinta);box-shadow:0 18px 60px #0009}
+  .progreso-panel h2{margin:.15rem 0 .45rem;color:var(--celeste)}
+  .progreso-panel p{color:var(--tinta-suave)}
+  .progreso-atributos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin:.8rem 0}
+  .progreso-atributos button{display:flex;justify-content:space-between;align-items:center}
+  .progreso-atributos button:disabled{opacity:.45}
+  .progreso-habilidad{display:grid;gap:.45rem;margin:1rem 0;padding:.75rem;border:1px solid var(--linea)}
+  .progreso-habilidad[hidden]{display:none}
+  #turnoAlma[hidden]{display:none}
+  .turno-alma{padding:.65rem;border:1px solid var(--celeste);background:var(--celeste-suave);display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+  .turno-alma strong{color:var(--celeste);margin-right:auto}
+  @media(max-width:600px){.progreso-atributos{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:600px){.dialogo-intro{padding:.75rem;grid-template-rows:minmax(0,1fr) auto}.dialogo-escena{height:52vh}.dialogo-personaje{height:43vh;max-width:44%}.dialogo-panel{padding:.8rem .9rem}.dialogo-panel p{min-height:4.5em}}
 </style>
 <link rel="stylesheet" href="ui/styles.css?v=20261016-2">
@@ -332,7 +355,7 @@
 <script defer src="ui/data.js?v=20261016-5"></script>
 <script defer src="ui/inventory-model.js?v=20261016-3"></script>
 <script defer src="ui/app.js?v=20261016-6"></script>
-<script defer src="ui/integration.js?v=20261016-5"></script>
+<script defer src="ui/integration.js?v=20261029-1"></script>
 </head>
 <body>
 <script>if (location.search.indexOf('embed=1')>-1) document.documentElement.classList.add('embebido');</script>
@@ -398,6 +421,9 @@
           <option value="arquero">Arquero · Rango</option>
         </select>
       </label>
+      <label for="habilidadInicial" id="habilidadInicialWrap" hidden>Habilidad inicial
+        <select id="habilidadInicial" required></select>
+      </label>
       <div id="resumenClaseDemo">Elegí una clase para ver sus características.</div>
       <label for="razaDemo">Raza
         <select id="razaDemo" required>
@@ -416,6 +442,20 @@
       <p id="errorCreacion" role="alert" hidden></p>
       <button id="comenzarDemo" type="button">Comenzar primera pelea</button>
     </div>
+  </div>
+</section>
+
+<section id="progresoCampania" role="dialog" aria-modal="true" aria-labelledby="progresoTitulo" hidden>
+  <div class="progreso-panel">
+    <span class="tienda-ceja">PROGRESO DEL PERSONAJE</span>
+    <h2 id="progresoTitulo">Crecimiento después del combate</h2>
+    <p id="progresoResumen"></p>
+    <p id="progresoAtributosRestantes"></p>
+    <div class="progreso-atributos" id="progresoAtributos"></div>
+    <label class="progreso-habilidad" id="progresoHabilidadWrap" hidden>Elegí la habilidad de clase que desbloqueás
+      <select id="progresoHabilidad"></select>
+    </label>
+    <button id="progresoContinuar" type="button">Continuar</button>
   </div>
 </section>
 
@@ -457,6 +497,7 @@
     <div class="marco-tablero" id="marcoTablero">
       <canvas id="tablero" aria-label="Tablero de combate"></canvas>
       <div class="aviso monoesp" id="aviso"></div>
+      <div class="dado-roll-toast" id="dadoRollToast" hidden aria-live="polite"><span class="dado-mini" id="dadoRollNumero">?</span><span class="monoesp" id="dadoRollTexto">D20</span></div>
 
       <!-- cartel de victoria -->
       <div class="cartel victoria" id="cartelVictoria">
@@ -506,6 +547,7 @@
       <span class="quien monoesp" id="turnoQuien">Turno del Paladín</span>
       <span class="pista" id="turnoPista">Elegí Mover o Atacar</span>
     </div>
+    <div class="turno-alma" id="turnoAlma" hidden><strong>Turno del Alma menor</strong><span>Elegí qué hace y seleccioná una casilla o un enemigo.</span><button type="button" id="almaMover">Mover</button><button type="button" id="almaAtacar">Atacar</button><button type="button" id="almaTerminar">Terminar turno del alma</button></div>
     <div class="orden-iniciativa" id="ordenIniciativa" aria-live="polite"><strong>Iniciativa</strong><span>Se tira al comenzar el combate.</span></div>
 
     <div class="barra-acciones">
@@ -516,6 +558,7 @@
       <button id="btnComerCaido" type="button" hidden>Comer enemigo caído <span class="costo monoesp">+4 vida</span></button>
       <button id="btnHabilidadClase" type="button" hidden></button>
       <button id="btnHabilidadClase2" type="button" hidden></button>
+      <button id="btnConfirmarTripleFlecha" type="button" hidden disabled>Confirmar Triple flecha (0/3)</button>
       <button id="btnDescansar" type="button">Descansar <span class="costo monoesp">+1 maná</span></button>
       <button id="btnTerminar" type="button" class="fin">Terminar turno</button>
     </div>
@@ -614,9 +657,26 @@
   }
 
   /* ====== dados ====== */
-  function tirarD20(){ return 1+Math.floor(Math.random()*20); }
+  var temporizadorDadoToast=null, intervaloDadoToast=null, dadoMuerteActivo=false;
+  function animarDadoTirada(resultado){
+    if(dadoMuerteActivo)return;
+    var toast=document.getElementById('dadoRollToast'),numero=document.getElementById('dadoRollNumero'),texto=document.getElementById('dadoRollTexto');
+    if(!toast||!numero||!texto)return;
+    if(intervaloDadoToast)clearInterval(intervaloDadoToast);
+    if(temporizadorDadoToast)clearTimeout(temporizadorDadoToast);
+    toast.hidden=false;toast.classList.remove('visible');
+    var tramo=tramoResultado(resultado);
+    toast.dataset.tramo=tramo;texto.textContent='D20 · '+nombreTramo(tramo);numero.textContent='?';
+    requestAnimationFrame(function(){toast.classList.add('visible');});
+    intervaloDadoToast=setInterval(function(){numero.textContent=1+Math.floor(Math.random()*20);},45);
+    temporizadorDadoToast=setTimeout(function(){
+      clearInterval(intervaloDadoToast);intervaloDadoToast=null;numero.textContent=resultado;
+      temporizadorDadoToast=setTimeout(function(){toast.classList.remove('visible');temporizadorDadoToast=setTimeout(function(){toast.hidden=true;},180);},500);
+    },620);
+  }
+  function tirarD20(){var resultado=1+Math.floor(Math.random()*20);animarDadoTirada(resultado);return resultado;}
   function registrarTiradaJugador(resultado){ultimaTiradaJugador=resultado;window.actualizarInterfazMesa&&window.actualizarInterfazMesa();return resultado;}
-  function tirarD20Jugador(){var bono=estado&&estado.bonoTiradasActivo||0;return registrarTiradaJugador(Math.min(20,tirarD20()+bono+(jugador.raza==='elfo'?1:0)));}
+  function tirarD20Jugador(){var bono=estado&&estado.bonoTiradasActivo||0,resultado=Math.min(20,tirarD20()+bono+(jugador.raza==='elfo'?1:0));animarDadoTirada(resultado);return registrarTiradaJugador(resultado);}
   function tirarDado(caras){ return 1+Math.floor(Math.random()*caras); }
   function tirarDados(cantidad,caras){ var suma=0; for(var i=0;i<cantidad;i++) suma+=tirarDado(caras); return suma; }
   // según el número del D20, en qué tramo cayó (reglas de dado de Teracia)
@@ -743,7 +803,11 @@
       var barra=document.createElement('div'); barra.className='barra-vida';
       var relleno=document.createElement('div'); relleno.className='relleno'; relleno.style.width=(100*unidad.vida/unidad.vidaMax)+'%'; barra.appendChild(relleno);
       var hp=document.createElement('div'); hp.className='num-vida monoesp'; hp.textContent=unidad.vida+' / '+unidad.vidaMax+' HP';
-      ficha.appendChild(sprite);ficha.appendChild(nombre);ficha.appendChild(barra);ficha.appendChild(hp);contenedor.appendChild(ficha);
+      ficha.appendChild(sprite);ficha.appendChild(nombre);ficha.appendChild(barra);ficha.appendChild(hp);
+      if(unidad.armadura>0){var armadura=document.createElement('div');armadura.className='etiqueta-estado monoesp';armadura.textContent='Armadura · '+unidad.armadura;ficha.appendChild(armadura);}
+      var estados=Object.keys(unidad.estados||{}).filter(function(tipo){return unidad.estados[tipo]&&unidad.estados[tipo].turnos>0;});
+      if(estados.length){var estado=document.createElement('div');estado.className='etiqueta-estado monoesp';estado.textContent=estados.map(function(tipo){return (etiquetaEstados[tipo]||tipo)+' · '+unidad.estados[tipo].turnos+'t';}).join(' · ');ficha.appendChild(estado);}
+      contenedor.appendChild(ficha);
     });
   }
   function configurarEnemigo(indice){
@@ -809,13 +873,13 @@
     alcance:[],       // casillas a las que me puedo mover ahora (se recalcula cada vez que abro "Mover")
     intentosMov:0,    // tiradas de movimiento hechas este turno (éxito, fallo o tropiezo). El botón Mover se corta al llegar al presupuesto
     tiradaAccion:null, ultimaTiradaAccion:null, accionTurno:null,
-    objetivosAtaquePendientes:null, objetivoAtaqueHover:null,
+    objetivosAtaquePendientes:null, objetivoAtaqueHover:null,objetivosTripleFlecha:[], accionAlElegirObjetivo:null, pistaObjetivoPendiente:null,
     movsCriticos:0,   // movimientos críticos: cada uno suma +1 al presupuesto de tiradas de movimiento
     movsHechos:0,     // movimientos que de verdad me desplazaron y NO fueron críticos: al llegar a 2, pierdo el ataque
     accionMayorLibre:true,   // acción mayor sin usar: atacar / Descarga / Descansar / 2° movimiento
     enemigoCegadoHastaRonda:0, // Destello: el enemigo está cegado (+2) mientras estado.ronda <= este número. Se auto-expira, no hace falta descontar.
     anim:null,        // animación de deslizamiento: {unidad, desde:{x,y}, hasta:{x,y}, t0, dur, luego}
-    bonoTiradasPendiente:0,bonoTiradasActivo:0,vinoCelesteTurnos:0,vinoCelesteEnTurno:false,
+    bonoTiradasPendiente:0,bonoTiradasActivo:0,vinoCelesteTurnos:0,vinoCelesteEnTurno:false,vinoCelesteCicloPendiente:false,
     llaveCelestePendiente:false,llaveCelesteItem:null,
     areaElectrica:null,   // destello del área eléctrica de la Descarga: {casillas:[{c,r}], t0, dur}
     zonaProyeccion:null,  // portal del Nigromante: {c,r,dc,dr,hastaRonda}
@@ -944,6 +1008,9 @@
   // (Descarga usa Fe). opts.nombreHabilidad es solo para el texto del registro.
   function resolverAtaqueArea(atacante, defensores, alTerminar, opts){
     opts = opts || {};
+    defensores=(defensores||[]).filter(function(d){return d&&d.vivo&&d.bando!==atacante.bando;});
+    if(!opts.multiObjetivo&&defensores.length>1)defensores=defensores.slice(0,1);
+    if(!defensores.length){agregarRegistro(null,'No hay enemigos válidos para este ataque.');if(alTerminar)alTerminar();return;}
     var tipoDanioGolpe=tipoDanioDeUnidad(atacante,opts.tipoDanio);
     var tirada = atacante===jugador ? consumirTiradaAccion() : tirarD20();
     if(tirada==null){ agregarRegistro(null,'Primero tirá el D20 de acción.'); if(alTerminar)alTerminar(); return; }
@@ -963,7 +1030,7 @@
       if(atacante===jugador && jugador.estados.confusion){var dañoConf=tirarDanio(jugador);aplicarDanio(jugador,dañoConf);agregarRegistro('pifia','La confusión hace que el ataque falle y te lastimes por '+dañoConf+'.');}
       if(atacante===jugador&&jugador.raza==='ogro'&&almaMenor&&almaMenor.vivo){
         var danioAliado=tirarDanio(jugador);
-        setTimeout(function(){aplicarDanio(almaMenor,danioAliado);textoFlotante(almaMenor,'-'+danioAliado,COL.vino);agregarRegistro('pifia','El Ogro pierde el control con su fallo crítico y golpea al aliado '+almaMenor.nombre+' por '+danioAliado+'.');setTimeout(alTerminar,350);},650);
+        setTimeout(function(){aplicarDanio(almaMenor,danioAliado);textoFlotante(almaMenor,'-'+danioAliado,COL.vino);agregarRegistro('pifia','El Ogro pierde el control con su fallo crítico y golpea al aliado '+almaMenor.nombre+' por '+danioAliado+'.');setTimeout(function(){resolverContraataque(atacante,defensores[0],alTerminar);},350);},650);
       }else setTimeout(function(){ resolverContraataque(atacante, defensores[0], alTerminar); }, 650);
       return;
     }
@@ -987,7 +1054,11 @@
     var nombres = defensores.map(function(d){ return d.nombre; }).join(', ');
     if (tramo==='critico') agregarRegistro(tramo, texto+'. ¡Crítico! Golpea a '+nombres+' por '+danio+' cada uno.');
     else agregarRegistro(tramo, texto+'. Impacta a '+nombres+' por '+danio+' cada uno.');
-    defensores.forEach(function(d){ var recibido=aplicarDanio(d, danio,false,tipoDanioGolpe); if(recibido) textoFlotante(d, '-'+recibido, COL.vino); });
+    defensores.forEach(function(d){
+      var recibido=aplicarDanio(d, danio,false,tipoDanioGolpe);
+      if(recibido)textoFlotante(d,'-'+recibido,COL.vino);
+      if(d.vivo&&opts.efecto)aplicarEstadoEnemigo(d,opts.efecto.tipo,opts.efecto.turnos);
+    });
     if(atacante===jugador && jugador.estados.electricidad && defensores.length){
       var extraElectrico=aplicarDanio(defensores[0],3,true);
       if(extraElectrico) textoFlotante(defensores[0],'-'+extraElectrico,COL.electricidad);
@@ -1073,18 +1144,19 @@
       if(jugador.raza==='genari'&&tipoDanio==='hielo')danio=0;
     }
     danio=ajusteCicloDanio(danio,tipoDanio,unidad);
-    if(unidad===jugador&&jugador.armaduraEquipo>0&&!ignoraArmadura){var absorbidoJugador=Math.min(danio,jugador.armaduraEquipo);danio-=absorbidoJugador;if(absorbidoJugador)agregarRegistro(null,'Tu armadura celeste absorbe '+absorbidoJugador+' de daño.');}
-    if(unidad===enemigo && enemigo.armadura>0 && !ignoraArmadura){
-      var absorbido=Math.min(danio,enemigo.armadura);
-      danio-=absorbido;
-      if(absorbido) agregarRegistro(null,enemigo.nombre+' absorbe '+absorbido+' de daño con su armadura.');
-    }
-    if(unidad===jugador && danio>0 && estado.vinoCelesteEnTurno && estado.vinoCelesteTurnos>0){
-      var curacionVino=Math.min(danio,unidad.vidaMax-unidad.vida);
-      unidad.vida+=curacionVino;
-      agregarRegistro('acierto','El Vino celeste convierte el golpe en '+curacionVino+' de curación.');
+    var convertidoVino=unidad===jugador&&danio>0&&estado.vinoCelesteEnTurno&&estado.vinoCelesteTurnos>0;
+    if(convertidoVino){
+      var curacionVino=Math.min(danio,unidad.vidaMax-unidad.vida);unidad.vida+=curacionVino;
+      agregarRegistro('acierto','El Vino celeste convierte por completo el daño entrante ('+danio+') en '+curacionVino+' de curación.');
       danio=0;
-    }else unidad.vida = Math.max(0, unidad.vida - danio);
+    }
+    if(!convertidoVino&&unidad===jugador&&jugador.armaduraEquipo>0&&!ignoraArmadura){var absorbidoJugador=Math.min(danio,jugador.armaduraEquipo);danio-=absorbidoJugador;if(absorbidoJugador)agregarRegistro(null,'Tu armadura celeste absorbe '+absorbidoJugador+' de daño.');}
+    if(unidad.bando==='enemigo' && unidad.armadura>0 && !ignoraArmadura){
+      var absorbido=Math.min(danio,unidad.armadura);
+      danio-=absorbido;
+      if(absorbido) agregarRegistro(null,unidad.nombre+' absorbe '+absorbido+' de daño con su armadura.');
+    }
+    unidad.vida = Math.max(0, unidad.vida - danio);
     if (danio > 0) unidad.fxGolpe = { t0: performance.now(), dur: 1100 }; // dispara la sacudida + tinte rojo
     if(unidad===enemigo && unidad.vida>0) actualizarFasesDemonio();
     // Solo el personaje del jugador puede hacer tiradas de muerte. Los enemigos
@@ -1212,8 +1284,10 @@
     function tirarUna(){
       if (girando) return;
       girando = true;
+      dadoMuerteActivo=true;
       var tirada = Math.min(20,tirarD20()+(unidad===jugador&&jugador.raza==='elfo'?1:0)), primeraTirada=tirada, segundaTirada=null;
       if(ventajaSalvacionEsqueleto){segundaTirada=Math.min(20,tirarD20()+(jugador.raza==='elfo'?1:0));tirada=Math.max(tirada,segundaTirada);ventajaSalvacionEsqueleto=false;}
+      dadoMuerteActivo=false;
       var buena = tirada >= 11;
       var doble = (tirada<=5 || tirada>=18); // 1–5 fallo crítico, 18–20 acierto crítico: cuentan doble
       if (buena) buenas += doble?2:1; else malas += doble?2:1;
@@ -1314,9 +1388,12 @@
   var btnTiradaAccion = document.getElementById('die');
   var turnoQuien = document.getElementById('turnoQuien');
   var turnoPista = document.getElementById('turnoPista');
+  var habilidadInicial=document.getElementById('habilidadInicial');
+  var progresion={habilidades:[],puntosAtributo:0,milestonePendiente:0,vidaGanada:0,manaGanado:0};
+  var nombresAtributos={fuerza:'Fuerza',destreza:'Destreza',fe:'Fe',carisma:'Carisma',inteligencia:'Inteligencia',perspicacia:'Perspicacia'};
 
   var clasesDemo = {
-    paladin:{ nombre:'Paladín', rol:'Ataque', resumen:'Escudo reactivo, Descarga eléctrica y combate equilibrado.', habilidad1:'', habilidad2:'' },
+    paladin:{ nombre:'Paladín', rol:'Ataque', resumen:'Escudo reactivo, Descarga eléctrica y combate equilibrado.', habilidad1:'Escudo reactivo', habilidad2:'Destello', habilidad3:'Descarga', habilidad4:'Mártir' },
     escudero:{ nombre:'Escudero', rol:'Tanque', resumen:'Escudo frontal orientable de 3 casillas y Persecución: avanza hasta 7 casillas y golpea por 2D4.', habilidad1:'Persecución', habilidad2:'Orientar escudo', habilidad3:'Separación', habilidad4:'Lanzamiento' },
     bardo:{ nombre:'Bardo', rol:'Soporte', resumen:'Controla al enemigo con Canción de cuna y Ruido desordenado. Melodía poderosa requiere un aliado.', habilidad1:'Canción de cuna', habilidad2:'Melodía poderosa · aliado', habilidad3:'Ruido desordenado', habilidad4:'Musicoterapia' },
     nigromante:{ nombre:'Nigromante', rol:'Mago', resumen:'Invoca un alma menor que actúa después y golpea todo el escenario con el Necronomicón.', habilidad1:'Necronomicón', habilidad2:'Generación de almas', habilidad3:'Resurrección · aliado', habilidad4:'Portal' },
@@ -1353,6 +1430,27 @@
     ogro:'Puede comer un enemigo caído para recuperar 4 de vida. Un fallo crítico puede golpear a un aliado.',
     minotauro:'Los ataques consecutivos al mismo objetivo hacen +2 de daño. Recibe el doble de daño mágico.'
   };
+  var habilidadesPorClase={
+    paladin:['Escudo reactivo','Destello','Descarga','Mártir'],
+    escudero:['Persecución','Mecánica del escudo','Separación','Lanzamiento'],
+    bardo:['Canción de cuna','Melodía poderosa','Ruido desordenado','Musicoterapia'],
+    nigromante:['Necronomicón','Generación de almas','Resurrección','Proyección'],
+    arquero:['Triple flecha','Flecha bomba','Tiro certero','Búmeran']
+  };
+  function poblarHabilidadInicial(clave){
+    var opciones=habilidadesPorClase[clave]||[];habilidadInicial.replaceChildren();
+    opciones.forEach(function(nombre,indice){var o=document.createElement('option');o.value=String(indice);o.textContent=nombre;habilidadInicial.appendChild(o);});
+    document.getElementById('habilidadInicialWrap').hidden=!opciones.length;
+  }
+  function habilidadClaseDesbloqueada(indice){return progresion.habilidades.includes(indice);}
+  function actualizarVisibilidadHabilidadesClase(clave){
+    clave=clave||jugador.clase;
+    var esPaladin=clave==='paladin';
+    btnDescarga.hidden=!esPaladin&&!habilidadClaseDesbloqueada(2);
+    btnHabilidadClase.hidden=esPaladin||!habilidadClaseDesbloqueada(0);
+    btnHabilidadClase2.hidden=esPaladin||!habilidadClaseDesbloqueada(1);
+    btnDescansar.hidden=!esPaladin&&!habilidadClaseDesbloqueada(3);
+  }
   var notaReglasDemo = document.querySelector('.nota-reglas');
   var reglasOriginalesPaladin = notaReglasDemo ? notaReglasDemo.innerHTML : '';
 
@@ -1404,14 +1502,11 @@
       (clave==='nigromante' ? ' El Necronomicón usa Inteligencia y D6; el alma menor tiene 3 de vida, hace D4 y actúa después de tu turno. Tu proyectil alcanza 3 casillas al frente. Portal abre una casilla libre durante 2 turnos y suma otras 3 casillas de alcance frontal desde ahí.' : '')+
       (clave==='arquero' ? ' La Triple flecha requiere una línea recta; la Flecha bomba usa Perspicacia, D8 y un área de 3×3. El alcance de sus ataques es ilimitado.' : '')+
       '<br><br><b>Balance provisional:</b> la vida, los atributos y el ataque básico de las cuatro clases nuevas usan valores de prueba; sus documentos todavía no fijan esas cifras.';
-    btnDescarga.hidden = false;
-    btnDescansar.hidden = false;
     btnDescarga.innerHTML = clave==='paladin' ? 'Descarga <span class="costo monoesp">2 maná</span>' : perfil.habilidad3;
     btnDescansar.innerHTML = clave==='paladin' ? 'Descansar <span class="costo monoesp">+1 maná</span>' : perfil.habilidad4;
-    btnHabilidadClase.hidden = clave==='paladin';
-    btnHabilidadClase2.hidden = clave==='paladin';
     btnHabilidadClase.textContent = perfil.habilidad1;
     btnHabilidadClase2.textContent = perfil.habilidad2;
+    actualizarVisibilidadHabilidadesClase(clave);
     btnHabilidadClase2.disabled = clave==='bardo';
     var loreHabilidades={
       paladin:['paladin-ataque','descarga'],
@@ -1430,6 +1525,7 @@
   }
   claseDemoSelect.addEventListener('change',function(){
     var perfil=clasesDemo[claseDemoSelect.value];
+    poblarHabilidadInicial(claseDemoSelect.value);
     resumenClaseDemo.textContent=perfil?(resumenesClaseDemo[claseDemoSelect.value]||perfil.resumen):'Elegí una clase para ver sus características.';
   });
   razaDemoSelect.addEventListener('change',function(){
@@ -1572,10 +1668,7 @@
     var item=event.detail.item,ok=false,consume=true,message='Este objeto no puede usarse ahora.';
     if(item.id==='pluma-fenix'){
       if(jugador.moribundo&&rescateGarantizado){ok=rescateGarantizado();message='La Pluma de Fénix te devuelve a la vida con 1 HP.';}
-      else if(almaMenor&&!almaMenor.vivo){
-        var casillas=[];for(var dc=-1;dc<=1;dc++)for(var dr=-1;dr<=1;dr++){var c=jugador.c+dc,r=jugador.r+dr;if(dentroDelTablero(c,r)&&!casillaOcupada(c,r)&&!esObstaculo(c,r))casillas.push({c:c,r:r});}
-        if(casillas.length){almaMenor.c=casillas[0].c;almaMenor.r=casillas[0].r;almaMenor.vivo=true;almaMenor.moribundo=false;almaMenor.vida=Math.max(1,almaMenor.vidaMax);actualizarFichasAliados();ok=true;message='Tu aliado revive con '+almaMenor.vida+' HP.';}
-      }else message='La Pluma solo puede usarse para revivir a alguien caído.';
+      else message='La Pluma de Fénix solo puede revivir a un personaje jugador, nunca a un Alma menor.';
     }else if(item.id==='pocion-celeste'){
       var antes=jugador.mana;jugador.mana=Math.min(jugador.manaMax,jugador.mana+3);ok=jugador.mana>antes;
       message=ok?'La Poción celeste recupera '+(jugador.mana-antes)+' de maná sin gastar turno.':'Ya tenés el maná al máximo.';refrescarMana();
@@ -1585,7 +1678,7 @@
       if(estado.fase==='jugador-quieto'){estado.fase='llave-celeste';estado.llaveCelesteItem=item.id;estado.alcance=[];refrescarBotones();refrescarPista();ok=true;consume=false;message='Elegí una casilla libre del tablero para aparecer allí.';}
       else message='La Llave celeste se usa durante tu turno. Seleccioná una casilla libre.';
     }else if(item.id==='vino-celeste'){
-      estado.vinoCelesteTurnos=2;estado.vinoCelesteEnTurno=false;ok=true;message='El Vino celeste convertirá el daño en curación durante tus próximos 2 turnos.';
+      estado.vinoCelesteTurnos=2;estado.vinoCelesteEnTurno=true;estado.vinoCelesteCicloPendiente=false;ok=true;message='El daño entrante se convertirá completamente en curación durante los próximos 2 turnos enemigos.';
     }
     if(ok){agregarRegistro('acierto',message);if(item.id!=='llave-celeste')mostrarAviso('acierto',message);}
     event.detail.result={ok:ok,message:message,consume:consume};
@@ -1597,7 +1690,7 @@
   var imagenDialogoJefeFinal=document.getElementById('dialogoJefeFinal');
   var panelDialogoIntro=document.getElementById('dialogoPanel');
   var botonDialogoIntro=document.getElementById('dialogoContinuar');
-  var dialogoActual=dialogoIntro,alCerrarDialogo=null,dialogoPrimeraVictoriaMostrado=false,dialogoVictoriaFinalMostrado=false;
+  var dialogoActual=dialogoIntro,alCerrarDialogo=null,dialogoPrimeraVictoriaMostrado=false,dialogoVictoriaFinalMostrado=false,avanceEncuentroEnCurso=false;
   function renderizarDialogoIntro(){
     var linea=dialogoActual[indiceDialogoIntro],hablaJugador=linea.speaker==='jugador'||linea.speaker==='pensamiento';
     var apareceJefe=!!linea.mostrarJefe;
@@ -1618,16 +1711,29 @@
   }
   function mostrarDialogoIntro(){
     nivelJugador=1;monedasCelestes=0;fragmentosOscuros=0;recompensasOtorgadas={};dialogoPrimeraVictoriaMostrado=false;dialogoVictoriaFinalMostrado=false;espejoMagicoComprado=false;
+    progresion.puntosAtributo=0;progresion.milestonePendiente=0;progresion.vidaGanada=0;progresion.manaGanado=0;progresion.dadosVida=[];
     estado.bonoTiradasPendiente=0;estado.bonoTiradasActivo=0;estado.vinoCelesteTurnos=0;estado.vinoCelesteEnTurno=false;
     imagenDialogoJugador.src='../pagina-teracia/Sprites/'+razasDemo[jugador.raza].sprite;
-    mostrarDialogoDeAventura(dialogoIntro,function(){dialogoIntroActivo=false;reiniciar();agregarRegistro(null,'Personaje: '+jugador.nombre+' · '+clasesDemo[jugador.clase].nombre+' · '+razasDemo[jugador.raza].nombre+'.');},'Diálogo antes del primer combate');
+    mostrarDialogoDeAventura(dialogoIntro,function(){
+      dialogoIntroActivo=false;
+      reiniciar();
+      agregarRegistro(null,'Personaje: '+jugador.nombre+' · '+clasesDemo[jugador.clase].nombre+' · '+razasDemo[jugador.raza].nombre+'.');
+    },'Diálogo antes del primer combate');
     dialogoIntroActivo=true;
   }
   function avanzarAlEncuentro(indice){
+    if(avanceEncuentroEnCurso||indice<0||indice>=encuentros.length)return;
+    avanceEncuentroEnCurso=true;
+    btnReiniciarVictoria.disabled=true;
+    document.getElementById('cartelVictoria').classList.remove('visible');
     var dialogo=dialogosJefeAntesEncuentro[indice];
-    if(!dialogo){configurarEnemigo(indice);reiniciar();return;}
+    if(!dialogo){try{configurarEnemigo(indice);reiniciar();}finally{avanceEncuentroEnCurso=false;btnReiniciarVictoria.disabled=false;}return;}
     imagenDialogoJugador.src='../pagina-teracia/Sprites/'+razasDemo[jugador.raza].sprite;
-    mostrarDialogoDeAventura(dialogo,function(){dialogoIntroActivo=false;configurarEnemigo(indice);reiniciar();},'Antes del Encuentro '+['I','II','III','IV'][indice]);
+    mostrarDialogoDeAventura(dialogo,function(){
+      dialogoIntroActivo=false;
+      try{configurarEnemigo(indice);reiniciar();}
+      finally{avanceEncuentroEnCurso=false;btnReiniciarVictoria.disabled=false;}
+    },'Antes del Encuentro '+['I','II','III','IV'][indice]);
     dialogoIntroActivo=true;
   }
   function avanzarDialogoIntro(){
@@ -1650,8 +1756,10 @@
     if(!nombre){error.textContent='Escribí el nombre de tu personaje.';error.hidden=false;nombreDemoInput.focus();return;}
     if(!claseDemoSelect.value){error.textContent='Elegí una clase para continuar.';error.hidden=false;claseDemoSelect.focus();return;}
     if(!razaDemoSelect.value){error.textContent='Elegí una raza para continuar.';error.hidden=false;razaDemoSelect.focus();return;}
+    if(!habilidadInicial.value){error.textContent='Elegí la habilidad inicial de tu clase.';error.hidden=false;habilidadInicial.focus();return;}
     error.hidden=true;
     jugador.nombre=nombre;jugador.raza=razaDemoSelect.value;aplicarEscalaRaza(jugador.raza);
+    progresion.habilidades=[Number(habilidadInicial.value)];
     jugador.spriteUrl='../pagina-teracia/Sprites/'+razasDemo[jugador.raza].sprite;
     cargarSprite(jugador);
     // Cerrar la creación antes de actualizar la interfaz secundaria: un fallo
@@ -1684,6 +1792,27 @@
   }
 
   var etiquetaEstados={sueno:'Dormido',fatiga:'Fatigado',veneno:'Veneno',quemadura:'Quemadura',sangrado:'Sangrado',congelacion:'Congelado',electricidad:'Electricidad',confusion:'Confusión',ceguera:'Cegado'};
+  function aplicarEstadoEnemigo(unidad,tipo,turnos){
+    if(!unidad||!unidad.vivo)return false;
+    if(unidad.estadoInmune){agregarRegistro('fallo',unidad.nombre+' es inmune a '+(etiquetaEstados[tipo]||tipo)+'.');return false;}
+    unidad.estados=unidad.estados||{};
+    unidad.estados[tipo]={turnos:Math.max(unidad.estados[tipo]&&unidad.estados[tipo].turnos||0,turnos||1)};
+    if(tipo==='sueno')unidad.dormido=Math.max(unidad.dormido||0,turnos||1);
+    if(tipo==='confusion')unidad.confundido=Math.max(unidad.confundido||0,turnos||1);
+    agregarRegistro('pifia',unidad.nombre+' sufre '+(etiquetaEstados[tipo]||tipo)+' por '+(turnos||1)+' turnos.');
+    if(unidad===enemigo)refrescarEstadoEnemigo();else actualizarFichasAliados();
+    return true;
+  }
+  function procesarEstadoEnemigo(unidad){
+    var quemadura=unidad.estados&&unidad.estados.quemadura;
+    if(!quemadura||quemadura.turnos<=0)return;
+    var recibido=aplicarDanio(unidad,3,false,'fuego');
+    if(recibido)textoFlotante(unidad,'-'+recibido,COL.vino);
+    agregarRegistro('pifia',unidad.nombre+' recibe '+recibido+' de daño por Quemadura al comenzar su turno.');
+    quemadura.turnos--;
+    if(quemadura.turnos<=0)delete unidad.estados.quemadura;
+    if(unidad===enemigo)refrescarEstadoEnemigo();else actualizarFichasAliados();
+  }
   function aplicarEstadoJugador(tipo,turnos){
     if((jugador.raza==='genari'&&tipo==='congelacion')||(jugador.raza==='draconido'&&tipo==='quemadura')){
       agregarRegistro('acierto',jugador.nombre+' es inmune a '+etiquetaEstados[tipo]+'.');
@@ -1738,6 +1867,10 @@
       chip.hidden = false;
       chip.textContent = 'Cegado · ' + turnosCegueraRestantes() + 't';
       chip.className='etiqueta-estado monoesp cegado';
+    } else if(enemigo.estados&&enemigo.estados.quemadura&&enemigo.estados.quemadura.turnos>0){
+      chip.hidden=false;
+      chip.textContent='Quemadura · '+enemigo.estados.quemadura.turnos+'t';
+      chip.className='etiqueta-estado monoesp cegado';
     } else {
       chip.hidden = true;
     }
@@ -1757,20 +1890,20 @@
     var quietoOMoviendo = quieto || estado.fase==='jugador-mover';
     var dormido=!!jugador.estados.sueno, congelado=!!jugador.estados.congelacion;
     var puedeElegir=estado.tiradaAccion!=null && estado.tiradaAccion>=15;
-    btnTiradaAccion.disabled=!quieto || estado.tiradaAccion!=null || dormido;
-    btnMover.disabled = !quietoOMoviendo || estado.tiradaAccion==null || (estado.accionTurno==='atacar') || !puedeMoverDeNuevo() || dormido || congelado;
-    btnAtacar.disabled = (!quieto && !seleccionandoObjetivo) || (!seleccionandoObjetivo && (!puedeElegir || estado.accionTurno==='mover' || !estado.accionMayorLibre)) || dormido || (jugador.clase==='escudero' && jugador.escudoActivo);
+    btnTiradaAccion.disabled=!quieto || estado.tiradaAccion!=null || !estado.accionMayorLibre || estado.accionTurno==='atacar' || dormido;
+    btnMover.disabled = !quietoOMoviendo || (estado.tiradaAccion==null&&estado.accionTurno!=='atacar') || !puedeMoverDeNuevo() || dormido || congelado;
+    btnAtacar.disabled = (!quieto && !seleccionandoObjetivo) || (!seleccionandoObjetivo && (!puedeElegir || !estado.accionMayorLibre)) || dormido || (jugador.clase==='escudero' && jugador.escudoActivo);
     btnAtacar.firstChild.nodeValue=seleccionandoObjetivo?'Cancelar objetivo ':'Atacar ';
     btnDescarga.disabled = jugador.clase==='paladin'
-      ? (!quieto || !puedeElegir || estado.accionTurno==='mover' || !estado.accionMayorLibre || jugador.mana<2 || dormido)
-      : (!quieto || !puedeElegir || estado.accionTurno==='mover' || !estado.accionMayorLibre || jugador.clase==='nigromante' || dormido);
+      ? (!quieto || !puedeElegir || !estado.accionMayorLibre || jugador.mana<2 || dormido)
+      : (!quieto || !puedeElegir || !estado.accionMayorLibre || dormido);
     btnAlientoFuego.hidden=jugador.raza!=='draconido';
-    btnAlientoFuego.disabled=jugador.raza!=='draconido'||jugador.mana<1||!quieto||!puedeElegir||estado.accionTurno==='mover'||!estado.accionMayorLibre||dormido;
+    btnAlientoFuego.disabled=jugador.raza!=='draconido'||jugador.mana<1||!quieto||!puedeElegir||!estado.accionMayorLibre||dormido;
     btnComerCaido.hidden=jugador.raza!=='ogro'||jugador.enemigosCaidosComibles<1;
-    btnComerCaido.disabled=jugador.raza!=='ogro'||jugador.enemigosCaidosComibles<1||!quieto||!puedeElegir||estado.accionTurno==='mover'||!estado.accionMayorLibre||jugador.vida>=jugador.vidaMax||dormido;
-    btnHabilidadClase.disabled = !quieto || !puedeElegir || estado.accionTurno==='mover' || !estado.accionMayorLibre || dormido || (jugador.clase==='escudero' && jugador.escudoActivo);
+    btnComerCaido.disabled=jugador.raza!=='ogro'||jugador.enemigosCaidosComibles<1||!quieto||!puedeElegir||!estado.accionMayorLibre||jugador.vida>=jugador.vidaMax||dormido;
+    btnHabilidadClase.disabled = !quieto || !puedeElegir || !estado.accionMayorLibre || dormido || (jugador.clase==='escudero' && jugador.escudoActivo);
     var apuntandoEscudo=estado.fase==='escudero-apuntando';
-    btnHabilidadClase2.disabled = dormido || congelado || (!quieto && !apuntandoEscudo) || (!apuntandoEscudo && (!puedeElegir || estado.accionTurno==='mover' || !estado.accionMayorLibre)) || jugador.clase==='bardo' || (jugador.clase==='escudero' && !jugador.escudoActivo && jugador.escudoMax>0 && jugador.escudoVida<=0 && !jugador.escudoPerdido);
+    btnHabilidadClase2.disabled = dormido || congelado || (!quieto && !apuntandoEscudo) || (!apuntandoEscudo && (!puedeElegir || !estado.accionMayorLibre)) || jugador.clase==='bardo' || (jugador.clase==='escudero' && !jugador.escudoActivo && jugador.escudoMax>0 && jugador.escudoVida<=0 && !jugador.escudoPerdido);
     btnHabilidadClase2.textContent = jugador.clase==='escudero' && jugador.escudoActivo ? 'Guardar escudo' : jugador.clase==='escudero' && jugador.escudoDireccion ? 'Alzar escudo' : (clasesDemo[jugador.clase]||clasesDemo.paladin).habilidad2;
     var estadoEscudo=document.getElementById('estadoEscudo');
     estadoEscudo.hidden=!(jugador.clase==='escudero' && jugador.escudoActivo);
@@ -1782,6 +1915,7 @@
     btnTerminar.disabled = estado.fase!=='jugador-quieto' && estado.fase!=='jugador-mover';
     btnMover.classList.toggle('activo', estado.fase==='jugador-mover');
     refrescarEstadoEnemigo();
+    actualizarSeleccionTripleFlecha();
     window.actualizarInterfazMesa&&window.actualizarInterfazMesa();
   }
 
@@ -1794,7 +1928,7 @@
     return resultado;
   }
   btnTiradaAccion.addEventListener('click',function(){
-    if(estado.fase!=='jugador-quieto'||estado.tiradaAccion!=null||jugador.estados.sueno)return;
+    if(estado.fase!=='jugador-quieto'||estado.tiradaAccion!=null||!estado.accionMayorLibre||estado.accionTurno==='atacar'||jugador.estados.sueno)return;
     estado.tiradaAccion=tirarD20Jugador();
     estado.ultimaTiradaAccion=estado.tiradaAccion;
     estado.accionTurno=null;
@@ -1808,9 +1942,14 @@
 
   // texto de ayuda del banner de turno
   function refrescarPista(){
-    if(estado.fase==='jugador-seleccionar-objetivo') turnoPista.textContent='Elegí un enemigo marcado en rojo para atacarlo, o cancelá la selección';
+    if(estado.fase==='jugador-seleccionar-objetivo') turnoPista.textContent=(estado.pistaObjetivoPendiente||'Elegí un enemigo marcado en rojo para atacarlo')+' · podés cancelar con Escape';
+    else if(estado.fase==='alma-turno') turnoPista.textContent='Turno del Alma menor: elegí mover, atacar cuerpo a cuerpo o terminar su turno.';
+    else if(estado.fase==='alma-mover') turnoPista.textContent='Elegí una casilla libre para el Alma menor; el movimiento se resuelve con D20.';
+    else if(estado.fase==='alma-atacar') turnoPista.textContent='Elegí un enemigo adyacente; el Alma menor atacará con D20 y daño D4.';
+    else if(estado.fase==='arquero-seleccionar-triple') turnoPista.textContent='Marcá hasta 3 enemigos distintos alineados y confirmá la Triple flecha.';
     else if(estado.fase==='escudero-apuntando') turnoPista.textContent='Elegí una casilla para orientar el escudo; no consume una acción';
-    else if(estado.fase==='jugador-quieto' && jugador.estados.sueno) turnoPista.textContent='Estás dormido: perdés este turno. Terminá el turno para continuar.';
+    else if(estado.fase==='jugador-dormido') turnoPista.textContent='Estás dormido · tu turno se saltea automáticamente';
+    else if(estado.fase==='jugador-quieto' && jugador.estados.sueno) turnoPista.textContent='Estás dormido: no podés actuar hasta despertar.';
     else if(estado.fase==='jugador-quieto' && jugador.estados.congelacion) turnoPista.textContent='Estás congelado: no podés moverte este turno.';
     else if (estado.fase==='jugador-mover'){
       if (jugador.caido) turnoPista.textContent = 'Estás caído — elegí una casilla y tirá; si sale, te levantás en el lugar (sin moverte)';
@@ -1823,7 +1962,8 @@
     else if (estado.fase==='fin') turnoPista.textContent = 'Combate terminado';
     else if (estado.tiradaAccion==null) turnoPista.textContent = 'Tirá el D20 de acción para elegir entre moverte o atacar';
     else if (estado.tiradaAccion<15) turnoPista.textContent = 'Sacaste '+estado.tiradaAccion+' · este turno solo podés moverte';
-    else if (estado.accionTurno==='mover') turnoPista.textContent = 'Elegiste moverte · esta tirada ya no se puede usar para atacar';
+    else if (estado.accionTurno==='mover' && estado.movsHechos===1 && estado.accionMayorLibre) turnoPista.textContent = 'Te moviste una vez · todavía podés atacar o moverte de nuevo';
+    else if (estado.accionTurno==='mover') turnoPista.textContent = 'Elegiste moverte';
     else if (estado.accionTurno==='atacar') turnoPista.textContent = 'Elegiste atacar · la tirada del dado resolvió tu ataque';
     else if (estado.movsHechos===1 && estado.accionMayorLibre) turnoPista.textContent = 'Sacaste '+estado.tiradaAccion+' · podés moverte de nuevo o atacar con esta tirada';
     else if(estado.tiradaAccion!=null) turnoPista.textContent = 'Sacaste '+estado.tiradaAccion+' · elegí moverte o atacar';
@@ -1833,7 +1973,7 @@
   // ---- botón Mover: entra/sale del modo de elegir casilla ----
   btnMover.addEventListener('click', function(){
     if (!puedeMoverDeNuevo()) return;
-    if(estado.tiradaAccion==null||estado.accionTurno==='atacar')return;
+    if(estado.tiradaAccion==null&&estado.accionTurno!=='atacar')return;
     estado.accionTurno='mover';
     if (estado.fase==='jugador-mover'){
       estado.fase = 'jugador-quieto';
@@ -1847,8 +1987,23 @@
   function cancelarSeleccionObjetivo(){
     estado.objetivosAtaquePendientes=null;
     estado.objetivoAtaqueHover=null;
+    estado.accionAlElegirObjetivo=null;
+    estado.pistaObjetivoPendiente=null;
     estado.fase='jugador-quieto';
     refrescarBotones();refrescarPista();
+  }
+  function pedirObjetivoEnemigo(objetivos,alElegir,mensaje){
+    objetivos=(objetivos||[]).filter(function(u){return u&&u.vivo;});
+    if(!objetivos.length)return false;
+    if(objetivos.length===1){alElegir(objetivos[0]);return true;}
+    estado.objetivosAtaquePendientes=objetivos.slice();
+    estado.objetivoAtaqueHover=null;
+    estado.accionAlElegirObjetivo=alElegir;
+    estado.pistaObjetivoPendiente=mensaje||'Elegí un enemigo marcado en rojo.';
+    estado.fase='jugador-seleccionar-objetivo';
+    agregarRegistro(null,mensaje||'Hay varios enemigos en alcance. Elegí a quién atacar.');
+    refrescarBotones();refrescarPista();
+    return true;
   }
   function objetivoAtaqueEnPixel(x,y,casilla){
     var objetivos=(estado.objetivosAtaquePendientes||[]).filter(function(u){return u.vivo;});
@@ -1896,7 +2051,7 @@
         agregarRegistro('chico','El Bastón marca '+nuevas+' casillas con 🜏. Un enemigo que las pise recibe 3 de daño eléctrico.');
       };
     }else if(arma&&arma.id==='lanza-celeste'){
-      opciones={formulaDanio:{dadosPoliedricos:[4,4],fijo:0},tipoDanio:'fuego',textoAccion:'ataca con la Lanza celeste (2D4 de fuego)'};
+      opciones={formulaDanio:{dadosPoliedricos:[4,4],fijo:0},tipoDanio:'fuego',efecto:{tipo:'quemadura',turnos:2},textoAccion:'ataca con la Lanza celeste (2D4 de fuego)'};
     }else if(arma&&arma.id==='ballesta-celeste'){
       opciones={formulaDanio:{dadosPoliedricos:[6,4],fijo:0},textoAccion:'dispara la Ballesta celeste (D6 + D4)'};
     }else if(arma&&arma.id==='lyra-celeste'){
@@ -1911,21 +2066,14 @@
     }, opciones);
   }
 
-  // ---- botón Atacar: el Paladín elige un único objetivo de su área 3x3 ----
+  // ---- botón Atacar: un ataque básico siempre elige un único objetivo ----
   btnAtacar.addEventListener('click', function(){
     if(estado.fase==='jugador-seleccionar-objetivo'){cancelarSeleccionObjetivo();return;}
-    if (!estado.accionMayorLibre || estado.tiradaAccion==null || estado.tiradaAccion<15 || estado.accionTurno==='mover') return;
+    if (!estado.accionMayorLibre || estado.tiradaAccion==null || estado.tiradaAccion<15) return;
     var objetivos = enemigosEnRangoCuerpoACuerpo(jugador);
     if (!objetivos.length){ agregarRegistro(null, 'Nadie está en tu área 3x3 todavía — movete más cerca.'); return; }
-    if(jugador.clase==='paladin' && objetivos.length>1){
-      estado.objetivosAtaquePendientes=objetivos.slice();
-      estado.objetivoAtaqueHover=null;
-      estado.fase='jugador-seleccionar-objetivo';
-      agregarRegistro(null,'Hay varios enemigos en tu alcance. Elegí a quién atacar.');
-      refrescarBotones();refrescarPista();
-      return;
-    }
-    resolverAtaqueBasico(jugador.clase==='paladin'?[objetivos[0]]:objetivos);
+    if(!pedirObjetivoEnemigo(objetivos,function(objetivo){resolverAtaqueBasico([objetivo]);},'Hay varios enemigos en alcance. Elegí a quién atacar.'))
+      agregarRegistro(null,'Nadie está en alcance todavía — acercate o elegí un objetivo válido.');
   });
 
   // ---- botón Descarga: ataque eléctrico de un solo uso (usa Fe) ----
@@ -1942,7 +2090,7 @@
         if (terminado) return;
         estado.fase='jugador-quieto'; refrescarBotones(); refrescarPista();
       });
-    }, { electrico:true, statUmbral:'fe', nombreHabilidad:'Descarga' });
+    }, { electrico:true, multiObjetivo:true, statUmbral:'fe', nombreHabilidad:'Descarga' });
   });
 
   btnAlientoFuego.addEventListener('click',function(){
@@ -1956,7 +2104,7 @@
     if(!objetivos.length){agregarRegistro(null,'No hay enemigos en el área del Aliento de fuego.');return;}
     jugador.mana--;refrescarMana();estado.accionMayorLibre=false;estado.fase='anim';refrescarBotones();
     resolverAtaqueArea(jugador,objetivos,function(){chequearFinDelCombate(function(terminado){if(terminado)return;estado.fase='jugador-quieto';refrescarBotones();refrescarPista();});},
-      {nombreHabilidad:'Aliento de fuego',textoAccion:'exhala fuego hasta 3 casillas, en un área de 3 de ancho',formulaDanio:{dados:0,caras:0,fijo:4},tipoDanio:'fuego'});
+      {nombreHabilidad:'Aliento de fuego',textoAccion:'exhala fuego hasta 3 casillas, en un área de 3 de ancho',formulaDanio:{dados:0,caras:0,fijo:4},tipoDanio:'fuego',efecto:{tipo:'quemadura',turnos:2},multiObjetivo:true});
   });
   btnComerCaido.addEventListener('click',function(){
     if(jugador.raza!=='ogro'||jugador.enemigosCaidosComibles<1||jugador.vida>=jugador.vidaMax||!estado.accionMayorLibre)return;
@@ -1976,6 +2124,26 @@
   function objetivoEnRango(casillas){
     return distChebyshev(jugador,enemigo)<=casillas;
   }
+  var btnConfirmarTripleFlecha=document.getElementById('btnConfirmarTripleFlecha');
+  function actualizarSeleccionTripleFlecha(){
+    if(!btnConfirmarTripleFlecha)return;
+    btnConfirmarTripleFlecha.hidden=estado.fase!=='arquero-seleccionar-triple';
+    btnConfirmarTripleFlecha.disabled=estado.objetivosTripleFlecha.length===0;
+    btnConfirmarTripleFlecha.textContent='Confirmar Triple flecha ('+estado.objetivosTripleFlecha.length+'/3)';
+  }
+  function ejecutarTripleFlecha(){
+    var objetivos=estado.objetivosTripleFlecha.filter(function(u){return u.vivo;});
+    if(!objetivos.length)return;
+    estado.objetivosTripleFlecha=[];estado.fase='anim';actualizarSeleccionTripleFlecha();comenzarHabilidadClase();
+    var tirada=consumirTiradaAccion(),tramo=tramoResultado(tirada),umbral=umbralAtaque(jugador,'destreza');
+    textoFlotante(jugador,'D20 '+tirada,colorTramo(tramo));
+    if(tirada<=5){agregarRegistro('pifia','Triple flecha falla con un fallo crítico (D20 '+tirada+').');resolverContraataque(jugador,objetivos[0],cerrarAccionDeClase);return;}
+    if(tirada<umbral){agregarRegistro(tramo,'Triple flecha falla (D20 '+tirada+', necesita '+umbral+'+).');setTimeout(cerrarAccionDeClase,450);return;}
+    objetivos.forEach(function(objetivo){var danio=tirarDanio(jugador);if(tramo==='critico')danio*=2;var recibido=aplicarDanio(objetivo,danio,false,'fisico');textoFlotante(objetivo,'-'+recibido,COL.vino);});
+    agregarRegistro(tramo,'Triple flecha impacta a '+objetivos.length+' objetivo(s) distinto(s): '+objetivos.map(function(u){return u.nombre;}).join(', ')+'. Cada objetivo recibe una sola flecha; ninguna flecha se concentra.');
+    chequearFinDelCombate(function(terminado){if(!terminado)setTimeout(cerrarAccionDeClase,400);});
+  }
+  btnConfirmarTripleFlecha.addEventListener('click',ejecutarTripleFlecha);
 
   btnHabilidadClase.addEventListener('click',function(){
     if (!estado.accionMayorLibre || !hayEnemigosVivos()) return;
@@ -2012,13 +2180,14 @@
     }
     if(jugador.clase==='nigromante'){
       comenzarHabilidadClase();
-      resolverAtaqueArea(jugador,unidadesEnemigas().filter(function(u){return u.vivo;}),cerrarAccionDeClase,{statUmbral:'inteligencia',formulaDanio:{dados:1,caras:6,fijo:0},textoAccion:'lanza el Necronomicón a todo el escenario'});
+      resolverAtaqueArea(jugador,unidadesEnemigas().filter(function(u){return u.vivo;}),cerrarAccionDeClase,{statUmbral:'inteligencia',formulaDanio:{dados:1,caras:6,fijo:0},textoAccion:'lanza el Necronomicón a todo el escenario',multiObjetivo:true});
       return;
     }
     if(jugador.clase==='arquero'){
-      if(objetivo.c!==jugador.c && objetivo.r!==jugador.r){agregarRegistro(null,'La Triple flecha solo viaja en línea recta: alineate con el objetivo.');return;}
-      comenzarHabilidadClase();
-      resolverAtaqueArea(jugador,[objetivo],cerrarAccionDeClase,{statUmbral:'destreza',textoAccion:'dispara hasta 3 flechas en el mismo eje'});
+      var alineados=unidadesEnemigas().filter(function(u){return u.vivo&&((u.c===jugador.c&&objetivo.c===jugador.c)||(u.r===jugador.r&&objetivo.r===jugador.r));});
+      if(!alineados.length){agregarRegistro(null,'La Triple flecha necesita enemigos alineados en la misma fila o columna.');return;}
+      estado.objetivosTripleFlecha=[];estado.alcance=alineados;estado.fase='arquero-seleccionar-triple';actualizarSeleccionTripleFlecha();
+      agregarRegistro(null,'Elegí hasta 3 enemigos distintos en la línea recta. Cada objetivo solo puede recibir una flecha.');refrescarBotones();refrescarPista();
     }
   });
 
@@ -2058,14 +2227,17 @@
       refrescarBotones();refrescarPista();return;
     }
     if(jugador.clase==='arquero'){
-      comenzarHabilidadClase();
-      resolverAtaqueArea(jugador,[objetivo],cerrarAccionDeClase,{statUmbral:'perspicacia',formulaDanio:{dados:1,caras:8,fijo:0},textoAccion:'lanza Flecha bomba (D8 en área 3×3)'});
+      pedirObjetivoEnemigo(unidadesEnemigas().filter(function(u){return u.vivo;}),function(centro){
+        comenzarHabilidadClase();
+        var objetivosArea=unidadesEnemigas().filter(function(u){return u.vivo&&distChebyshev(u,centro)<=1;});
+        resolverAtaqueArea(jugador,objetivosArea,cerrarAccionDeClase,{statUmbral:'perspicacia',formulaDanio:{dados:1,caras:8,fijo:0},textoAccion:'lanza Flecha bomba (D8 en área 3×3)',multiObjetivo:true});
+      },'Elegí el enemigo que será el centro de Flecha bomba.');
     }
   });
 
-  function ejecutarHabilidadClaseExtra(numero){
+  function ejecutarHabilidadClaseExtra(numero,objetivoForzado){
     if(!estado.accionMayorLibre || !hayEnemigosVivos()) return;
-    var objetivo=objetivoEnemigoPrincipal();
+    var objetivo=objetivoForzado||objetivoEnemigoPrincipal();
     if(jugador.clase==='escudero' && numero===3){
       if(!jugador.escudoActivo || !enemigoEstaFrenteAlEscudo(objetivo)){agregarRegistro(null,'Separación requiere el escudo alzado y un enemigo sobre su frente.');return;}
       comenzarHabilidadClase();
@@ -2092,6 +2264,7 @@
       setTimeout(cerrarAccionDeClase,450);return;
     }
     if(jugador.clase==='arquero' && numero===3){
+      if(!objetivoForzado){pedirObjetivoEnemigo(unidadesEnemigas().filter(function(u){return u.vivo;}),function(elegido){ejecutarHabilidadClaseExtra(numero,elegido);},'Elegí el enemigo al que apuntar con Tiro certero.');return;}
       comenzarHabilidadClase();
       resolverAtaqueArea(jugador,[objetivo],cerrarAccionDeClase,{statUmbral:'perspicacia',textoAccion:'usa Tiro certero, que ignora armadura'});return;
     }
@@ -2106,9 +2279,16 @@
       });return;
     }
     if(jugador.clase==='arquero' && numero===4){
+      var objetivosBumeran=unidadesEnemigas().filter(function(u){return u.vivo&&distChebyshev(jugador,u)<=3;});
+      if(!objetivosBumeran.length){agregarRegistro(null,'No hay objetivos dentro del alcance de 3 casillas del Búmeran.');return;}
+      if(!objetivoForzado){pedirObjetivoEnemigo(objetivosBumeran,function(elegido){ejecutarHabilidadClaseExtra(numero,elegido);},'Elegí a qué enemigo lanzar el Búmeran.');return;}
       if(distChebyshev(jugador,objetivo)>3){agregarRegistro(null,'Búmeran tiene alcance de 3 casillas.');return;}
       comenzarHabilidadClase();
       resolverAtaqueArea(jugador,[objetivo],cerrarAccionDeClase,{statUmbral:'destreza',formulaDanio:{dados:2,caras:4,fijo:0},textoAccion:'lanza el Búmeran (2D4)'});return;
+    }
+    if(jugador.clase==='nigromante' && numero===3){
+      agregarRegistro(null,'Resurrección solo puede revivir a otro personaje jugador. El Alma menor no es un jugador y en esta demo individual no hay otro personaje objetivo; no se consume el turno ni maná.');
+      return;
     }
     if(jugador.clase==='nigromante' && numero===4){
       estado.fase='nigromante-proyeccion';
@@ -2157,23 +2337,38 @@
   });
 
   function terminarTurnoJugador(){
+    clearTimeout(temporizadorSuenoJugador);temporizadorSuenoJugador=null;
     reducirEstadosJugador();
-    if(estado.vinoCelesteEnTurno&&estado.vinoCelesteTurnos>0){estado.vinoCelesteTurnos--;estado.vinoCelesteEnTurno=false;if(!estado.vinoCelesteTurnos)agregarRegistro(null,'El efecto del Vino celeste termina.');}
+    if(estado.vinoCelesteTurnos>0)estado.vinoCelesteCicloPendiente=true;
     estado.bonoTiradasActivo=0;
     estado.fase = 'turno-enemigo';
     estado.alcance = [];
     refrescarBotones(); refrescarPista();
-    actuarAlmaMenor(function(){chequearFinDelCombate(function(terminado){if(!terminado)pasarAlSiguienteTurno();});});
+    if(almaMenor&&almaMenor.vivo){iniciarTurnoAlma();return;}
+    chequearFinDelCombate(function(terminado){if(!terminado)pasarAlSiguienteTurno();});
   }
 
-  function actuarAlmaMenor(alTerminar){
-    if(!almaMenor || !almaMenor.vivo || !enemigo.vivo){ alTerminar(); return; }
-    var danio=tirarDado(4);
-    aplicarDanio(enemigo,danio);
-    textoFlotante(enemigo,'-'+danio,COL.electricidad);
-    agregarRegistro('acierto','El alma menor actúa después del Nigromante y golpea por '+danio+' (D4).');
-    setTimeout(alTerminar,400);
+  function iniciarTurnoAlma(){
+    estado.fase='alma-turno';estado.alcance=[];estado.accionAlma=null;
+    turnoQuien.textContent='Turno del Alma menor';turnoQuien.className='quien monoesp jugador';
+    document.getElementById('turnoAlma').hidden=false;refrescarBotones();refrescarPista();
+    agregarRegistro('acierto','El Alma menor tiene un turno controlado por vos: elegí moverse o atacar.');
   }
+  function terminarTurnoAlma(){
+    document.getElementById('turnoAlma').hidden=true;estado.alcance=[];estado.accionAlma=null;estado.fase='turno-enemigo';
+    chequearFinDelCombate(function(terminado){if(!terminado)pasarAlSiguienteTurno();});
+  }
+  document.getElementById('almaMover').addEventListener('click',function(){
+    if(estado.fase!=='alma-turno'||!almaMenor||!almaMenor.vivo)return;
+    estado.fase='alma-mover';estado.accionAlma='mover';estado.alcance=calcularAlcance(almaMenor);refrescarPista();
+  });
+  document.getElementById('almaAtacar').addEventListener('click',function(){
+    if(estado.fase!=='alma-turno'||!almaMenor||!almaMenor.vivo)return;
+    estado.fase='alma-atacar';estado.accionAlma='atacar';estado.alcance=unidadesEnemigas().filter(function(u){return u.vivo&&distChebyshev(almaMenor,u)<=1;});
+    if(!estado.alcance.length){estado.fase='alma-turno';agregarRegistro(null,'El Alma menor necesita estar cuerpo a cuerpo para atacar.');return;}
+    refrescarPista();
+  });
+  document.getElementById('almaTerminar').addEventListener('click',terminarTurnoAlma);
 
   // Si el personaje tiene una tirada de muerte pendiente, la resuelve primero
   // (puede tardar unos segundos). Al terminar, muestra el
@@ -2195,16 +2390,16 @@
         imagenDialogoJugador.src='../pagina-teracia/Sprites/'+razasDemo[jugador.raza].sprite;
         mostrarDialogoDeAventura(dialogoPrimeraVictoria,function(){
           dialogoIntroActivo=false;
-          mostrarTienda(function(){document.getElementById('cartelVictoria').classList.add('visible');});
+          mostrarTienda(function(){document.getElementById('cartelVictoria').classList.add('visible');mostrarProgreso();});
         },'Después de la primera victoria');
         dialogoIntroActivo=true;
       }else if(encuentroActual===encuentros.length-1&&!dialogoVictoriaFinalMostrado){
         dialogoVictoriaFinalMostrado=true;
         imagenDialogoJugador.src='../pagina-teracia/Sprites/'+razasDemo[jugador.raza].sprite;
         imagenDialogoAldeano.hidden=false;
-        mostrarDialogoDeAventura(dialogoVictoriaFinal,function(){dialogoIntroActivo=false;document.getElementById('cartelVictoria').classList.add('visible');},'Celebración del pueblo después de la victoria final');
+        mostrarDialogoDeAventura(dialogoVictoriaFinal,function(){dialogoIntroActivo=false;document.getElementById('cartelVictoria').classList.add('visible');mostrarProgreso();},'Celebración del pueblo después de la victoria final');
         dialogoIntroActivo=true;
-      }else document.getElementById('cartelVictoria').classList.add('visible');
+      }else{document.getElementById('cartelVictoria').classList.add('visible');mostrarProgreso();}
       callback(true);
       return;
     }
@@ -2221,7 +2416,17 @@
     if(recompensasOtorgadas[encuentroActual])return;
     recompensasOtorgadas[encuentroActual]=true;
     var nivelesGanados=encuentroActual===0?4:5;
+    var nivelAnterior=nivelJugador;
     nivelJugador+=nivelesGanados;
+    var cantidadDados=encuentroActual===0?4:5,dadosVida=[],vidaExtra=0;
+    for(var i=0;i<cantidadDados;i++){var resultadoVida=tirarDado(jugador.clase==='escudero'?10:6);dadosVida.push(resultadoVida);vidaExtra+=resultadoVida;}
+    jugador.vidaMax+=vidaExtra;jugador.vida=Math.min(jugador.vidaMax,jugador.vida+vidaExtra);
+    jugador.manaMax+=1;jugador.mana=Math.min(jugador.mana,jugador.manaMax);
+    progresion.puntosAtributo+=(encuentroActual===0?4:5)*(jugador.clase==='bardo'?2:1);
+    var hitos=[5,10,15].filter(function(nivel){return nivel>nivelAnterior&&nivel<=nivelJugador;});
+    progresion.milestonePendiente=hitos.length?hitos[0]:0;
+    progresion.vidaGanada=vidaExtra;progresion.manaGanado=1;progresion.dadosVida=dadosVida;
+    refrescarVida();refrescarMana();
     monedasCelestes++;
     fragmentosOscuros++;
     window.actualizarInterfazMesa&&window.actualizarInterfazMesa();
@@ -2234,9 +2439,37 @@
       description:'Fragmento oscuro que el enemigo deja al caer. Su propósito todavía es un misterio.'
     },fragmentosOscuros);
     var textoVictoria=document.querySelector('#cartelVictoria p');
-    if(textoVictoria)textoVictoria.textContent='¡Victoria! Ganaste '+nivelesGanados+' niveles, 1 Moneda celeste y 1 Fragmento oscuro. Nivel actual: '+nivelJugador+' · Monedas celestes: '+monedasCelestes+' · Fragmentos oscuros: '+fragmentosOscuros+'.';
-    agregarRegistro('acierto','Recompensa del Encuentro '+['I','II','III','IV'][encuentroActual]+': +'+nivelesGanados+' niveles, +1 Moneda celeste y +1 Fragmento oscuro. Nivel '+nivelJugador+'.');
+    if(textoVictoria)textoVictoria.textContent='¡Victoria! +'+nivelesGanados+' niveles ('+nivelAnterior+' → '+nivelJugador+'), vida máxima +'+vidaExtra+' ('+dadosVida.join(' + ')+'), maná máximo +1, '+progresion.puntosAtributo+' puntos de atributo, 1 Moneda celeste y 1 Fragmento oscuro.';
+    agregarRegistro('acierto','Recompensa del Encuentro '+['I','II','III','IV'][encuentroActual]+': +'+nivelesGanados+' niveles, vida máxima +'+vidaExtra+' por tiradas '+dadosVida.join(', ')+', maná máximo +1, '+progresion.puntosAtributo+' puntos de atributo, +1 Moneda celeste y +1 Fragmento oscuro. Nivel '+nivelJugador+'.');
   }
+
+  function mostrarProgreso(){
+    if(!progresion.puntosAtributo&&!progresion.milestonePendiente)return;
+    var overlay=document.getElementById('progresoCampania'),selector=document.getElementById('progresoHabilidad'),wrap=document.getElementById('progresoHabilidadWrap');
+    var resumen='Ganaste '+progresion.vidaGanada+' de vida máxima ('+(progresion.dadosVida||[]).join(' + ')+') y +'+progresion.manaGanado+' al máximo de maná.';
+    document.getElementById('progresoResumen').textContent=resumen;
+    selector.replaceChildren();
+    if(progresion.milestonePendiente){
+      (habilidadesPorClase[jugador.clase]||[]).forEach(function(nombre,indice){if(progresion.habilidades.includes(indice))return;var opcion=document.createElement('option');opcion.value=String(indice);opcion.textContent=nombre;selector.appendChild(opcion);});
+      wrap.hidden=false;
+      if(!selector.options.length){wrap.hidden=true;progresion.milestonePendiente=0;}
+    }else wrap.hidden=true;
+    var caja=document.getElementById('progresoAtributos');caja.replaceChildren();
+    Object.keys(nombresAtributos).forEach(function(stat){var boton=document.createElement('button');boton.type='button';boton.disabled=progresion.puntosAtributo<=0;boton.innerHTML='<span>'+nombresAtributos[stat]+' · '+jugador[stat]+'</span><b>+1</b>';boton.addEventListener('click',function(){if(!progresion.puntosAtributo)return;jugador[stat]++;progresion.puntosAtributo--;actualizarProgresoAtributos();});caja.appendChild(boton);});
+    actualizarProgresoAtributos();overlay.hidden=false;document.getElementById('progresoContinuar').focus();
+  }
+  function actualizarProgresoAtributos(){
+    document.getElementById('progresoAtributosRestantes').textContent='Puntos de atributo por asignar: '+progresion.puntosAtributo;
+    document.querySelectorAll('#progresoAtributos button').forEach(function(boton){boton.disabled=progresion.puntosAtributo<=0;});
+    document.getElementById('progresoContinuar').disabled=progresion.puntosAtributo>0||(progresion.milestonePendiente>0&&!document.getElementById('progresoHabilidad').value);
+  }
+  document.getElementById('progresoHabilidad').addEventListener('change',actualizarProgresoAtributos);
+  document.getElementById('progresoContinuar').addEventListener('click',function(){
+    var selector=document.getElementById('progresoHabilidad');
+    if(progresion.puntosAtributo>0)return;
+    if(progresion.milestonePendiente){if(!selector.value)return;var indice=Number(selector.value);progresion.habilidades.push(indice);agregarRegistro('acierto','Nivel '+progresion.milestonePendiente+': desbloqueás '+habilidadesPorClase[jugador.clase][indice]+'.');progresion.milestonePendiente=0;actualizarVisibilidadHabilidadesClase();}
+    document.getElementById('progresoCampania').hidden=true;window.actualizarInterfazMesa&&window.actualizarInterfazMesa();refrescarBotones();
+  });
 
   /* ====== bloqueo reactivo (cartel Escudo / Destello / No bloquear) ====== */
   var cartelBloqueo = document.getElementById('cartelBloqueo');
@@ -2245,7 +2478,7 @@
   var btnBloqNada = document.getElementById('btnBloqNada');
 
   // aparece SOLO cuando el enemigo logra un golpe efectivo y al Paladín le queda maná
-  function pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar, atacante, tipoDanio){
+  function pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar, atacante, tipoDanio, efectoAtaque){
     atacante=atacante||enemigo;
     document.getElementById('textoBloqueo').textContent =
       atacante.nombre + ' te pega por ' + danio + (notaCritico ? ' (crítico)' : '') + '. ¿Reaccionás?';
@@ -2259,6 +2492,7 @@
     }
     function comerElGolpe(prefijo){
       agregarRegistro(tramo, (prefijo||'') + texto + '. Impacta por ' + danio + '.' + notaCritico);
+      if(efectoAtaque)aplicarEstadoJugador(efectoAtaque.tipo,efectoAtaque.turnos);
       aplicarDanio(jugador, danio,false,tipoDanio);
       textoFlotante(jugador, '-'+danio, COL.vino);
       setTimeout(alTerminar, 500);
@@ -2295,9 +2529,28 @@
   }
 
   // el enemigo tira su ataque contra el jugador
+  function enemigoAtacaAlAlma(alTerminar,garantizado,atacante,opcionesAtaque){
+    opcionesAtaque=opcionesAtaque||{};var tirada=tirarD20(),tramo=tramoResultado(tirada);
+    var umbral=umbralAtaque(atacante,opcionesAtaque.statAtaque||'fuerza')+penalizacionCeguera(atacante);
+    var exito=!!garantizado||((tirada>=umbral)&&(tramo==='acierto'||tramo==='critico'||(tramo==='chico'&&umbral<=10)));
+    textoFlotante(atacante,'D20 '+tirada,colorTramo(tramo));
+    if(!exito){agregarRegistro(tramo,atacante.nombre+' ataca al Alma menor (D20 '+tirada+'). No conecta.');setTimeout(alTerminar,450);return;}
+    var danio=tirarDanio(atacante);if(tramo==='critico')danio*=2;
+    aplicarDanio(almaMenor,danio,false,tipoDanioDeUnidad(atacante,opcionesAtaque.tipoDanio));
+    textoFlotante(almaMenor,'-'+danio,COL.vino);
+    agregarRegistro(tramo,atacante.nombre+' prioriza al Alma menor y le inflige '+danio+' de daño'+(tramo==='critico'?' crítico.':'.'));
+    setTimeout(alTerminar,500);
+  }
   function enemigoAtacaAlJugador(alTerminar, garantizado, unidadAtacante, opcionesAtaque){
     var atacante=unidadAtacante||enemigo;
     opcionesAtaque=opcionesAtaque||{};
+    if(almaMenor&&almaMenor.vivo){
+      var distanciaAlma=distChebyshev(atacante,almaMenor),distanciaJugador=distChebyshev(atacante,jugador);
+      var alcanceAlma=atacante.estiloAtaque==='3×3'?distanciaAlma<=3:esAdyacente(atacante,almaMenor);
+      var alcanceJugador=atacante.estiloAtaque==='3×3'?distanciaJugador<=3:esAdyacente(atacante,jugador);
+      if(alcanceAlma&&alcanceJugador)return enemigoAtacaAlAlma(alTerminar,garantizado,atacante,opcionesAtaque);
+      if(alcanceAlma&&!alcanceJugador)return enemigoAtacaAlAlma(alTerminar,garantizado,atacante,opcionesAtaque);
+    }
     var tirada = tirarD20();
     var tramo = tramoResultado(tirada);
     var umbral = umbralAtaque(atacante, opcionesAtaque.statAtaque||'fuerza') + penalizacionCeguera(atacante);
@@ -2339,15 +2592,16 @@
       textoFlotante(jugador,'D20 '+tiradaSalvacion,colorTramo(tramoResultado(tiradaSalvacion)));
       if(tiradaSalvacion>=umbralSalvacion){
         agregarRegistro('acierto',jugador.nombre+' supera la salvación de '+(opcionesAtaque.nombre||'el ataque')+' (D20 '+tiradaSalvacion+'). Evita el daño.');
+        mostrarAviso('acierto','Salvación superada · D20 '+tiradaSalvacion+' · evitás '+(opcionesAtaque.nombre||'el ataque'));
         setTimeout(alTerminar,500);return;
       }
       agregarRegistro('pifia',jugador.nombre+' falla la salvación (D20 '+tiradaSalvacion+', necesita '+umbralSalvacion+'+).');
+      mostrarAviso('pifia','Salvación fallida · D20 '+tiradaSalvacion+' · el ataque impacta');
     }
-    if(opcionesAtaque.efecto) aplicarEstadoJugador(opcionesAtaque.efecto.tipo,opcionesAtaque.efecto.turnos);
-
     if(jugador.clase==='escudero' && jugador.escudoActivo && enemigoEstaFrenteAlEscudo(atacante)){
-      jugador.escudoVida=Math.max(0,jugador.escudoVida-danio);
-      agregarRegistro('acierto','El escudo frontal recibe '+danio+' de daño'+(jugador.escudoVida===0?' y se rompe.':' ('+jugador.escudoVida+' de vida restante).'));
+      var danioAlEscudo=tramo==='critico'?Math.floor(danio/2):danio;
+      jugador.escudoVida=Math.max(0,jugador.escudoVida-danioAlEscudo);
+      agregarRegistro('acierto','El escudo frontal bloquea el golpe, sus críticos y sus efectos de estado. Recibe '+danioAlEscudo+' de daño normal'+(tramo==='critico'?' (el crítico no multiplica el daño del escudo)':'')+(jugador.escudoVida===0?' y se rompe.':' ('+jugador.escudoVida+' de vida restante).'));
       if(jugador.escudoVida===0) jugador.escudoActivo=false;
       refrescarBotones();
       setTimeout(alTerminar,500); return;
@@ -2355,6 +2609,7 @@
 
     if(jugador.clase!=='paladin'){
       agregarRegistro(tramo,texto+'. Impacta por '+danio+'.'+notaCritico);
+      if(opcionesAtaque.efecto)aplicarEstadoJugador(opcionesAtaque.efecto.tipo,opcionesAtaque.efecto.turnos);
       aplicarDanio(jugador,danio,false,tipoDanio); textoFlotante(jugador,'-'+danio,COL.vino);
       setTimeout(alTerminar,500); return;
     }
@@ -2362,12 +2617,13 @@
     if (jugador.mana < 1){
       // sin maná no hay nada que elegir: el golpe entra
       agregarRegistro(tramo, texto+'. Impacta por '+danio+'.'+notaCritico);
+      if(opcionesAtaque.efecto)aplicarEstadoJugador(opcionesAtaque.efecto.tipo,opcionesAtaque.efecto.turnos);
       aplicarDanio(jugador, danio,false,tipoDanio);
       textoFlotante(jugador, '-'+danio, COL.vino);
       setTimeout(alTerminar, 500);
       return;
     }
-    setTimeout(function(){ pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar, atacante,tipoDanio); }, 350);
+    setTimeout(function(){ pedirBloqueo(danio, tramo, texto, notaCritico, alTerminar, atacante,tipoDanio,opcionesAtaque.efecto); }, 350);
   }
 
   function enemigoAtacaYCierra(alTerminar){
@@ -2485,20 +2741,23 @@
   function ejecutarTurnoAliado(aliado){
     if(!aliado.vivo || !jugador.vivo){terminarTurnoEnemigo();return;}
     function cerrar(){chequearFinDelCombate(function(terminado){if(!terminado)terminarTurnoEnemigo();});}
-    if(jugador.raza==='enano'&&distChebyshev(aliado,jugador)>4){agregarRegistro('chico',aliado.nombre+' todavía no fija al Enano: está fuera de su zona de 4 casillas.');cerrar();return;}
+    procesarEstadoEnemigo(aliado);
+    if(!aliado.vivo){cerrar();return;}
     if(aliado.dormido>0){aliado.dormido--;agregarRegistro('chico',aliado.nombre+' pierde su turno dormido.');cerrar();return;}
-    if(esAdyacente(aliado,jugador)){enemigoAtacaAlJugador(cerrar,false,aliado);return;}
+    if(esAdyacente(aliado,jugador)||(almaMenor&&almaMenor.vivo&&esAdyacente(aliado,almaMenor))){enemigoAtacaAlJugador(cerrar,false,aliado);return;}
     var opciones=calcularAlcance(aliado).filter(function(t){return !casillaOcupada(t.c,t.r);});
     if(!opciones.length){cerrar();return;}
     opciones.sort(function(a,b){return distChebyshev(a,jugador)-distChebyshev(b,jugador);});
     enemigoIntentaMover(opciones[0],function(){
-      if(esAdyacente(aliado,jugador))enemigoAtacaAlJugador(cerrar,false,aliado);else cerrar();
+      if(esAdyacente(aliado,jugador)||(almaMenor&&almaMenor.vivo&&esAdyacente(aliado,almaMenor)))enemigoAtacaAlJugador(cerrar,false,aliado);else cerrar();
     },0,false,aliado);
   }
 
   function enemigoTieneAlcanceDeAtaque(){
     var distancia=distChebyshev(enemigo,jugador);
-    return enemigo.estiloAtaque==='3×3' ? distancia<=3 : esAdyacente(enemigo,jugador);
+    var jugadorEnRango=enemigo.estiloAtaque==='3×3'?distancia<=3:esAdyacente(enemigo,jugador);
+    var almaEnRango=almaMenor&&almaMenor.vivo&&(enemigo.estiloAtaque==='3×3'?distChebyshev(enemigo,almaMenor)<=3:esAdyacente(enemigo,almaMenor));
+    return jugadorEnRango||almaEnRango;
   }
 
   var efectosMagoDemo=[
@@ -2557,9 +2816,9 @@
     var zona=estado.zonaVeneno;estado.zonaVeneno=null;
     if(distChebyshev(jugador,zona)>1){agregarRegistro('acierto','Esquivás la zona de Veneno que había sido anunciada.');return true;}
     var tirada=tirarD20Jugador(),umbral=10-Math.min(2,Math.max(0,Math.floor((jugador.fe||0)/5)));
-    if(tirada>=umbral){agregarRegistro('acierto','La salvación D20 '+tirada+' evita el mortero de Veneno.');return true;}
+    if(tirada>=umbral){agregarRegistro('acierto','La salvación D20 '+tirada+' evita el mortero de Veneno.');mostrarAviso('acierto','Salvación superada · evitás el mortero de Veneno');return true;}
     var danio=tirarDado(4)+tirarDado(6);aplicarDanio(jugador,danio);textoFlotante(jugador,'-'+danio,COL.vino);
-    aplicarEstadoJugador('veneno',3);agregarRegistro('pifia','El mortero de Veneno impacta: D4+D6 = '+danio+' y aplica Veneno por 3 turnos.');
+    aplicarEstadoJugador('veneno',3);agregarRegistro('pifia','El mortero de Veneno impacta: D4+D6 = '+danio+' y aplica Veneno por 3 turnos.');mostrarAviso('pifia','Salvación fallida · mortero de Veneno impacta');
     return true;
   }
   function esqueletoAsalta(alTerminar){
@@ -2593,6 +2852,7 @@
     for(var dc=-1;dc<=1;dc++)for(var dr=-1;dr<=1;dr++)if(dc||dr){var c=jugador.c+dc,r=jugador.r+dr;if(dentroDelTablero(c,r))casillas.push({c:c,r:r});}
     estado.zonaAbanicos=casillas;
     agregarRegistro('pifia','El Demonio de Luna despliega ocho manos en dos abanicos. Salí de las casillas marcadas antes de su próximo turno.');
+    mostrarAviso('pifia','Manos del Demonio: salí de las casillas rojas antes de su próximo turno');
   }
   function demonioPreparaMalCamino(){
     var dc=Math.sign(jugador.c-enemigo.c),dr=Math.sign(jugador.r-enemigo.r),casillas=[];
@@ -2600,6 +2860,7 @@
     while(dentroDelTablero(c,r)){casillas.push({c:c,r:r});c+=dc;r+=dr;}
     estado.zonaMalCamino=casillas;
     agregarRegistro('pifia','Mal camino: el Demonio marca una línea recta. Salí de ella antes de su próximo turno.');
+    mostrarAviso('pifia','Mal camino: abandoná la línea roja antes del próximo turno del Demonio');
   }
   function demonioResuelveZonas(){
     if(enemigo.nombre!=='Demonio de Luna')return false;
@@ -2626,9 +2887,24 @@
     chequearFinDelCombate(function(terminado){
       if (terminado) return;
       if(!enemigo.vivo){terminarTurnoEnemigo();return;}
+      procesarEstadoEnemigo(enemigo);
+      if(!enemigo.vivo){chequearFinDelCombate(function(fin){if(!fin)terminarTurnoEnemigo();});return;}
       if(jugador.raza==='enano'&&distChebyshev(enemigo,jugador)>4){
         if(enemigo.nombre==='Demonio de Luna'){estado.zonaAbanicos=null;estado.zonaMalCamino=null;}
-        agregarRegistro('chico',enemigo.nombre+' ignora al Enano mientras está a más de 4 casillas.');terminarTurnoEnemigo();return;
+        var acercamientoEnano=calcularAlcance(enemigo).filter(function(t){return !casillaOcupada(t.c,t.r);});
+        if(!acercamientoEnano.length){
+          agregarRegistro('chico',enemigo.nombre+' todavía no puede fijar al Enano (está a más de 4 casillas) y no encuentra por dónde acercarse.');
+          terminarTurnoEnemigo();return;
+        }
+        acercamientoEnano.sort(function(a,b){return distChebyshev(a,jugador)-distChebyshev(b,jugador);});
+        agregarRegistro('chico',enemigo.nombre+' todavía no puede fijar al Enano: se acerca sin atacarlo.');
+        enemigoIntentaMover(acercamientoEnano[0],function(){
+          if(enemigoTieneAlcanceDeAtaque()){
+            if(magoLanzaEfecto(function(){chequearFinDelCombate(function(fin){if(!fin)terminarTurnoEnemigo();});}))return;
+            enemigoAtacaYCierra(function(){chequearFinDelCombate(function(fin){if(!fin)terminarTurnoEnemigo();});});
+          }else terminarTurnoEnemigo();
+        });
+        return;
       }
       if(esqueletoResuelveVeneno()){
         chequearFinDelCombate(function(fin){if(!fin)terminarTurnoEnemigo();});return;
@@ -2711,14 +2987,33 @@
     });
   }
 
-  // arranca un turno nuevo del Paladín: sube la ronda y resetea los contadores del turno
+  var temporizadorSuenoJugador=null;
+  // El sueño consume un turno normal, incluidos la duración de los estados y
+  // el turno del Alma menor, pero sin requerir que la persona pulse un botón.
+  function saltearTurnoPorSueno(){
+    if(!jugador.estados.sueno||jugador.estados.sueno.turnos<=0)return;
+    estado.fase='jugador-dormido';estado.alcance=[];
+    agregarRegistro('chico',jugador.nombre+' está dormido y pierde este turno automáticamente.');
+    mostrarAviso('chico','Dormido · se saltea tu turno');
+    refrescarBotones();refrescarPista();
+    clearTimeout(temporizadorSuenoJugador);
+    temporizadorSuenoJugador=setTimeout(function(){
+      temporizadorSuenoJugador=null;
+      if(estado.fase!=='jugador-dormido'||!jugador.vivo||jugador.moribundo)return;
+      if(!jugador.estados.sueno){estado.fase='jugador-quieto';refrescarBotones();refrescarPista();return;}
+      terminarTurnoJugador();
+    },PAUSA_ENTRE_TURNOS);
+  }
+
+  // Arranca un turno nuevo del personaje y procesa los estados antes de actuar.
   function empezarTurnoJugador(){
+    if(estado.vinoCelesteCicloPendiente&&estado.vinoCelesteTurnos>0){estado.vinoCelesteTurnos--;estado.vinoCelesteCicloPendiente=false;if(!estado.vinoCelesteTurnos)agregarRegistro(null,'El efecto del Vino celeste termina.');}
     if(estado.zonaProyeccion && estado.ronda>estado.zonaProyeccion.hastaRonda) estado.zonaProyeccion=null;
     if(jugador.escudoMax && jugador.escudoVida<jugador.escudoMax){jugador.escudoVida=Math.min(jugador.escudoMax,jugador.escudoVida+2);}
     estado.intentosMov = 0; estado.movsCriticos = 0; estado.movsHechos = 0; estado.accionMayorLibre = true;
     estado.bonoTiradasActivo=estado.bonoTiradasPendiente||0;estado.bonoTiradasPendiente=0;
     estado.vinoCelesteEnTurno=estado.vinoCelesteTurnos>0;
-    estado.tiradaAccion=null;estado.ultimaTiradaAccion=null;estado.accionTurno=null;
+    estado.tiradaAccion=null;estado.ultimaTiradaAccion=null;estado.accionTurno=null;estado.accionAlElegirObjetivo=null;estado.pistaObjetivoPendiente=null;estado.objetivosAtaquePendientes=null;estado.objetivoAtaqueHover=null;
     estado.alcance = calcularAlcance(jugador); // vista inicial; se recalcula al abrir "Mover"
     estado.fase = 'jugador-quieto';
     turnoQuien.textContent = 'Turno del '+jugador.nombre; turnoQuien.className = 'quien monoesp jugador';
@@ -2732,7 +3027,7 @@
     }
     refrescarEstadosJugador();
     refrescarBotones(); refrescarPista();
-    if(jugador.tiradaDeMuertePendiente) chequearFinDelCombate(function(){});
+    chequearFinDelCombate(function(terminado){if(!terminado)saltearTurnoPorSueno();});
   }
 
   /* ====== canvas y clicks en el tablero ====== */
@@ -2772,6 +3067,30 @@
       return;
     }
 
+    if(estado.fase==='alma-mover'){
+      var destinoAlma=estado.alcance.find(function(t){return t.c===casilla.c&&t.r===casilla.r;});
+      if(!destinoAlma){mostrarAviso('fallo','Elegí una casilla marcada para mover al Alma menor.');return;}
+      estado.fase='anim';resolverMovimiento(almaMenor,destinoAlma,function(resultado){
+        agregarRegistro(resultado.exito?'acierto':'fallo','El Alma menor '+(resultado.exito?'se mueve':'no logra moverse')+' con tu orden.');
+        terminarTurnoAlma();
+      });return;
+    }
+    if(estado.fase==='alma-atacar'){
+      var objetivoAlma=estado.alcance.find(function(u){return u.c===casilla.c&&u.r===casilla.r;});
+      if(!objetivoAlma){mostrarAviso('fallo','Elegí un enemigo marcado que esté cuerpo a cuerpo con el Alma menor.');return;}
+      estado.fase='anim';estado.alcance=[];
+      resolverAtaqueArea(almaMenor,[objetivoAlma],function(){terminarTurnoAlma();},{textoAccion:'ataca por orden tuya'});return;
+    }
+    if(estado.fase==='arquero-seleccionar-triple'){
+      var candidatoTriple=estado.alcance.find(function(u){return u.vivo&&u.c===casilla.c&&u.r===casilla.r;});
+      if(!candidatoTriple){mostrarAviso('fallo','Elegí un enemigo alineado y marcado para la Triple flecha.');return;}
+      var posicionTriple=estado.objetivosTripleFlecha.indexOf(candidatoTriple);
+      if(posicionTriple>=0)estado.objetivosTripleFlecha.splice(posicionTriple,1);
+      else if(estado.objetivosTripleFlecha.length<3)estado.objetivosTripleFlecha.push(candidatoTriple);
+      else{mostrarAviso('fallo','La Triple flecha solo permite elegir 3 objetivos distintos.');return;}
+      actualizarSeleccionTripleFlecha();refrescarPista();return;
+    }
+
     if(estado.fase==='escudero-apuntando'){
       var dc=casilla.c-jugador.c,dr=casilla.r-jugador.r;
       if(dc||dr){ jugador.escudoDireccion={dc:Math.sign(dc),dr:Math.sign(dr)}; }
@@ -2783,7 +3102,9 @@
       var objetivoElegido=objetivoAtaqueEnPixel(x,y,casilla);
       if(!objetivoElegido){mostrarAviso('fallo','Elegí uno de los enemigos marcados en rojo.');return;}
       agregarRegistro(null,jugador.nombre+' apunta a '+objetivoElegido.nombre+'.');
-      resolverAtaqueBasico([objetivoElegido]);
+      var accionElegida=estado.accionAlElegirObjetivo;
+      estado.accionAlElegirObjetivo=null;estado.pistaObjetivoPendiente=null;estado.objetivosAtaquePendientes=null;estado.objetivoAtaqueHover=null;estado.fase='jugador-quieto';
+      if(accionElegida)accionElegida(objetivoElegido);else resolverAtaqueBasico([objetivoElegido]);
       return;
     }
     if(estado.fase==='nigromante-proyeccion'){
@@ -2986,7 +3307,7 @@
 
   // color de una casilla: celeste si está dentro del rango de movimiento, si no el damero
   function colorCasilla(c,r){
-    var enRango = estado.fase==='jugador-mover' && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
+    var enRango = ['jugador-mover','alma-mover','alma-atacar','arquero-seleccionar-triple'].includes(estado.fase) && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
     if (enRango) return COL.celesteSuave;
     return ((c+r)%2===0) ? COL.sueloA : COL.sueloB;
   }
@@ -2995,7 +3316,7 @@
     var p = casillaAPixel(c,r);
     var x0 = p.x-CASILLA/2, y0 = p.y-CASILLA/2;
     var relleno = colorCasilla(c,r);
-    var enRango = estado.fase==='jugador-mover' && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
+    var enRango = ['jugador-mover','alma-mover','alma-atacar','arquero-seleccionar-triple'].includes(estado.fase) && estado.alcance.some(function(t){ return t.c===c && t.r===r; });
     var borde = enRango ? COL.celeste : COL.linea;
 
     pincel.fillStyle = relleno;
@@ -3116,6 +3437,7 @@
       if (golpe && golpe.rojo > 0.02) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(214,26,36,' + golpe.rojo.toFixed(3) + ')');
       if (ceguera > 0) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(255,255,255,' + ceguera.toFixed(3) + ')');
       if (unidad.moribundo) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(20,20,20,0.55)'); // caído, tirando para salvarse
+      if (unidadDormida(unidad)) dibujarSpriteTintado(g, !!unidad.spriteEspejado, 'rgba(56,45,100,0.35)');
     } else {
       // sin sprite: formas simples (triángulo el jugador, círculo el enemigo)
       var rojoActivo = golpe && golpe.rojo > 0.02;
@@ -3140,6 +3462,26 @@
     pincel.restore();
   }
 
+  function unidadDormida(unidad){
+    return !!(unidad.estados&&unidad.estados.sueno&&unidad.estados.sueno.turnos>0)||unidad.dormido>0;
+  }
+
+  function dibujarSueno(unidad,g,vidaY){
+    if(!unidadDormida(unidad))return;
+    pincel.save();
+    pincel.textAlign='center';pincel.textBaseline='middle';
+    pincel.strokeStyle='rgba(15,12,28,.9)';pincel.lineWidth=3;
+    for(var i=0;i<3;i++){
+      var avance=menosMovimiento?i/3:((performance.now()/2100+i/3)%1);
+      var x=g.cx+Math.max(12,(g.spriteAncho||CASILLA)*.3)+avance*14;
+      var y=Math.max(13,vidaY-9-avance*25);
+      pincel.globalAlpha=.85-avance*.45;
+      pincel.font='700 '+Math.round(10+avance*8)+'px "Space Mono",monospace';
+      pincel.fillStyle='#cbb7ff';pincel.strokeText('Z',x,y);pincel.fillText('Z',x,y);
+    }
+    pincel.restore();
+  }
+
   // barra de vida + nombre + cartel de ceguera de cada unidad (segunda pasada, arriba de los sprites)
   function dibujarEtiquetasUnidad(unidad, avanceAnim){
     var g = geometriaUnidad(unidad, avanceAnim);
@@ -3155,6 +3497,7 @@
     pincel.fillRect(vidaX, vidaY, vidaAncho, 5);
     pincel.fillStyle = principal;
     pincel.fillRect(vidaX, vidaY, vidaAncho*vidaPct, 5);
+    dibujarSueno(unidad,g,vidaY);
 
     // nombre (con contorno para que se lea sobre cualquier sprite)
     pincel.font = '700 10px "Space Mono", monospace';
@@ -3182,6 +3525,11 @@
       pincel.fillStyle='#d9b6ff';
       pincel.fillText('ALMA '+unidad.vida+'/3',g.cx,g.topeVisual-19);
     }
+    if(estado.fase==='arquero-seleccionar-triple'&&estado.objetivosTripleFlecha.indexOf(unidad)>=0){
+      var flechaNumero=estado.objetivosTripleFlecha.indexOf(unidad)+1;
+      pincel.font='700 12px "Space Mono",monospace';pincel.textAlign='center';pincel.lineWidth=3;pincel.strokeStyle='rgba(0,0,0,.8)';
+      pincel.strokeText('FLECHA '+flechaNumero,g.cx,g.topeVisual-18);pincel.fillStyle=COL.celeste;pincel.fillText('FLECHA '+flechaNumero,g.cx,g.topeVisual-18);
+    }
   }
 
   function bucle(ahora){
@@ -3191,7 +3539,9 @@
 
   /* ====== reinicio del combate (botones de los carteles de victoria/derrota) ====== */
   function reiniciar(){
+    clearTimeout(temporizadorSuenoJugador);temporizadorSuenoJugador=null;
     puntosSalvacionV=0;puntosSalvacionD=0;ultimaTiradaJugador=null;
+    document.getElementById('turnoAlma').hidden=true;estado.objetivosTripleFlecha=[];actualizarSeleccionTripleFlecha();
     jugador.alientoFuegoUsado=false;jugador.ultimoObjetivoMinotauro=null;jugador.enemigosCaidosComibles=0;
     estado.tiradaAccion=null;estado.ultimaTiradaAccion=null;estado.accionTurno=null;
     jugador.vida = jugador.vidaMax; jugador.vivo = true; jugador.c=1; jugador.r=5; jugador.mana = jugador.manaMax;
@@ -3212,6 +3562,7 @@
     document.getElementById('cartelVictoria').classList.remove('visible');
     document.getElementById('cartelDerrota').classList.remove('visible');
     document.getElementById('cartelBloqueo').classList.remove('visible');
+    btnReiniciarVictoria.disabled=false;
     btnReiniciarVictoria.textContent=encuentroActual<encuentros.length-1?'Siguiente encuentro':'Volver al Encuentro I';
     btnReiniciarVictoria.setAttribute('aria-label',btnReiniciarVictoria.textContent);
     refrescarVida(); refrescarMana(); refrescarEstadoEnemigo(); refrescarEstadosJugador(); refrescarBotones(); refrescarPista();
@@ -3237,6 +3588,7 @@
       var dato=GAME_UI_DATA.lore.statuses[clave], nombre=dato?dato.name:(etiquetaEstados[clave]||clave);
       return {key:clave,name:nombre,turns:jugador.estados[clave].turnos};
     });
+    if(jugador.armaduraEquipo>0)estadosActivos.push({key:'armadura',name:'Armadura +'+jugador.armaduraEquipo,turns:0});
     if(jugador.caido)estadosActivos.push({key:'caido',name:'Caído',turns:0});
     if(jugador.moribundo)estadosActivos.push({key:'salvacion',name:'Salvación',turns:0});
     if(!jugador.vivo)estadosActivos.push({key:'muerto',name:'Muerto',turns:0});
@@ -3246,7 +3598,7 @@
     ui.setDescription('class',GAME_UI_DATA.lore.classes[jugador.clase]?.description||perfil.resumen);
     var detalleEstado=estadosActivos.length?estadosActivos.map(function(e){
       var dato=GAME_UI_DATA.lore.statuses[e.key];
-      return e.name+(e.turns?' · '+e.turns+' turno(s)':'')+': '+(dato?dato.description:'Efecto activo del combate.');
+      return e.name+(e.turns?' · '+e.turns+' turno(s)':'')+': '+(e.key==='armadura'?'Reduce esa cantidad del daño físico y elemental recibido; el daño que ignora armadura la atraviesa.':dato?dato.description:'Efecto activo del combate.');
     }).join('\n\n'):'No tenés efectos de estado activos.';
     ui.setDescription('status',detalleEstado);
     ui.setPortrait(raza?'../pagina-teracia/Sprites/'+raza.sprite:null);
