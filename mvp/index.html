@@ -116,7 +116,7 @@
   #errorCreacion{color:#ff8792;font-size:.82rem}
   @media(max-width:560px){.creacion-panel{grid-template-columns:1fr}.creacion-retrato{min-height:140px}.creacion-retrato img{max-height:145px}}
   @media(max-height:760px){.creacion-panel{gap:.8rem;padding:1rem}.creacion-form{gap:.6rem}.creacion-retrato{min-height:150px}.creacion-retrato img{max-height:160px}}
-  #btnHabilidadClase[hidden],#btnHabilidadClase2[hidden],#btnDescarga[hidden],#btnDescansar[hidden],#btnConfirmarTripleFlecha[hidden],#btnAlientoFuego[hidden],#btnComerCaido[hidden]{ display:none; }
+  #btnHabilidadClase[hidden],#btnHabilidadClase2[hidden],#btnDescarga[hidden],#btnHabilidadClase4[hidden],#btnConfirmarTripleFlecha[hidden],#btnAlientoFuego[hidden],#btnComerCaido[hidden]{ display:none; }
 
   .barra-titulo{ grid-column:1/-1; margin-bottom:0.2rem; }
   .sobretitulo{
@@ -365,7 +365,7 @@
 <link rel="stylesheet" href="ui/styles.css?v=20261016-2">
 <link rel="stylesheet" href="ui/inventory.css?v=20261016-4">
 <link rel="stylesheet" href="ui/teracia-overrides.css?v=20261016-8">
-<script defer src="ui/data.js?v=20261029-6"></script>
+<script defer src="ui/data.js?v=20261030-3"></script>
 <script defer src="ui/inventory-model.js?v=20261016-3"></script>
 <script defer src="ui/app.js?v=20261029-1"></script>
 <script defer src="ui/integration.js?v=20261029-3"></script>
@@ -572,6 +572,7 @@
       <button id="btnHabilidadClase" type="button" hidden></button>
       <button id="btnHabilidadClase2" type="button" hidden></button>
       <button id="btnConfirmarTripleFlecha" type="button" hidden disabled>Confirmar Triple flecha (0/3)</button>
+      <button id="btnHabilidadClase4" type="button" hidden></button>
       <button id="btnDescansar" type="button">Descansar <span class="costo monoesp">+1 maná</span></button>
       <button id="btnTerminar" type="button" class="fin">Terminar turno</button>
     </div>
@@ -713,7 +714,7 @@
   /* ====== estado del combate ====== */
   var jugador = {
     nombre:'', clase:'paladin', raza:'', bando:'jugador', c:1, r:5, vidaMax:12, vida:12,      // c = columna, r = fila
-    fuerza:5, destreza:5, fe:5, carisma:5, inteligencia:5, perspicacia:5, armaduraEquipo:0, formulaDanio:{dados:1, caras:8, fijo:3},   // el Paladín pega 1D8+3
+    fuerza:5, destreza:5, fe:5, carisma:5, inteligencia:5, perspicacia:5, armaduraEquipo:0, formulaDanio:{dados:1, caras:6, fijo:0},   // daño sin arma del Paladín: D6
     vivo:true, spriteUrl:'sprites/paladin.png', escalaSpriteAlto:1.4, escalaSpriteAncho:1.4,
     manaMax:2, mana:2,
     alientoFuegoUsado:false, ultimoObjetivoMinotauro:null, enemigosCaidosComibles:0,direccionAtaque:{dc:1,dr:0},
@@ -741,6 +742,7 @@
     {nombre:'Demonio de Luna', lugar:'Encuentro final', vida:140, mana:36, fuerza:3, destreza:15, inteligencia:26, perspicacia:3, formula:{dados:2,caras:12,fijo:0}, habilidad:'3×3', tipoDanio:'no-muerto', afinidadDanio:'no-muerto', aliados:0, sprite:'../sprites%20varios/demonio-de-la-luna.png'}
   ];
   var PAUSA_ENTRE_TURNOS=1000;
+  var versionTurno=0,temporizadorTurno=null;
   var encuentroActual = 0;
   var nivelJugador=1,monedasCelestes=0,fragmentosOscuros=0,recompensasOtorgadas={},espejoMagicoComprado=false;
   var enemigo = {};
@@ -926,13 +928,32 @@
   function esAdyacente(a,b){ // pegados en cruz (sin diagonal)
     return Math.abs(a.c-b.c)+Math.abs(a.r-b.r) === 1;
   }
+  function casillasEscudo(){
+    if(!jugador.escudoDireccion)return [];
+    var dc=jugador.escudoDireccion.dc,dr=jugador.escudoDireccion.dr,casillas=[];
+    for(var lateral=-1;lateral<=1;lateral++){
+      var c=jugador.c+dc-dr*lateral,r=jugador.r+dr+dc*lateral;
+      if(dentroDelTablero(c,r))casillas.push({c:c,r:r});
+    }
+    return casillas;
+  }
   function enemigoEstaFrenteAlEscudo(atacante){
     atacante=atacante||enemigo;
-    if(!jugador.escudoDireccion) return false;
-    for(var paso=1;paso<=3;paso++){
-      if(atacante.c===jugador.c+jugador.escudoDireccion.dc*paso && atacante.r===jugador.r+jugador.escudoDireccion.dr*paso) return true;
-    }
-    return false;
+    // Intercepta también golpes a distancia que atraviesan la barrera.
+    var dc=atacante.c-jugador.c,dr=atacante.r-jugador.r;
+    if(!dc&&!dr)return false;
+    return casillasEscudo().some(function(casilla){
+      var entrada=0,salida=1;
+      var ejes=[{origen:jugador.c,delta:dc,centro:casilla.c},{origen:jugador.r,delta:dr,centro:casilla.r}];
+      for(var i=0;i<ejes.length;i++){
+        var eje=ejes[i],min=eje.centro-.5,max=eje.centro+.5;
+        if(!eje.delta){if(eje.origen<min||eje.origen>max)return false;continue;}
+        var a=(min-eje.origen)/eje.delta,b=(max-eje.origen)/eje.delta;
+        entrada=Math.max(entrada,Math.min(a,b));salida=Math.min(salida,Math.max(a,b));
+        if(entrada>salida)return false;
+      }
+      return true;
+    });
   }
   function distChebyshev(a,b){ // distancia contando diagonales (para el 3x3)
     return Math.max(Math.abs(a.c-b.c), Math.abs(a.r-b.r));
@@ -1338,6 +1359,8 @@
   // tirada solo la puso de pie en el lugar, sin moverla. Un fallo crítico deja
   // a la unidad caída.
   function resolverMovimiento(unidad, destino, alTerminar){
+    var versionMovimiento=versionTurno,callbackMovimiento=alTerminar;
+    alTerminar=function(resultado){if(versionMovimiento===versionTurno)callbackMovimiento(resultado);};
     var tirada = unidad===jugador ? estado.ultimaTiradaAccion : tirarD20(unidad,'Movimiento');
     if(tirada==null){agregarRegistro(null,'Primero tirá el D20 de acción.');alTerminar({exito:false,critico:false});return;}
     var tramo = tramoResultado(tirada);
@@ -1374,10 +1397,12 @@
 
   // desliza la unidad de una casilla a otra (o la teletransporta si el sistema pide menos animaciones)
   function animarMovimiento(unidad, destino, alTerminar){
+    var versionMovimiento=versionTurno;
     if(unidad===jugador){var dx=destino.c-unidad.c,dy=destino.r-unidad.r;if(dx||dy)jugador.direccionAtaque={dc:Math.sign(dx),dr:Math.sign(dy)};}
     var desde = casillaAPixel(unidad.c, unidad.r);
     var hasta = casillaAPixel(destino.c, destino.r);
     function finalizarDesplazamiento(){
+      if(versionMovimiento!==versionTurno)return;
       unidad.c=destino.c;unidad.r=destino.r;
       if(unidad.bando==='enemigo'&&estado.casillasCetro.some(function(c){return c.c===unidad.c&&c.r===unidad.r;})){
         activarMarcaCetro(unidad);
@@ -1402,6 +1427,7 @@
   var btnComerCaido = document.getElementById('btnComerCaido');
   var btnHabilidadClase = document.getElementById('btnHabilidadClase');
   var btnHabilidadClase2 = document.getElementById('btnHabilidadClase2');
+  var btnHabilidadClase4 = document.getElementById('btnHabilidadClase4');
   var btnDescansar = document.getElementById('btnDescansar');
   var btnTerminar = document.getElementById('btnTerminar');
   var btnTiradaAccion = document.getElementById('die');
@@ -1470,7 +1496,7 @@
     btnDescarga.hidden=!habilidadClaseDesbloqueada(2);
     btnHabilidadClase.hidden=esPaladin||!habilidadClaseDesbloqueada(0);
     btnHabilidadClase2.hidden=esPaladin||(clave!=='escudero'&&!habilidadClaseDesbloqueada(1));
-    btnDescansar.hidden=!esPaladin&&!habilidadClaseDesbloqueada(3);
+    btnHabilidadClase4.hidden=esPaladin||!habilidadClaseDesbloqueada(3);
   }
   var notaReglasDemo = document.querySelector('.nota-reglas');
   var reglasOriginalesPaladin = notaReglasDemo ? notaReglasDemo.innerHTML : '';
@@ -1504,10 +1530,7 @@
     jugador.clase = clave;
     jugador.manaMax = 2 + (clave==='nigromante' ? 1 : 0) + (jugador.raza==='genari' ? 1 : 0);
     jugador.mana = jugador.manaMax;
-    jugador.formulaDanio = clave==='paladin' ? {dados:1,caras:8,fijo:3} :
-      clave==='escudero' ? {dados:1,caras:6,fijo:2} :
-      clave==='bardo' ? {dados:1,caras:4,fijo:1} :
-      clave==='nigromante' ? {dados:1,caras:6,fijo:0} : {dados:1,caras:6,fijo:2};
+    jugador.formulaDanio = {dados:1,caras:clave==='paladin'?6:4,fijo:0};
     sincronizarVidaEscudo();
     actualizarFichaJugador();
     resumenClaseDemo.textContent = resumenesClaseDemo[clave]||perfil.resumen;
@@ -1525,7 +1548,7 @@
       (clave==='arquero' ? ' La Triple flecha requiere una línea recta; la Flecha bomba usa Perspicacia, D8 y un área de 3×3. El alcance de sus ataques es ilimitado.' : '')+
       '<br><br><b>Balance provisional:</b> la vida, los atributos y el ataque básico de las cuatro clases nuevas usan valores de prueba; sus documentos todavía no fijan esas cifras.';
     btnDescarga.innerHTML = clave==='paladin' ? 'Descarga <span class="costo monoesp">2 maná</span>' : perfil.habilidad3;
-    btnDescansar.innerHTML = clave==='paladin' ? 'Descansar <span class="costo monoesp">+1 maná</span>' : perfil.habilidad4;
+    btnHabilidadClase4.textContent = perfil.habilidad4||'';
     btnHabilidadClase.textContent = perfil.habilidad1;
     btnHabilidadClase2.textContent = perfil.habilidad2;
     actualizarVisibilidadHabilidadesClase(clave);
@@ -1542,7 +1565,8 @@
     marcarDetalle(btnHabilidadClase,'abilities',loreHabilidades[0]);
     marcarDetalle(btnHabilidadClase2,'abilities',loreHabilidades[1]);
     marcarDetalle(btnDescarga,'abilities',loreHabilidades[2]||'descarga');
-    marcarDetalle(btnDescansar,'abilities',loreHabilidades[3]||'descansar');
+    marcarDetalle(btnHabilidadClase4,'abilities',loreHabilidades[3]||'descansar');
+    marcarDetalle(btnDescansar,'abilities','descansar');
     window.actualizarInterfazMesa&&window.actualizarInterfazMesa();
   }
   claseDemoSelect.addEventListener('change',function(){
@@ -1965,6 +1989,7 @@
     var quietoOMoviendo = quieto || estado.fase==='jugador-mover';
     var dormido=!!jugador.estados.sueno, congelado=!!jugador.estados.congelacion;
     var puedeElegir=estado.tiradaAccion!=null && estado.tiradaAccion>=15;
+    btnDescansar.disabled=dormido||!quieto||!puedeDescansar();
     btnTiradaAccion.disabled=!quieto || estado.tiradaAccion!=null || !estado.accionMayorLibre || estado.accionTurno==='atacar' || dormido;
     btnMover.disabled = !quietoOMoviendo || (estado.tiradaAccion==null&&estado.accionTurno!=='atacar') || !puedeMoverDeNuevo() || dormido || congelado;
     btnAtacar.disabled = (!quieto && !seleccionandoObjetivo) || (!seleccionandoObjetivo && (!puedeElegir || !estado.accionMayorLibre)) || dormido || (jugador.clase==='escudero' && jugador.escudoActivo);
@@ -1984,7 +2009,7 @@
     btnHabilidadClase2.textContent = jugador.clase==='escudero' && jugador.escudoActivo ? 'Guardar escudo · pasiva' : jugador.clase==='escudero' && jugador.escudoDireccion ? 'Alzar escudo · pasiva' : (clasesDemo[jugador.clase]||clasesDemo.paladin).habilidad2;
     refrescarEscudoPasivo();
     var eligiendoProyeccion=estado.fase==='nigromante-proyeccion';
-    btnDescansar.disabled = dormido || (jugador.clase!=='paladin' && !eligiendoProyeccion && (estado.tiradaAccion==null || estado.tiradaAccion<15)) || (eligiendoProyeccion ? false : jugador.clase==='paladin'
+    btnHabilidadClase4.disabled = dormido || (jugador.clase!=='paladin' && !eligiendoProyeccion && (estado.tiradaAccion==null || estado.tiradaAccion<15)) || (eligiendoProyeccion ? false : jugador.clase==='paladin'
       ? (!quieto || !puedeDescansar())
       : (!quieto || !estado.accionMayorLibre || (jugador.clase==='bardo' && !jugador.caido) || (jugador.clase==='escudero' && jugador.escudoPerdido)));
     btnTerminar.disabled = estado.fase!=='jugador-quieto' && estado.fase!=='jugador-mover';
@@ -2284,7 +2309,7 @@
       }
       jugador.escudoActivo=!jugador.escudoActivo;
       if(jugador.escudoActivo)jugador.escudoPerdido=false;
-      agregarRegistro(null,jugador.escudoActivo?'Pasiva: el Escudero alza el escudo y cubre el frente durante 3 casillas.':'Pasiva: el Escudero guarda el escudo.');
+      agregarRegistro(null,jugador.escudoActivo?'Pasiva: el Escudero alza una barrera de 3 casillas de ancho justo delante suyo.':'Pasiva: el Escudero guarda el escudo.');
       refrescarBotones();refrescarPista();return;
     }
     if(jugador.clase==='nigromante'){
@@ -2315,7 +2340,7 @@
     if(!estado.accionMayorLibre || !hayEnemigosVivos()) return;
     var objetivo=objetivoForzado||objetivoEnemigoPrincipal();
     if(jugador.clase==='escudero' && numero===3){
-      if(!jugador.escudoActivo || !enemigoEstaFrenteAlEscudo(objetivo)){agregarRegistro(null,'Separación requiere el escudo alzado y un enemigo sobre su frente.');return;}
+      if(!jugador.escudoActivo || !casillasEscudo().some(function(c){return c.c===objetivo.c&&c.r===objetivo.r;})){agregarRegistro(null,'Separación requiere el escudo alzado y un enemigo sobre su frente.');return;}
       comenzarHabilidadClase();
       resolverAtaqueArea(jugador,[objetivo],cerrarAccionDeClase,{
         statUmbral:'fuerza',formulaDanio:{dados:1,caras:4,fijo:0},textoAccion:'usa Separación (D4)',
@@ -2378,8 +2403,8 @@
   function puedeDescansar(){
     return estado.movsHechos <= 1 && estado.accionMayorLibre;
   }
-  // ---- botón Descansar: cierra el turno y recupera 1 de maná ----
-  btnDescansar.addEventListener('click', function(){
+  // La cuarta habilidad y Descansar son acciones independientes.
+  btnHabilidadClase4.addEventListener('click', function(){
     if(jugador.clase==='nigromante' && estado.fase==='nigromante-proyeccion'){
       estado.fase='jugador-quieto';agregarRegistro(null,'Proyección cancelada sin gastar la acción.');refrescarBotones();refrescarPista();return;
     }
@@ -2388,7 +2413,9 @@
       else agregarRegistro(null,'No hay estados para limpiar.');
       return;
     }
-    if(jugador.clase!=='paladin'){ ejecutarHabilidadClaseExtra(4); return; }
+    if(jugador.clase!=='paladin') ejecutarHabilidadClaseExtra(4);
+  });
+  btnDescansar.addEventListener('click',function(){
     if (estado.fase!=='jugador-quieto'||jugador.estados.sueno||!puedeDescansar()) return;
     estado.intentosMov = presupuestoMovimiento(); // descansar cierra el movimiento: no hay 2do movimiento después
     estado.accionMayorLibre = false;              // ni ataque
@@ -2808,29 +2835,36 @@
     activarTurnoIniciativa(actor);
   }
   function activarTurnoIniciativa(actor){
+    clearTimeout(temporizadorTurno);temporizadorTurno=null;
+    var versionActual=++versionTurno;
     refrescarOrdenIniciativa();
     if(actor.unidad===jugador){
       turnoQuien.textContent='Turno de '+jugador.nombre;turnoQuien.className='quien monoesp jugador';
       estado.fase='pausa-turno';estado.alcance=[];refrescarBotones();refrescarPista();
-      setTimeout(function(){if(estado.fase==='pausa-turno')empezarTurnoJugador();},PAUSA_ENTRE_TURNOS);
+      temporizadorTurno=setTimeout(function(){if(versionActual===versionTurno&&estado.fase==='pausa-turno')empezarTurnoJugador();},PAUSA_ENTRE_TURNOS);
       return;
     }
     estado.fase='turno-enemigo';estado.alcance=[];
     turnoQuien.textContent='Turno de '+actor.nombre;turnoQuien.className='quien monoesp enemigo';
     refrescarBotones();refrescarPista();
-    if(actor.unidad===enemigo)setTimeout(ejecutarTurnoEnemigo,PAUSA_ENTRE_TURNOS);
-    else setTimeout(function(){ejecutarTurnoAliado(actor.unidad);},PAUSA_ENTRE_TURNOS);
+    temporizadorTurno=setTimeout(function(){
+      if(versionActual!==versionTurno||estado.fase!=='turno-enemigo')return;
+      if(actor.unidad===enemigo)ejecutarTurnoEnemigo();else ejecutarTurnoAliado(actor.unidad);
+    },PAUSA_ENTRE_TURNOS);
   }
   function ejecutarTurnoAliado(aliado){
+    var actor=estado.ordenIniciativa[estado.indiceIniciativa];
+    if(estado.fase!=='turno-enemigo'||!actor||actor.unidad!==aliado)return;
+    var versionAccion=versionTurno;
     if(!aliado.vivo || !jugador.vivo){terminarTurnoEnemigo();return;}
-    function cerrar(){chequearFinDelCombate(function(terminado){if(!terminado)terminarTurnoEnemigo();});}
+    function cerrar(){if(versionAccion!==versionTurno)return;chequearFinDelCombate(function(terminado){if(!terminado)terminarTurnoEnemigo();});}
     procesarEstadoEnemigo(aliado);
     if(!aliado.vivo){cerrar();return;}
     if(aliado.dormido>0){aliado.dormido--;agregarRegistro('chico',aliado.nombre+' pierde su turno dormido.');cerrar();return;}
     if(esAdyacente(aliado,jugador)||(almaMenor&&almaMenor.vivo&&esAdyacente(aliado,almaMenor))){enemigoAtacaAlJugador(cerrar,false,aliado);return;}
     var opciones=calcularAlcance(aliado).filter(function(t){return !casillaOcupada(t.c,t.r);});
     if(!opciones.length){cerrar();return;}
-    opciones.sort(function(a,b){return distChebyshev(a,jugador)-distChebyshev(b,jugador);});
+    opciones.sort(function(a,b){return distChebyshev(a,jugador)-distChebyshev(b,jugador)||(Math.abs(a.c-jugador.c)+Math.abs(a.r-jugador.r))-(Math.abs(b.c-jugador.c)+Math.abs(b.r-jugador.r));});
     enemigoIntentaMover(opciones[0],function(){
       if(esAdyacente(aliado,jugador)||(almaMenor&&almaMenor.vivo&&esAdyacente(aliado,almaMenor)))enemigoAtacaAlJugador(cerrar,false,aliado);else cerrar();
     },0,false,aliado);
@@ -2866,11 +2900,20 @@
   ];
   function magoLanzaEfecto(alTerminar){
     if(enemigo.nombre!=='Mago Cazador'||!enAlcanceNormalEnemigo(enemigo,jugador))return false;
-    var disponibles=efectosMagoDemo.filter(function(efecto){return !jugador.estados[efecto.tipo];});
+    // Son tres habilidades: Sueño, Efectos y Fatiga; Efectos tiene seis variantes.
+    // Sueño abre el ciclo para presentar su mecánica en el primer encuentro.
+    var disponibles=[],indiceHabilidad=enemigo.magoHabilidadIndice;
+    for(var intento=0;intento<3&&!disponibles.length;intento++,indiceHabilidad++){
+      var grupo=indiceHabilidad%3;
+      disponibles=efectosMagoDemo.filter(function(efecto){
+        var activo=jugador.estados[efecto.tipo];
+        return (!activo||activo.turnos<=0)&&(grupo===0?efecto.tipo==='sueno':grupo===2?efecto.tipo==='fatiga':efecto.tipo!=='sueno'&&efecto.tipo!=='fatiga');
+      });
+    }
     if(!disponibles.length)return false;
     var efecto=disponibles[Math.floor(Math.random()*disponibles.length)];
     if(!gastarManaEnemigo(enemigo,efecto.tipo==='sueno'?'Sueño':efecto.tipo==='fatiga'?'Fatiga':'Efectos'))return false;
-    enemigo.magoHabilidadIndice++;
+    enemigo.magoHabilidadIndice=indiceHabilidad;
     var tirada=tirarD20Jugador(), umbral=10-Math.min(2,Math.max(0,Math.floor((jugador.perspicacia||0)/5)));
     textoFlotante(jugador,'D20 '+tirada,colorTramo(tramoResultado(tirada)));
     if(tirada>=umbral){
@@ -3032,9 +3075,12 @@
   }
 
   function ejecutarTurnoEnemigo(){
+    var actor=estado.ordenIniciativa[estado.indiceIniciativa];
+    if(estado.fase!=='turno-enemigo'||!actor||actor.unidad!==enemigo)return;
+    var versionAccion=versionTurno;
     chequearFinDelCombate(function(terminado){
       if(terminado)return;
-      function cerrar(){chequearFinDelCombate(function(fin){if(!fin)terminarTurnoEnemigo();});}
+      function cerrar(){if(versionAccion!==versionTurno)return;chequearFinDelCombate(function(fin){if(!fin)terminarTurnoEnemigo();});}
       if(!enemigo.vivo){cerrar();return;}
       procesarEstadoEnemigo(enemigo);
       if(!enemigo.vivo){cerrar();return;}
@@ -3278,10 +3324,9 @@
     }
     if(jugador.clase==='escudero' && jugador.escudoActivo && jugador.escudoDireccion){
       pincel.save(); pincel.globalAlpha=.48; pincel.fillStyle=COL.celeste;
-      for(var pasoEscudo=1;pasoEscudo<=3;pasoEscudo++){
-        var sc=jugador.c+jugador.escudoDireccion.dc*pasoEscudo,sr=jugador.r+jugador.escudoDireccion.dr*pasoEscudo;
-        if(dentroDelTablero(sc,sr)){var sp=casillaAPixel(sc,sr);pincel.fillRect(sp.x-CASILLA/2,sp.y-CASILLA/2,CASILLA,CASILLA);}
-      }
+      casillasEscudo().forEach(function(casilla){
+        var sp=casillaAPixel(casilla.c,casilla.r);pincel.fillRect(sp.x-CASILLA/2,sp.y-CASILLA/2,CASILLA,CASILLA);
+      });
       pincel.restore();
     }
     if(estado.zonaProyeccion && estado.ronda<=estado.zonaProyeccion.hastaRonda){
@@ -3629,6 +3674,7 @@
 
   /* ====== reinicio del combate (botones de los carteles de victoria/derrota) ====== */
   function reiniciar(){
+    clearTimeout(temporizadorTurno);temporizadorTurno=null;versionTurno++;
     clearTimeout(temporizadorVictoria);temporizadorVictoria=null;
     clearTimeout(temporizadorSuenoJugador);temporizadorSuenoJugador=null;
     enemigo.mana=enemigo.manaMax;enemigo.habilidadEnTurnoAnterior=false;enemigo.puedeUsarHabilidad=true;enemigo.direccionAtaque={dc:-1,dr:0};
@@ -3637,9 +3683,9 @@
     jugador.alientoFuegoUsado=false;jugador.ultimoObjetivoMinotauro=null;jugador.enemigosCaidosComibles=0;
     estado.tiradaAccion=null;estado.ultimaTiradaAccion=null;estado.tiradaAtaqueResuelta=null;estado.accionTurno=null;
     jugador.vida = jugador.vidaMax; jugador.vivo = true; jugador.c=1; jugador.r=5; jugador.mana = jugador.manaMax;
-    crearAliadosEnemigos(encuentros[encuentroActual]);
     enemigo.vida = enemigo.vidaMax; enemigo.vivo = true; enemigo.c=9; enemigo.r=4; enemigo.dormido=0; enemigo.confundido=0; enemigo.armadura=0; enemigo.armaduraHastaRonda=0; enemigo.cuerpoRobustoUsado=false; enemigo.purificacionUsada=false; enemigo.lanzamientoUsado=false; enemigo.estadoInmune=false; enemigo.estados={}; enemigo.magoHabilidadIndice=0; enemigo.espejismoCreado=false; enemigo.espejismoDesaparecio=false; enemigo.floracionUsada=false; enemigo.sincroniasUsadas=0; enemigo.habilidadDemonioIndice=0; enemigo.venenoUsado=false; enemigo.cegado=0; enemigo.extraAtaque25Usado=false;
     almaMenor=null;
+    crearAliadosEnemigos(encuentros[encuentroActual]);
     estado.fase='jugador-quieto'; estado.ronda=1;
     estado.intentosMov=0; estado.movsCriticos=0; estado.movsHechos=0; estado.accionMayorLibre=true;
     jugador.caido=false; jugador.estados={}; enemigo.caido=false;
@@ -3675,7 +3721,7 @@
     try{
     var perfil=clasesDemo[jugador.clase]||clasesDemo.paladin;
     var raza=razasDemo[jugador.raza];
-    var formula=jugador.formulaDanio||{dados:1,caras:8,fijo:3};
+    var formula=jugador.formulaDanio||{dados:1,caras:jugador.clase==='paladin'?6:4,fijo:0};
     var danio=(formula.dados>1?formula.dados+'D':'D')+formula.caras+(formula.fijo>0?'+'+formula.fijo:formula.fijo<0?String(formula.fijo):'');
     var estadosActivos=Object.keys(jugador.estados||{}).filter(function(clave){return jugador.estados[clave]&&jugador.estados[clave].turnos>0;}).map(function(clave){
       var dato=GAME_UI_DATA.lore.statuses[clave], nombre=dato?dato.name:(etiquetaEstados[clave]||clave);

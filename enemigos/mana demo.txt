@@ -13,6 +13,10 @@ cuando su zona se resuelve. El maná se restaura al reiniciar la pelea.
 
 Costos de las habilidades de jefe:
 - Mago Cazador: Efectos 1; Sueño 1; Fatiga 1.
+  Empieza intentando Sueño cuando el jugador entra en alcance, luego
+  alterna Efectos y Fatiga. Efectos elige una de sus seis variantes.
+  Se omiten los estados que el jugador ya tiene activos; las
+  salvaciones y resistencias siguen pudiendo evitar la aplicación.
 - Caballero Guardián: Cuerpo Robusto 1; Purificación 1; Lanzamiento 1.
 - Monstruo Esquelético: Asalto 2; Veneno 2; Giro 2.
 - Demonio de Luna: Floración de manos 2; Sincronía 1; Abanicos 2;
