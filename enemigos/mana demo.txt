@@ -1,0 +1,34 @@
+Maná de enemigos en la demo
+
+Reservas por encuentro: Mago Cazador 5; Caballero Guardián 4;
+Monstruo Esquelético 5; Demonio de Luna 36. Los duendes no tienen
+maná ni habilidades: solo usan movimiento y ataque normal.
+El espejismo tiene 1 de maná, pero actualmente solo usa ataque normal.
+
+Los ataques normales y el movimiento no cuestan maná.
+Las habilidades se pagan al intentarlas, aunque fallen o el objetivo
+supere la salvación. No se permite gastar más maná del disponible.
+Una habilidad anunciada se paga al prepararla, sin volver a cobrar
+cuando su zona se resuelve. El maná se restaura al reiniciar la pelea.
+
+Costos de las habilidades de jefe:
+- Mago Cazador: Efectos 1; Sueño 1; Fatiga 1.
+- Caballero Guardián: Cuerpo Robusto 1; Purificación 1; Lanzamiento 1.
+- Monstruo Esquelético: Asalto 2; Veneno 2; Giro 2.
+- Demonio de Luna: Floración de manos 2; Sincronía 1; Abanicos 2;
+  Mal camino 2. Sus pasivas de vida son gratuitas.
+- Cualquier habilidad de un enemigo normal cuesta 1.
+
+La IA varía entre habilidades válidas y asequibles. Después de usar una
+habilidad deja al menos un turno para una acción normal. La resolución
+de un ataque anunciado también cuenta como acción de habilidad, pero
+no vuelve a gastar maná. Cuando tienen menos de 2 de maná y pueden
+elegir una acción de habilidad, los jefes descansan: recuperan 1 de
+maná y terminan su turno sin moverse ni atacar. No superan su máximo,
+no descansan dormidos ni mientras resuelven una zona ya anunciada.
+Se mantienen los turnos normales intercalados después de habilidades.
+
+Alcances del ataque normal:
+- Mago Cazador y Demonio de Luna: alcance frontal de 3 casillas,
+  con la misma geometría del ataque del Nigromante jugador.
+- Los demás enemigos: melee (adyacentes, incluidas diagonales).

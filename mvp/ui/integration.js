@@ -61,6 +61,8 @@
       abilityList?.remove();
       const actionBar = controls.querySelector('.barra-acciones');
       if (actionBar) abilities.append(actionBar);
+      const shieldStatus = details?.querySelector('#estadoEscudo');
+      if (shieldStatus) abilities.insertBefore(shieldStatus, actionBar);
       // Estos controles también pertenecen al juego. Deben seguir en el DOM
       // cuando se elimina el contenedor antiguo, incluso si el alma está oculta.
       const soulControls = controls.querySelector('#turnoAlma');
@@ -96,11 +98,6 @@
       window.GameUI.mountGame(board);
       game.remove();
     }
-
-    document.addEventListener('gameui:rest', () => {
-      const rest = document.getElementById('btnDescansar');
-      if (rest && !rest.disabled) rest.click();
-    });
 
     document.addEventListener('gameui:equipmentchange', event => {
       window.actualizarBonosEquipo?.(event.detail.equipment);

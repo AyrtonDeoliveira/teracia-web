@@ -208,7 +208,6 @@
       if (next != null) { event.preventDefault(); setTab(tabs[next].id.slice(4),true); }
     });
   });
-  $('rest-button').addEventListener('click',() => { emit('rest',{}); $('rest-feedback').textContent = 'Acción pendiente de conectar al juego.'; });
   ['reserved-a','element-value','type-value'].forEach(id => $(id).addEventListener('click',() => emit('reserved',{id,selection:selected ? {...selected} : null})));
   function entries(list) {
     if (!Array.isArray(list)) throw new TypeError('Se requiere una lista.');
@@ -252,7 +251,6 @@
     unequipItem,
     setDescription(key,text) { state.descriptions[key] = String(text); refreshSelection(); },
     showDetails(name,category,description) { selected={kind:'custom',id:'detail',name:String(name),category:String(category),description:String(description)}; refreshSelection(); },
-    setRestDisabled(disabled) { $('rest-button').disabled = Boolean(disabled); },
     setReserved(id,text) { if (!['reserved-a','element-value','type-value'].includes(id)) throw new TypeError('Campo reservado desconocido.'); $(id).textContent = value(text); },
     setTab,
     mountGame(node) { if (!(node instanceof Node)) throw new TypeError('Se requiere un nodo DOM.'); $('game-content').replaceChildren(node); $('game-placeholder').hidden = true; },
